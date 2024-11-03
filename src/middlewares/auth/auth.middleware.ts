@@ -18,5 +18,20 @@ export class AuthMiddleware {
 
     //chama o service
     const service = new AuthService();
+    const UserFound = await service.validateToken(token);
+
+    if (!UserFound) {
+      res.status(401).json({
+        ok: false,
+        message: "Not authenticated!",
+      });
+    }
+
+    req.body.user = {
+      id: UserFound.id,
+      type: UserFound.type,
+    };
+
+    return next();
   }
 }
