@@ -1,4 +1,5 @@
 import { TweetType } from "@prisma/client";
+import { UserBaseDto } from "./user.dto";
 
 export interface CreateTweetDto {
   userId: string;
@@ -9,11 +10,7 @@ export interface CreateTweetDto {
 
 export interface TweetDto {
   id: string;
-  user: {
-    userId: string;
-    name: string;
-    username: string;
-  };
+  user: UserBaseDto;
   type: TweetType;
   content: string;
   likes?: LikeDto[];
@@ -21,22 +18,17 @@ export interface TweetDto {
   replies?: TweetDto[];
 }
 
-export interface CreateLikeDto {
-  tweetId: string;
+//ação base
+interface CreateActionDto {
+  tweedId: string;
   userId: string;
 }
-
-interface LikeDto {
+export interface CreateLikeDto extends CreateActionDto {}
+export interface CreateRetweetDto extends CreateActionDto {}
+interface ActionDto {
   id: string;
   userId: string;
 }
 
-export interface CreateRetweetDto {
-  userId: string;
-  tweetId: string;
-}
-
-interface RetweetDto {
-  id: string;
-  userId: string;
-}
+export interface LikeDto extends ActionDto {}
+export interface RetweetDto extends ActionDto {}

@@ -9,60 +9,33 @@ export class CreateUserMiddleware {
   ) {
     const { name, email, username, password } = req.body;
 
-    if (!name) {
-      res.status(400).json({
+    //valida todos os campos obrigatórios
+    if (!name || !email || !username || !password) {
+      return res.status(400).json({
         ok: false,
-        message: "Name is required!",
+        message: "All fields are required!",
       });
     }
-    if (!email) {
-      res.status(400).json({
-        ok: false,
-        message: "Email is required!",
-      });
-    }
-    if (!username) {
-      res.status(400).json({
-        ok: false,
-        message: "Username is required!",
-      });
-    }
-    if (!password) {
-      res.status(400).json({
-        ok: false,
-        message: "Password is required!",
-      });
-    }
+
     return next();
   }
 
   public static validateTypes(req: Request, res: Response, next: NextFunction) {
     const { name, email, username, password } = req.body;
 
-    if (typeof name !== "string") {
-      res.status(400).json({
+    //valida se os tipos são string
+    if (
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof username !== "string" ||
+      typeof password !== "string"
+    ) {
+      return res.status(400).json({
         ok: false,
-        message: "Name must be a string.",
+        message: "All fields must be strings.",
       });
     }
-    if (typeof email !== "string") {
-      res.status(400).json({
-        ok: false,
-        message: "Email must be a string.",
-      });
-    }
-    if (typeof username !== "string") {
-      res.status(400).json({
-        ok: false,
-        message: "Username must be a string.",
-      });
-    }
-    if (typeof password !== "string") {
-      res.status(400).json({
-        ok: false,
-        message: "Password must be a string.",
-      });
-    }
+
     return next();
   }
 
@@ -72,31 +45,29 @@ export class CreateUserMiddleware {
     next: NextFunction
   ) {
     const { name, email, username, password } = req.body;
+    const errors: string[] = []; //cria um array para armazenar os erros e exibir todos juntos no final
 
     if (name.length < 3) {
-      res.status(400).json({
-        ok: false,
-        message: "Name must be at least 3 characters long.",
-      });
+      errors.push("Name must be at least 3 characters long."); //joga o erro no array
     }
+
     if (!email.includes("@") || !email.includes(".com")) {
-      res.status(400).json({
-        ok: false,
-        message: "Invalid email.",
-      });
+      errors.push("Invalid email.");
     }
     if (username.length < 3) {
-      res.status(400).json({
-        ok: false,
-        message: "Username must be at least 3 characters long.",
-      });
+      errors.push("Username must be at least 3 characters long.");
     }
     if (password.length < 4) {
+      errors.push("Password must be at least 4 characters long.");
+    }
+    //se cair em algum erro exibe na resposta
+    if (errors.length > 0) {
       res.status(400).json({
         ok: false,
-        message: "Password must be at least 4 characters long.",
+        message: errors,
       });
     }
+    //senão segue adiante
     return next();
   }
 
@@ -106,18 +77,18 @@ export class CreateUserMiddleware {
     next: NextFunction
   ) {
     const { email, username } = req.body;
-    const existingEmail = await prisma.user.findUnique({
-      where: { email },
-    });
+    //espera resolver todas as promises antes de responder, armazenando a resposta em cada const
+    const [existingEmail, existingUsername] = await Promise.all([
+      prisma.user.findUnique({ where: { email } }),
+      prisma.user.findUnique({ where: { username } }),
+    ]);
+
     if (existingEmail) {
       return res.status(400).json({
         ok: false,
         message: "Email is already in use.",
       });
     }
-    const existingUsername = await prisma.user.findUnique({
-      where: { username },
-    });
 
     if (existingUsername) {
       return res.status(400).json({

@@ -15,10 +15,13 @@ export interface UserDto {
   tweets?: TweetDto[];
 }
 
+export interface UserBaseDto {
+  id: string;
+  name: string;
+  username: string;
+}
+
 export interface FollowerDto {
   id: string;
-  user: {
-    userId: string;
-    username: string;
-  };
+  user: UserBaseDto;
 }
