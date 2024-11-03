@@ -9,14 +9,14 @@ export class LoginMiddleware {
     const { email, username, password } = req.body;
 
     if (!email && !username) {
-      return res.status(400).json({
+      res.status(400).json({
         ok: false,
         message: "Email or username are required.",
       });
     }
 
     if (!password) {
-      return res.status(400).json({
+      res.status(400).json({
         ok: false,
         message: "Password is required.",
       });
