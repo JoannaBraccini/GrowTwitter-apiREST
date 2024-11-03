@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { CreateUserMiddleware } from "../middlewares/create-user.midleware";
+import { UserController } from "../controllers/user.controller";
 
 export class UserRoutes {
   public static execute(): Router {
