@@ -1,25 +1,13 @@
 import { Router } from "express";
-import { CreateUserMiddleware } from "../middlewares/create-user.midleware";
 import { UserController } from "../controllers/user.controller";
 import { FindManyUsersMiddleware } from "../middlewares/find-many-users.middleware";
 import { AuthMiddleware } from "../middlewares/auth/auth.middleware";
-import { ValidateUuidMiddleware } from "../middlewares/validate-uuid.middleware";
 
 export class UserRoutes {
   public static execute(): Router {
     const router = Router();
 
-    //CREATE USER
-    router.post(
-      "/users",
-      [
-        CreateUserMiddleware.validateRequired,
-        CreateUserMiddleware.validateTypes,
-        CreateUserMiddleware.validateLength,
-        CreateUserMiddleware.validateUnique,
-      ],
-      UserController.create
-    );
+    //CREATE USER -> movido para authRoutes: signup
 
     //FIND MANY USERS
     router.get(
@@ -29,11 +17,11 @@ export class UserRoutes {
     );
 
     //FIND ONE USER
-    router.get(
-      "users/:id",
-      [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
-      UserController.findOne
-    );
+    // router.get(
+    //   "users/:id",
+    //   [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
+    //   UserController.findOne
+    // );
 
     return router;
   }

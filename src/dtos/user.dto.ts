@@ -1,11 +1,5 @@
 import { TweetDto } from "./tweet.dto";
-export interface CreateUserDto {
-  name: string;
-  email: string;
-  username: string;
-  password: string;
-}
-
+//CreateUserDto->movido para auth.dto: signup
 export interface UserDto {
   id: string;
   name: string;

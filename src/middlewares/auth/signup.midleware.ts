@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { prisma } from "../database/prisma.database";
+import { prisma } from "../../database/prisma.database";
 
-export class CreateUserMiddleware {
+export class SignupMiddleware {
   public static validateRequired(
     req: Request,
     res: Response,
