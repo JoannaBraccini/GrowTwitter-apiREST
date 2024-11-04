@@ -1,8 +1,8 @@
-import { truncate } from "fs/promises";
 import { prisma } from "../database/prisma.database";
-import { UserDto, QueryFilterDto, UserBaseDto } from "../dtos";
+import { UserDto, QueryFilterDto, UserBaseDto, UserUpdateDto } from "../dtos";
 import { ResponseApi } from "../types/response";
 import { Prisma, TweetType, User } from "@prisma/client";
+import { Bcrypt } from "../utils/bcrypt";
 
 export class UserService {
   //CREATE -> movido para authService: signup
@@ -87,6 +87,50 @@ export class UserService {
       code: 200,
       message: "User details retrieved successfully.",
       data: this.mapToFullDto(user), // Mapeia detalhes
+    };
+  }
+
+  //UPDATE (id)
+  public async update(
+    id: string,
+    userUpdate: UserUpdateDto
+  ): Promise<ResponseApi> {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      return {
+        ok: false,
+        code: 404,
+        message: "User not found",
+      };
+    }
+    //pega apenas as entradas não vazias do objeto
+    const filteredData = Object.fromEntries(
+      Object.entries(userUpdate).filter(([_, value]) => value !== "")
+    );
+    //gerar novo hash para a senha atualizada
+    if (filteredData.password) {
+      const bcrypt = new Bcrypt();
+      filteredData.password = await bcrypt.generateHash(filteredData.password);
+    }
+
+    const userUpdated = await prisma.user.update({
+      where: { id },
+      data: { ...filteredData },
+    });
+
+    return {
+      ok: true,
+      code: 200,
+      message: "User profile updated successfully!",
+      data: {
+        id: userUpdated.id,
+        name: userUpdated.name,
+        username: userUpdated.username,
+        email: userUpdated.email,
+      },
     };
   }
 

@@ -21,3 +21,13 @@ export interface QueryFilterDto {
   username?: string;
   email?: string;
 }
+
+export interface UserUpdateDto {
+  name?: string;
+  username?: string;
+  password?: string;
+}
+
+export interface UserUpdatedDto extends UserBaseDto {
+  email: string;
+}
