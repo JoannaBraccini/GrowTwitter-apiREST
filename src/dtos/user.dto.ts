@@ -9,9 +9,10 @@ export interface CreateUserDto {
 export interface UserDto {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   username: string;
-  followers?: FollowerDto[];
+  followers?: UserBaseDto[];
+  following?: UserBaseDto[];
   tweets?: TweetDto[];
 }
 
@@ -21,7 +22,7 @@ export interface UserBaseDto {
   username: string;
 }
 
-export interface FollowerDto {
-  id: string;
-  user: UserBaseDto;
+export interface QueryFilterDto {
+  name?: string;
+  username?: string;
 }

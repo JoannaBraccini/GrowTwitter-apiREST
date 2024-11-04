@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 
 export class AuthController {
@@ -14,7 +14,7 @@ export class AuthController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Erro do servidor: ${error.message}`,
+        message: `Server error: ${error.message}`,
       });
     }
   }

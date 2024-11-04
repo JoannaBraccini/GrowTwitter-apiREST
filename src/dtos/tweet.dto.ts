@@ -10,25 +10,16 @@ export interface CreateTweetDto {
 
 export interface TweetDto {
   id: string;
-  user: UserBaseDto;
+  userId: string;
   type: TweetType;
   content: string;
-  likes?: LikeDto[];
-  retweets?: RetweetDto[];
+  likes?: { id: string; userId: string }[];
+  retweets?: { id: string; userId: string }[];
   replies?: TweetDto[];
 }
 
-//ação base
-interface CreateActionDto {
-  tweedId: string;
+//para like e retweet
+export interface CreateEngagementDto {
+  tweetId: string; //id do tweet pai
   userId: string;
 }
-export interface CreateLikeDto extends CreateActionDto {}
-export interface CreateRetweetDto extends CreateActionDto {}
-interface ActionDto {
-  id: string;
-  userId: string;
-}
-
-export interface LikeDto extends ActionDto {}
-export interface RetweetDto extends ActionDto {}
