@@ -19,4 +19,5 @@ export interface UserBaseDto {
 export interface QueryFilterDto {
   name?: string;
   username?: string;
+  email?: string;
 }

@@ -1,11 +1,44 @@
 import { randomUUID } from "crypto";
 import { prisma } from "../database/prisma.database";
-import { LoginDto } from "../dtos";
+import { CreatedUserDto, LoginDto, SignupDto } from "../dtos";
 import { ResponseApi } from "../types/response";
 import { Bcrypt } from "../utils/bcrypt";
 import { User } from "@prisma/client";
 
 export class AuthService {
+  public async signup(createUser: SignupDto): Promise<ResponseApi> {
+    const { name, email, password, username } = createUser;
+
+    const user = await prisma.user.findFirst({
+      where: { OR: [{ email }, { username }] }, //verificar se usuário já existe com email/username cadastrado
+    });
+    if (user) {
+      //se um dos dois retornar, então:
+      return {
+        ok: false,
+        code: 409,
+        message:
+          user.email === email
+            ? "Email is already in use."
+            : "Username is already in use.",
+      };
+    }
+    //gerar hash da senha
+    const bcrypt = new Bcrypt();
+    const passwordHash = await bcrypt.generateHash(password);
+    //criar novo user
+    const userCreated = await prisma.user.create({
+      data: { name, email, password: passwordHash, username },
+    });
+
+    return {
+      ok: true,
+      code: 201,
+      message: "User created successfully!",
+      data: this.mapToDto(userCreated), //retornar somente dados básicos
+    };
+  }
+
   public async login(data: LoginDto): Promise<ResponseApi> {
     const { email, username, password } = data;
     //verificar email/username
@@ -60,5 +93,14 @@ export class AuthService {
     });
 
     return user;
+  }
+  //mapeamento para userDto básico
+  private mapToDto(user: User): CreatedUserDto {
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+    };
   }
 }

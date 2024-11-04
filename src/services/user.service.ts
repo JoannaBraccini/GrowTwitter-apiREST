@@ -1,48 +1,16 @@
+import { truncate } from "fs/promises";
 import { prisma } from "../database/prisma.database";
-import { CreateUserDto, UserDto, QueryFilterDto } from "../dtos";
+import { UserDto, QueryFilterDto, UserBaseDto } from "../dtos";
 import { ResponseApi } from "../types/response";
-import { Bcrypt } from "../utils/bcrypt";
-import { Prisma, User } from "@prisma/client";
+import { Prisma, TweetType, User } from "@prisma/client";
 
 export class UserService {
-  //CREATE
-  public async create(createUser: CreateUserDto): Promise<ResponseApi> {
-    const { name, email, password, username } = createUser;
-
-    const user = await prisma.user.findFirst({
-      where: { OR: [{ email }, { username }] }, //verificar se usuário já existe com email/username cadastrado
-    });
-    if (user) {
-      //se um dos dois retornar, então:
-      return {
-        ok: false,
-        code: 409,
-        message:
-          user.email === email
-            ? "Email is already in use."
-            : "Username is already in use.",
-      };
-    }
-    //gerar hash da senha
-    const bcrypt = new Bcrypt();
-    const passwordHash = await bcrypt.generateHash(password);
-    //criar novo user
-    const userCreated = await prisma.user.create({
-      data: { name, email, password: passwordHash, username },
-    });
-
-    return {
-      ok: true,
-      code: 201,
-      message: "User created successfully!",
-      data: this.mapToDto(userCreated), //retornar somente dados básicos
-    };
-  }
-
-  //READ
+  //CREATE -> movido para authService: signup
+  //READ (query many)
   public async findMany({
     name,
     username,
+    email,
   }: QueryFilterDto): Promise<ResponseApi> {
     const where: Prisma.UserWhereInput = {};
 
@@ -52,8 +20,19 @@ export class UserService {
     if (username) {
       where.username = { contains: username, mode: "insensitive" };
     }
+    if (email) {
+      where.email = { contains: email, mode: "insensitive" };
+    }
 
     const users = await prisma.user.findMany({ where });
+
+    if (users.length === 0) {
+      return {
+        ok: false,
+        code: 404,
+        message: "No users found",
+      };
+    }
 
     return {
       ok: true,
@@ -63,45 +42,31 @@ export class UserService {
     };
   }
 
-  //READ
+  //READ (id one)
   public async findOne(id: string): Promise<ResponseApi> {
     const user = await prisma.user.findUnique({
       where: { id },
       include: {
         //lista de seguidores deste usuário
         followers: {
-          select: {
-            follower: { select: { id: true, name: true, username: true } },
+          include: {
+            follower: true, //dados do seguidor
           },
         },
         //lista de seguidos por este usuário
         following: {
-          select: {
-            followed: {
-              select: {
-                id: true,
-                name: true,
-                username: true,
-              },
-            },
+          include: {
+            followed: true, //dados do usuário seguido
           },
         },
         //lista de tweets deste usuário
         tweets: {
-          select: {
-            id: true,
-            type: true,
-            content: true,
-            //lista de likes que cada tweet tem
-            likes: { select: { id: true, userId: true } },
-            //lista de retweets que cada tweet tem
-            retweets: { select: { id: true, userId: true } },
-            //lista de replies que cada tweet tem
+          include: {
+            likes: true,
+            retweets: true,
             replies: {
-              select: {
-                id: true,
-                user: { select: { id: true, username: true, name: true } },
-                content: true,
+              include: {
+                user: true, // Inclui os dados do usuário que fez o reply
               },
             },
           },
@@ -126,11 +91,10 @@ export class UserService {
   }
 
   //mapeamento para userDto básico
-  private mapToDto(user: User): UserDto {
+  private mapToDto(user: User): UserBaseDto {
     return {
       id: user.id,
       name: user.name,
-      email: user.email,
       username: user.username,
     };
   }
@@ -142,8 +106,11 @@ export class UserService {
       following: { followed: { id: string; name: string; username: string } }[];
       tweets: {
         id: string;
-        type: string;
+        userId: string;
+        type: TweetType;
         content: string;
+        createdAt: Date;
+        updatedAt?: Date;
         likes: { id: string; userId: string }[];
         retweets: { id: string; userId: string }[];
         replies: {
@@ -171,8 +138,11 @@ export class UserService {
       })),
       tweets: tweets.map((tweet) => ({
         id: tweet.id,
+        userId: tweet.userId,
         type: tweet.type,
         content: tweet.content,
+        createdAt: tweet.createdAt,
+        updatedAt: tweet.updatedAt,
         likes: tweet.likes?.map((like) => ({
           id: like.id,
           userId: like.userId,

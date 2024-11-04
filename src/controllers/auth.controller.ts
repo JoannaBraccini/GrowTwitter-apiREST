@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 import { SignupDto } from "../dtos";
-import { UserService } from "../services/user.service";
 
 export class AuthController {
   public static async signup(req: Request, res: Response): Promise<void> {
@@ -16,9 +15,9 @@ export class AuthController {
         username,
       };
       //chama o service
-      const service = new UserService();
+      const service = new AuthService();
       //recebe a resposta
-      const result = await service.create(data);
+      const result = await service.signup(data);
       //desestrutura a resposta
       const { code, ...response } = result;
       //retorna para o cliente
