@@ -95,21 +95,27 @@ export class UserService {
     id: string,
     userUpdate: UserUpdateDto
   ): Promise<ResponseApi> {
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) {
-      return {
-        ok: false,
-        code: 404,
-        message: "User not found",
-      };
-    }
     //pega apenas as entradas não vazias do objeto
     const filteredData = Object.fromEntries(
       Object.entries(userUpdate).filter(([_, value]) => value !== "")
     );
+
+    //extrai o username do filteredData e armazena em username
+    const { username } = filteredData as { username?: string };
+    if (username) {
+      //verificar se já existe usuário com username cadastrado
+      const existingUser = await prisma.user.findFirst({
+        where: { username: username, NOT: { id } }, //ignora o próprio id na busca
+      });
+      if (existingUser) {
+        return {
+          ok: false,
+          code: 409,
+          message: "Username is already in use.",
+        };
+      }
+    }
+
     //gerar novo hash para a senha atualizada
     if (filteredData.password) {
       const bcrypt = new Bcrypt();
@@ -131,6 +137,30 @@ export class UserService {
         username: userUpdated.username,
         email: userUpdated.email,
       },
+    };
+  }
+
+  //DELETE (id)
+  public async remove(id: string): Promise<ResponseApi> {
+    const user = await prisma.user.findUnique({ where: { id } });
+
+    if (!user) {
+      return {
+        ok: false,
+        code: 404,
+        message: "User not found",
+      };
+    }
+
+    const userDeleted = await prisma.user.delete({
+      where: { id },
+    });
+
+    return {
+      ok: true,
+      code: 200,
+      message: "User removed successfully",
+      data: this.mapToDto(userDeleted),
     };
   }
 

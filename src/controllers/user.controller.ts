@@ -68,4 +68,22 @@ export class UserController {
       });
     }
   }
+
+  //DELETE (id)
+  public static async remove(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      const service = new UserService();
+      const result = await service.remove(id);
+
+      const { code, ...response } = result;
+      res.status(code).json(response);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        message: `Error removing user: ${error.message}`,
+      });
+    }
+  }
 }

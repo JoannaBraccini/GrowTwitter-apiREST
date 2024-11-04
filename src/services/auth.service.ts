@@ -87,12 +87,17 @@ export class AuthService {
     };
   }
 
-  public async validateToken(token: string): Promise<User | null> {
+  public async validateToken(token: string, id: string): Promise<User | null> {
+    //busca o user pelo token
     const user = await prisma.user.findFirst({
       where: { authToken: token },
     });
+    //valida se o user logado é o mesmo que está sendo editado/deletado
+    if (!user || user.id !== id) {
+      return null; //null para indicar que a validação falhou
+    }
 
-    return user;
+    return user; //usuário se a validação passar
   }
   //mapeamento para userDto básico
   private mapToDto(user: User): CreatedUserDto {

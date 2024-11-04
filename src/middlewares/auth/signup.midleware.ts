@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { prisma } from "../../database/prisma.database";
 
 export class SignupMiddleware {
   public static validateRequired(
@@ -82,35 +81,6 @@ export class SignupMiddleware {
       return res.status(400).json({
         ok: false,
         message: errors,
-      });
-    }
-
-    return next();
-  }
-
-  public static async validateUnique(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    const { email, username } = req.body;
-    //espera resolver todas as promises antes de responder, armazenando a resposta em cada const
-    const [existingEmail, existingUsername] = await Promise.all([
-      prisma.user.findUnique({ where: { email } }),
-      prisma.user.findUnique({ where: { username } }),
-    ]);
-
-    if (existingEmail) {
-      return res.status(400).json({
-        ok: false,
-        message: "Email is already in use.",
-      });
-    }
-
-    if (existingUsername) {
-      return res.status(400).json({
-        ok: false,
-        message: "Username is already in use.",
       });
     }
 

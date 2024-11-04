@@ -13,7 +13,6 @@ export class AuthRoutes {
         SignupMiddleware.validateRequired,
         SignupMiddleware.validateTypes,
         SignupMiddleware.validateLength,
-        SignupMiddleware.validateUnique,
       ],
       AuthController.signup
     );

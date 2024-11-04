@@ -31,11 +31,16 @@ export class UserRoutes {
         ValidateUuidMiddleware.validate,
         UserMiddleware.validateTypes,
         UserMiddleware.validateLength,
-        UserMiddleware.validateUnique,
       ],
       UserController.update
     );
 
+    //DELETE USER (id)
+    router.delete(
+      "/users/:id",
+      [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
+      UserController.remove
+    );
     return router;
   }
 }

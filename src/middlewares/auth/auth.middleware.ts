@@ -9,6 +9,7 @@ export class AuthMiddleware {
   ) {
     //busca o dado
     const token = req.headers.authorization;
+    const { id } = req.params;
 
     if (!token) {
       return res.status(401).json({
@@ -19,10 +20,10 @@ export class AuthMiddleware {
 
     //chama o service
     const service = new AuthService();
-    const userFound = await service.validateToken(token);
+    const userFound = await service.validateToken(token, id);
 
     if (!userFound) {
-      res.status(401).json({
+      return res.status(401).json({
         ok: false,
         message: "Not authenticated!",
       });

@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { prisma } from "../database/prisma.database";
 
 export class UserMiddleware {
   static validateTypes(req: Request, res: Response, next: NextFunction) {
@@ -44,29 +43,6 @@ export class UserMiddleware {
         ok: false,
         message: errors,
       });
-    }
-
-    return next();
-  }
-
-  public static async validateUnique(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    const { username } = req.body;
-
-    if (username) {
-      const existingUsername = await prisma.user.findUnique({
-        where: { username },
-      });
-
-      if (existingUsername) {
-        return res.status(400).json({
-          ok: false,
-          message: "Username is already in use.",
-        });
-      }
     }
 
     return next();
