@@ -19,6 +19,17 @@ export class TweetService {
     };
   }
 
+  public async findAll(): Promise<ResponseApi> {
+    const tweets = await prisma.tweet.findMany();
+
+    return {
+      ok: true,
+      code: 200,
+      message: "Tweets retrieved successfully",
+      data: tweets,
+    };
+  }
+
   private mapToDto(tweet: Tweet): TweetDto {
     return {
       id: tweet.id,
@@ -28,4 +39,6 @@ export class TweetService {
       createdAt: tweet.createdAt,
     };
   }
+
+  //private mapTuFullDto(tweet: Tweet);
 }

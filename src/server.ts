@@ -1,7 +1,7 @@
 import "dotenv/config";
 import cors from "cors";
 import express, { Request, Response } from "express";
-import { AuthRoutes, UserRoutes } from "./routes";
+import { AuthRoutes, UserRoutes, TweetRoutes } from "./routes";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -18,6 +18,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use(AuthRoutes.execute());
 app.use(UserRoutes.execute());
+app.use(TweetRoutes.execute());
 
 app.listen(PORT, () => {
   console.log("Server running on port", PORT);

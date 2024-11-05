@@ -3,16 +3,16 @@ import { NextFunction, Request, Response } from "express";
 export class UserMiddleware {
   static validateTypes(req: Request, res: Response, next: NextFunction) {
     const { name, username, password } = req.query;
+    const errors: string[] = [];
 
-    if (
-      (name && typeof name !== "string") ||
-      (username && typeof username !== "string") ||
-      (password && typeof password !== "string")
-    ) {
-      res.status(400).json({
-        ok: false,
-        message: "All fields must be strings.",
-      });
+    if (name && typeof name !== "string") {
+      errors.push("Name must be a string");
+    }
+    if (username && typeof username !== "string") {
+      errors.push("Username must be a string");
+    }
+    if (password && typeof password !== "string") {
+      errors.push("Password must be a string");
     }
 
     next();
