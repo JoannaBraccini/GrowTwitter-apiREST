@@ -26,7 +26,7 @@ export class AuthController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `An error occurred while creating the user: ${error.message}`,
+        message: `An error occurred while creating user: ${error.message}`,
       });
     }
   }

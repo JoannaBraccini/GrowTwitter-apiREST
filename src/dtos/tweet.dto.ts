@@ -33,5 +33,5 @@ export interface ReplyDto {
 export interface CreateEngagementDto {
   tweetId: string; //id do tweet pai
   userId: string;
-  type: "like" | "retweet";
+  type: "LIKE" | "RETWEET";
 }
