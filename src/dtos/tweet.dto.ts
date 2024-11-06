@@ -11,21 +11,16 @@ export interface TweetDto {
   id: string;
   userId: string;
   type: TweetType;
+  parentId?: string | null;
   content: string;
   createdAt: Date;
   updatedAt?: Date;
   likes?: { id: string; userId: string }[];
   retweets?: { id: string; userId: string }[];
-  replies?: ReplyDto[];
+  replies?: TweetDto[];
 }
 
-export interface ReplyDto {
-  id: string;
-  user: {
-    id: string;
-    name: string;
-    username: string;
-  };
+export interface TweetUpdateDto {
   content: string;
 }
 

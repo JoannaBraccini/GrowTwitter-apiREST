@@ -54,10 +54,10 @@ export class UserController {
   public static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { name, username, password } = req.body;
+      const { username, password } = req.body;
 
       const service = new UserService();
-      const result = await service.update(id, { name, username, password }); //id no params e objeto no body
+      const result = await service.update(id, { username, password }); //id no params e objeto no body
 
       const { code, ...response } = result;
       res.status(code).json(response);

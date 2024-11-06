@@ -28,8 +28,7 @@ export class SignupMiddleware {
         message: errors,
       });
     }
-
-    return next();
+    next();
   }
 
   public static validateTypes(req: Request, res: Response, next: NextFunction) {
@@ -42,13 +41,12 @@ export class SignupMiddleware {
       typeof username !== "string" ||
       typeof password !== "string"
     ) {
-      return res.status(400).json({
+      res.status(400).json({
         ok: false,
         message: "All fields must be strings.",
       });
     }
-
-    return next();
+    next();
   }
 
   public static validateLength(
@@ -78,12 +76,11 @@ export class SignupMiddleware {
     }
 
     if (errors.length > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         ok: false,
         message: errors,
       });
     }
-
-    return next();
+    next();
   }
 }

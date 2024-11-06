@@ -11,10 +11,11 @@ export class AuthMiddleware {
     const token = req.headers.authorization;
 
     if (!token) {
-      return res.status(401).json({
+      res.status(401).json({
         ok: false,
         message: "Not authenticated!",
       });
+      return;
     }
 
     //chama o service
@@ -22,16 +23,17 @@ export class AuthMiddleware {
     const userFound = await service.validateToken(token);
 
     if (!userFound) {
-      return res.status(401).json({
+      res.status(401).json({
         ok: false,
         message: "Not authenticated!",
       });
+      return;
     }
     req.body.user = {
       id: userFound?.id,
       username: userFound?.username,
     };
 
-    return next();
+    next();
   }
 }

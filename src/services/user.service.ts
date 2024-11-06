@@ -62,11 +62,13 @@ export class UserService {
         //lista de tweets deste usuário
         tweets: {
           include: {
-            likes: true,
-            retweets: true,
-            replies: {
-              include: {
-                user: true, // Inclui os dados do usuário que fez o reply
+            //incluir a contagem de:
+            _count: {
+              select: {
+                //likes, replies e retweets
+                likes: true,
+                replies: true,
+                retweets: true,
               },
             },
           },
@@ -95,17 +97,10 @@ export class UserService {
     id: string,
     userUpdate: UserUpdateDto
   ): Promise<ResponseApi> {
-    //pega apenas as entradas não vazias do objeto
-    const filteredData = Object.fromEntries(
-      Object.entries(userUpdate).filter(([_, value]) => value !== "")
-    );
-
-    //extrai o username do filteredData e armazena em username
-    const { username } = filteredData as { username?: string };
-    if (username) {
-      //verificar se já existe usuário com username cadastrado
+    //verificar se já existe usuário com username cadastrado
+    if (userUpdate.username) {
       const existingUser = await prisma.user.findFirst({
-        where: { username: username, NOT: { id } }, //ignora o próprio id na busca
+        where: { username: userUpdate.username, NOT: { id } }, //ignora o próprio id na busca
       });
       if (existingUser) {
         return {
@@ -117,14 +112,15 @@ export class UserService {
     }
 
     //gerar novo hash para a senha atualizada
-    if (filteredData.password) {
+    if (userUpdate.password) {
       const bcrypt = new Bcrypt();
-      filteredData.password = await bcrypt.generateHash(filteredData.password);
+      userUpdate.password = await bcrypt.generateHash(userUpdate.password);
     }
 
+    //salva os dados novos
     const userUpdated = await prisma.user.update({
       where: { id },
-      data: { ...filteredData },
+      data: { ...userUpdate },
     });
 
     return {
@@ -182,16 +178,16 @@ export class UserService {
         id: string;
         userId: string;
         type: TweetType;
+        parentId: string | null;
         content: string;
         createdAt: Date;
         updatedAt?: Date;
-        likes: { id: string; userId: string }[];
-        retweets: { id: string; userId: string }[];
-        replies: {
-          id: string;
-          user: { id: string; name: string; username: string };
-          content: string;
-        }[];
+        //contagem
+        _count: {
+          likes: number;
+          replies: number;
+          retweets: number;
+        };
       }[];
     }
   ): UserDto {
@@ -214,26 +210,13 @@ export class UserService {
         id: tweet.id,
         userId: tweet.userId,
         type: tweet.type,
+        parentId: tweet.parentId,
         content: tweet.content,
         createdAt: tweet.createdAt,
         updatedAt: tweet.updatedAt,
-        likes: tweet.likes?.map((like) => ({
-          id: like.id,
-          userId: like.userId,
-        })),
-        retweets: tweet.retweets.map((retweet) => ({
-          id: retweet.id,
-          userId: retweet.userId,
-        })),
-        replies: tweet.replies.map((reply) => ({
-          id: reply.id,
-          user: {
-            id: reply.user.id,
-            name: reply.user.name,
-            username: reply.user.username,
-          },
-          content: reply.content,
-        })),
+        likeCount: tweet._count.likes,
+        replyCount: tweet._count.replies,
+        retweetCount: tweet._count.retweets,
       })),
     };
   }

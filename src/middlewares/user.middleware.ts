@@ -15,6 +15,13 @@ export class UserMiddleware {
       errors.push("Password must be a string");
     }
 
+    if (errors.length > 0) {
+      res.status(400).json({
+        ok: false,
+        message: errors,
+      });
+    }
+
     next();
   }
 
@@ -39,12 +46,12 @@ export class UserMiddleware {
     }
 
     if (errors.length > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         ok: false,
         message: errors,
       });
     }
 
-    return next();
+    next();
   }
 }

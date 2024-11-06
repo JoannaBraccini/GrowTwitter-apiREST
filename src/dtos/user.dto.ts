@@ -23,7 +23,6 @@ export interface QueryFilterDto {
 }
 
 export interface UserUpdateDto {
-  name?: string;
   username?: string;
   password?: string;
 }

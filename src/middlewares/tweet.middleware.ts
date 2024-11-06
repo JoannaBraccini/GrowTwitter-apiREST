@@ -12,18 +12,21 @@ export class TweetMiddleware {
 
     if (!type) {
       errors.push("Tweet type is required!");
+    } else if (type === "REPLY" && !parentId) {
+      errors.push("Parent Tweed ID is required for REPLY");
     }
     if (!content) {
       errors.push("Content is required!");
     }
 
     if (errors.length > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         ok: false,
         message: errors,
       });
+      return;
     }
-    return next();
+    next();
   }
 
   public static validateTypes(req: Request, res: Response, next: NextFunction) {
@@ -41,13 +44,13 @@ export class TweetMiddleware {
     }
 
     if (errors.length > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         ok: false,
         message: errors,
       });
+      return;
     }
-
-    return next();
+    next();
   }
 
   public static validateLenght(
@@ -58,13 +61,13 @@ export class TweetMiddleware {
     const { content } = req.body;
 
     if (content.length > 280) {
-      return res.status(400).json({
+      res.status(400).json({
         ok: false,
         message:
           "Content exceeds the maximum allowed length of 280 characters.",
       });
+      return;
     }
-
-    return next();
+    next();
   }
 }

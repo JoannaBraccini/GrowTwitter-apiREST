@@ -13,6 +13,7 @@ export class LoginMiddleware {
         ok: false,
         message: "Email or username are required.",
       });
+      return;
     }
 
     if (!password) {
@@ -20,9 +21,10 @@ export class LoginMiddleware {
         ok: false,
         message: "Password is required.",
       });
+      return;
     }
 
-    return next();
+    next();
   }
 
   public static validateTypes(req: Request, res: Response, next: NextFunction) {
@@ -37,8 +39,9 @@ export class LoginMiddleware {
         ok: false,
         message: "All fields must be strings.",
       });
+      return;
     }
 
-    return next();
+    next();
   }
 }
