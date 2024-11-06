@@ -16,6 +16,7 @@ export class TweetController {
 
       const service = new TweetService();
       const result = await service.create(data);
+      console.log("controller depois do service", [{ data }]);
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -52,7 +53,7 @@ export class TweetController {
     try {
       const { query } = req.query;
 
-      if (!query) {
+      if (!query || query === "") {
         res.status(400).json({
           ok: false,
           message: "Search query is required.",
@@ -63,6 +64,13 @@ export class TweetController {
       const service = new TweetService();
       const result = await service.findMany(query as string);
 
+      if (result.data.length === 0) {
+        res.status(404).json({
+          ok: false,
+          message: "No tweets found matching the query.",
+        });
+        return;
+      }
       const { code, ...response } = result;
       res.status(code).json(response);
     } catch (error: any) {

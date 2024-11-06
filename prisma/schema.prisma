@@ -33,10 +33,10 @@ model User {
 model Follower {
   id         String @id @default(uuid()) @db.Uuid // id do relacionamento
   followerId String @map("follower_id") @db.Uuid // id do seguidor
-  follower   User   @relation("follows", fields: [followerId], references: [id])
+  follower   User   @relation("follows", fields: [followerId], references: [id], onDelete: Cascade)
 
   followedId String @map("followed_id") @db.Uuid // id do usuário seguido
-  followed   User   @relation("followed_by", fields: [followedId], references: [id])
+  followed   User   @relation("followed_by", fields: [followedId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
@@ -47,10 +47,10 @@ model Follower {
 model Tweet {
   id       String    @id @default(uuid()) @db.Uuid //id do tweet
   userId   String    @map("user_id") @db.Uuid //id do usuário que criou o tweet
-  user     User      @relation(fields: [userId], references: [id])
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   type     TweetType @default(TWEET) //tipo (tweet ou reply)
   parentId String?   @map("parent_id") @db.Uuid //tweet pai, em caso de retweet/reply
-  parent   Tweet?    @relation("tweet_replies", fields: [parentId], references: [id]) //diferenciar pela relação
+  parent   Tweet?    @relation("tweet_replies", fields: [parentId], references: [id], onDelete: Cascade) //diferenciar pela relação
   content  String
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
@@ -66,9 +66,9 @@ model Tweet {
 model Like {
   id      String @id @default(uuid()) @db.Uuid //id do like
   tweetId String @map("tweet_id") @db.Uuid //id do tweet curtido
-  tweet   Tweet  @relation(fields: [tweetId], references: [id])
+  tweet   Tweet  @relation(fields: [tweetId], references: [id], onDelete: Cascade)
   userId  String @map("user_id") @db.Uuid //id do usuário que curtiu
-  user    User   @relation(fields: [userId], references: [id])
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
@@ -78,9 +78,9 @@ model Like {
 model Retweet {
   id      String @id @default(uuid()) @db.Uuid //id do retweet
   userId  String @map("user_id") @db.Uuid //id do usuário que retweetou
-  user    User   @relation(fields: [userId], references: [id])
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   tweetId String @map("tweet_id") @db.Uuid //id do tweet pai
-  tweet   Tweet  @relation(fields: [tweetId], references: [id])
+  tweet   Tweet  @relation(fields: [tweetId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 

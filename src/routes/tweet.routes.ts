@@ -19,10 +19,10 @@ export class TweetRoutes {
       ],
       TweetController.create
     );
-    //FIND TWEETS
+    //FIND ALL TWEETS
     router.get("/tweets", [AuthMiddleware.validate], TweetController.findAll);
 
-    //FIND TWEETS (query)
+    //FIND TWEETS BY CONTENT (query)
     router.get(
       "/tweets/?query",
       [AuthMiddleware.validate],

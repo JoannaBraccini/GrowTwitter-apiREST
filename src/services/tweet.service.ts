@@ -22,10 +22,11 @@ export class TweetService {
         };
       }
     }
-
+    console.log("service", createTweet);
     const tweetCreated = await prisma.tweet.create({
       data: { userId, parentId, type, content },
     });
+    console.log("service depois do create", tweetCreated);
 
     return {
       ok: true,
@@ -46,8 +47,9 @@ export class TweetService {
       where: { userId: id },
       orderBy: { createdAt: "asc" },
     });
+    console.log(tweets);
 
-    if (!tweets) {
+    if (!tweets || tweets.length === 0) {
       return {
         ok: false,
         code: 404,
@@ -75,7 +77,7 @@ export class TweetService {
       },
     });
 
-    if (tweets.length === 0) {
+    if (!tweets || tweets.length === 0) {
       return {
         ok: false,
         code: 404,
