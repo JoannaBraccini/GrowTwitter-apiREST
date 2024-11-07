@@ -11,7 +11,7 @@ export class TweetMiddleware {
 
     if (!type) {
       errors.push("Tweet type is required!");
-    } else if ((type === "REPLY" && !parentId) || parentId.trim() === "") {
+    } else if (type === "REPLY" && !parentId) {
       errors.push("Parent Tweed ID is required for REPLY");
     }
     if (!content) {
@@ -29,7 +29,7 @@ export class TweetMiddleware {
   }
 
   public static validateTypes(req: Request, res: Response, next: NextFunction) {
-    const { userId, type, parentId, content } = req.body;
+    const { type, parentId, content } = req.body;
     const errors: string[] = [];
 
     if (parentId && typeof parentId !== "string") {

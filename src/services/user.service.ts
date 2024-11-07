@@ -95,8 +95,17 @@ export class UserService {
   //UPDATE (id)
   public async update(
     id: string,
+    userId: string,
     userUpdate: UserUpdateDto
   ): Promise<ResponseApi> {
+    // Verificar se o usuário autenticado é o mesmo que está sendo atualizado
+    if (id !== userId) {
+      return {
+        ok: false,
+        code: 403, //forbidden
+        message: "You are not authorized to modify this profile.",
+      };
+    }
     //verificar se já existe usuário com username cadastrado
     if (userUpdate.username) {
       const existingUser = await prisma.user.findFirst({
@@ -105,7 +114,7 @@ export class UserService {
       if (existingUser) {
         return {
           ok: false,
-          code: 409,
+          code: 409, //conflict
           message: "Username is already in use.",
         };
       }

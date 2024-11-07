@@ -16,7 +16,6 @@ export class TweetController {
 
       const service = new TweetService();
       const result = await service.create(data);
-      console.log("controller depois do service", [{ data }]);
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -31,12 +30,13 @@ export class TweetController {
   public static async findAll(req: Request, res: Response): Promise<void> {
     try {
       const { user } = req.body;
-      const { page, take } = req.query;
+      const { page, take, search } = req.query;
 
       const service = new TweetService();
       const result = await service.findAll(user.id, {
         page: page ? Number(page) - 1 : undefined,
         take: take ? Number(take) : undefined,
+        search: search ? String(search) : undefined,
       });
 
       const { code, ...response } = result;
@@ -45,38 +45,6 @@ export class TweetController {
       res.status(500).json({
         ok: false,
         message: `An error occurred while fetching tweets: ${error.message}`,
-      });
-    }
-  }
-
-  public static async findMany(req: Request, res: Response): Promise<void> {
-    try {
-      const { query } = req.query;
-
-      if (!query || query === "") {
-        res.status(400).json({
-          ok: false,
-          message: "Search query is required.",
-        });
-        return;
-      }
-
-      const service = new TweetService();
-      const result = await service.findMany(query as string);
-
-      if (result.data.length === 0) {
-        res.status(404).json({
-          ok: false,
-          message: "No tweets found matching the query.",
-        });
-        return;
-      }
-      const { code, ...response } = result;
-      res.status(code).json(response);
-    } catch (error: any) {
-      res.status(500).json({
-        ok: false,
-        message: `Error fetching tweets: ${error.message}`,
       });
     }
   }

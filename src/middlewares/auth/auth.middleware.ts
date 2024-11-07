@@ -29,6 +29,16 @@ export class AuthMiddleware {
       });
       return;
     }
+
+    const { id } = req.params;
+    if (id && userFound.id !== id) {
+      res.status(403).json({
+        ok: false,
+        message: "Not authorized!",
+      });
+      return;
+    }
+
     req.body.user = {
       id: userFound?.id,
       username: userFound?.username,

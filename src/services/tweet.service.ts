@@ -22,11 +22,9 @@ export class TweetService {
         };
       }
     }
-    console.log("service", createTweet);
     const tweetCreated = await prisma.tweet.create({
       data: { userId, parentId, type, content },
     });
-    console.log("service depois do create", tweetCreated);
 
     return {
       ok: true,
@@ -36,45 +34,19 @@ export class TweetService {
     };
   }
 
-  //FIND ALL - com paginação
+  //FIND ALL - com paginação e search
   public async findAll(
     id: string,
-    query?: { page?: number; take?: number }
+    query?: { page?: number; take?: number; search?: string }
   ): Promise<ResponseApi> {
     const tweets = await prisma.tweet.findMany({
       skip: query?.page,
       take: query?.take,
-      where: { userId: id },
-      orderBy: { createdAt: "asc" },
-    });
-    console.log(tweets);
-
-    if (!tweets || tweets.length === 0) {
-      return {
-        ok: false,
-        code: 404,
-        message: "No tweets found",
-      };
-    }
-
-    return {
-      ok: true,
-      code: 200,
-      message: "Tweets retrieved successfully",
-      data: tweets.map((tweet) => this.mapToDto(tweet)),
-    };
-  }
-
-  //FIND MANY - by query
-  public async findMany(query: string): Promise<ResponseApi> {
-    //verifica se os contents no bd contém a string buscada
-    const tweets = await prisma.tweet.findMany({
       where: {
-        content: {
-          contains: query,
-          mode: "insensitive",
-        },
+        userId: id,
+        content: { contains: query?.search, mode: "insensitive" },
       },
+      orderBy: { createdAt: "asc" },
     });
 
     if (!tweets || tweets.length === 0) {
@@ -129,6 +101,18 @@ export class TweetService {
     id: string,
     tweetUpdate: TweetUpdateDto
   ): Promise<ResponseApi> {
+    const tweet = await prisma.tweet.findUnique({
+      where: { id },
+    });
+
+    if (!tweet) {
+      return {
+        ok: false,
+        code: 404,
+        message: "Tweet not found.",
+      };
+    }
+
     const tweetUpdated = await prisma.tweet.update({
       where: { id },
       data: { ...tweetUpdate },
