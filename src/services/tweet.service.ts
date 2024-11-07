@@ -158,6 +158,62 @@ export class TweetService {
     };
   }
 
+  //LIKE/UNLIKE
+  public async like(tweetId: string, userId: string): Promise<ResponseApi> {
+    const tweet = await prisma.tweet.findUnique({
+      where: { id: tweetId },
+    });
+
+    if (!tweet) {
+      return {
+        ok: false,
+        code: 404,
+        message: "Tweet not found",
+      };
+    }
+
+    // Verificar se o usuário já curtiu
+    const alreadyLiked = await prisma.like.findUnique({
+      where: {
+        //constraint de chave composta
+        tweetId_userId: {
+          tweetId: tweetId,
+          userId: userId,
+        },
+      },
+    });
+    //se já tiver curtidi, deleta o like
+    if (alreadyLiked) {
+      await prisma.like.delete({
+        where: { id: alreadyLiked.id },
+      });
+      return {
+        ok: true,
+        code: 200,
+        message: "Like removed successfully",
+      };
+    } else {
+      // Criar o like caso não tenha
+      const like = await prisma.like.create({
+        data: {
+          tweetId: tweetId,
+          userId: userId,
+        },
+      });
+
+      return {
+        ok: true,
+        code: 200,
+        message: "Tweet liked successfully",
+        data: like,
+      };
+    }
+  }
+
+  //RETWEET
+
+  //DELETE RETWEET
+
   private mapToDto(tweet: Tweet): TweetDto {
     return {
       id: tweet.id,
