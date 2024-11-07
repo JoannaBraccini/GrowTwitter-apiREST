@@ -12,7 +12,7 @@ export class UserRoutes {
     //FIND MANY USERS (by query)
     router.get(
       "/users",
-      [AuthMiddleware.validate, UserMiddleware.validateTypes],
+      [UserMiddleware.validateTypes], //sem validação de token para visualizar
       UserController.findMany
     );
 

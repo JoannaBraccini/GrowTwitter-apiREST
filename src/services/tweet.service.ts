@@ -268,7 +268,18 @@ export class TweetService {
   }
 
   //MAP To DTO
-  private mapToDto(tweet: Tweet): TweetDto {
+  private async mapToDto(tweet: Tweet): Promise<TweetDto> {
+    const likesCount = await prisma.like.count({
+      where: { tweetId: tweet.id },
+    });
+
+    const retweetsCount = await prisma.retweet.count({
+      where: { tweetId: tweet.id },
+    });
+
+    const repliesCount = await prisma.tweet.count({
+      where: { parentId: tweet.id },
+    });
     return {
       id: tweet.id,
       userId: tweet.userId,
@@ -276,10 +287,13 @@ export class TweetService {
       parentId: tweet.parentId || undefined,
       content: tweet.content,
       createdAt: tweet.createdAt,
+      likes: likesCount, // Contagem de likes
+      retweets: retweetsCount, // Contagem de retweets
+      replies: repliesCount, // Contagem de replies
     };
   }
 
-  // Mapeamento para UserDto completo
+  // Mapeamento para TweetDto completo
   private mapToFullDto(
     tweet: Tweet & {
       likes: { id: string; userId: string }[];

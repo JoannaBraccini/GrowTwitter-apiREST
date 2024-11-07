@@ -20,7 +20,7 @@ export class TweetRoutes {
       TweetController.create
     );
     //FIND ALL TWEETS/SEARCH
-    router.get("/tweets", [AuthMiddleware.validate], TweetController.findAll);
+    router.get("/tweets", TweetController.findAll); //sem validação de token para visualizar
 
     //FIND ONE TWEET (id)
     router.get(

@@ -230,11 +230,19 @@ export class UserService {
   }
 
   //mapeamento para userDto básico
-  private mapToDto(user: User): UserBaseDto {
+  private async mapToDto(user: User): Promise<UserBaseDto> {
+    const followersCount = await prisma.follower.count({
+      where: { followedId: user.id },
+    });
+    const followingCount = await prisma.follower.count({
+      where: { followerId: user.id },
+    });
     return {
       id: user.id,
       name: user.name,
       username: user.username,
+      followers: followersCount, //Contagem de seguidores deste usuário
+      following: followingCount, //Contagem de usuários seguidos por este usuário
     };
   }
 

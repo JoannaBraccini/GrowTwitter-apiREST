@@ -15,9 +15,9 @@ export interface TweetDto {
   content: string;
   createdAt: Date;
   updatedAt?: Date;
-  likes?: { id: string; userId: string }[];
-  retweets?: { id: string; userId: string }[];
-  replies?: TweetDto[];
+  likes?: { id: string; userId: string }[] | number;
+  retweets?: { id: string; userId: string }[] | number;
+  replies?: TweetDto[] | number;
 }
 
 export interface TweetUpdateDto {
