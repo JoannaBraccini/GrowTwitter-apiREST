@@ -23,10 +23,3 @@ export interface TweetDto {
 export interface TweetUpdateDto {
   content: string;
 }
-
-//para like e retweet
-export interface CreateEngagementDto {
-  tweetId: string; //id do tweet pai
-  userId: string;
-  type: "LIKE" | "RETWEET";
-}

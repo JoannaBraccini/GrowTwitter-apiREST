@@ -169,6 +169,66 @@ export class UserService {
     };
   }
 
+  //FOLLOW/UNFOLLOW (id)
+  public async follow(
+    followedId: string,
+    followerId: string
+  ): Promise<ResponseApi> {
+    // Verificar se os usuários existem
+    const followed = await prisma.user.findUnique({
+      where: { id: followedId },
+    });
+
+    const follower = await prisma.user.findUnique({
+      where: { id: followerId },
+    });
+
+    if (!followed || !follower) {
+      return {
+        ok: false,
+        code: 404,
+        message: "User not found",
+      };
+    }
+
+    // Verificar se usuário já segue
+    const alreadyFollows = await prisma.follower.findUnique({
+      where: {
+        followerId_followedId: {
+          followerId: followerId,
+          followedId: followedId,
+        },
+      },
+    });
+
+    //se já tiver curtido, deleta o like
+    if (alreadyFollows) {
+      await prisma.follower.delete({
+        where: { id: alreadyFollows.id },
+      });
+      return {
+        ok: true,
+        code: 200,
+        message: "Follow removed successfully",
+      };
+    } else {
+      // Criar o like caso não tenha
+      const follow = await prisma.follower.create({
+        data: {
+          followerId: followerId,
+          followedId: followedId,
+        },
+      });
+
+      return {
+        ok: true,
+        code: 200,
+        message: "User followed successfully",
+        data: follow,
+      };
+    }
+  }
+
   //mapeamento para userDto básico
   private mapToDto(user: User): UserBaseDto {
     return {

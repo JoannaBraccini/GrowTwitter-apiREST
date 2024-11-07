@@ -86,4 +86,23 @@ export class UserController {
       });
     }
   }
+
+  //FOLLOW/UNFOLLOW (id)
+  public static async follow(req: Request, res: Response): Promise<void> {
+    try {
+      const { user } = req.body;
+      const { followedId } = req.params;
+
+      const service = new UserService();
+      const result = await service.follow(user.id, followedId);
+
+      const { code, ...response } = result;
+      res.status(code).json(response);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        message: `Server error: ${error.message}`,
+      });
+    }
+  }
 }

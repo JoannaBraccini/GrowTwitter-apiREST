@@ -41,6 +41,20 @@ export class UserRoutes {
       [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
       UserController.remove
     );
+
+    //FOLLOW USER (id)
+    router.post(
+      "/users/:id/follow",
+      [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
+      UserController.follow
+    );
+
+    //UNFOLLOW USER (id)
+    router.delete(
+      "/users/:id/follow",
+      [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
+      UserController.follow
+    );
     return router;
   }
 }

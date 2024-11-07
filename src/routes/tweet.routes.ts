@@ -48,24 +48,32 @@ export class TweetRoutes {
     ]);
 
     //LIKE TWEET
-    router.post("/tweets/:id/like"),
+    router.post(
+      "/tweets/:id/like",
       [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
-      TweetController.like;
+      TweetController.like
+    );
 
     //UNLIKE TWEET
-    router.delete("/tweets/:id/like"),
+    router.delete(
+      "/tweets/:id/like",
       [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
-      TweetController.like;
+      TweetController.like
+    );
 
     //RETWEET
-    router.post("/tweets/:id/retweet"),
-      [AuthMiddleware.validate, ValidateUuidMiddleware.validate];
+    router.post(
+      "/tweets/:id/retweet",
+      [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
+      TweetController.retweet
+    );
 
     //DELETE RETWEET
-    router.delete("/tweets/:id/retweet", [
-      AuthMiddleware.validate,
-      ValidateUuidMiddleware.validate,
-    ]);
+    router.delete(
+      "/tweets/:id/retweet",
+      [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
+      TweetController.retweet
+    );
 
     return router;
   }

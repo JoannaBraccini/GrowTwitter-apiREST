@@ -182,7 +182,7 @@ export class TweetService {
         },
       },
     });
-    //se já tiver curtidi, deleta o like
+    //se já tiver curtido, deleta o like
     if (alreadyLiked) {
       await prisma.like.delete({
         where: { id: alreadyLiked.id },
@@ -211,9 +211,63 @@ export class TweetService {
   }
 
   //RETWEET
+  public async retweet(tweetId: string, userId: string): Promise<ResponseApi> {
+    const tweet = await prisma.tweet.findUnique({
+      where: { id: tweetId },
+    });
+
+    if (!tweet) {
+      return {
+        ok: false,
+        code: 404,
+        message: "Tweet not found",
+      };
+    }
+
+    const retweet = await prisma.retweet.create({
+      data: {
+        userId: userId,
+        tweetId: tweetId,
+      },
+    });
+
+    return {
+      ok: true,
+      code: 201,
+      message: "Retweeted successfully",
+      data: retweet,
+    };
+  }
 
   //DELETE RETWEET
+  public async deleteRetweet(
+    tweetId: string,
+    userId: string
+  ): Promise<ResponseApi> {
+    const retweet = await prisma.retweet.findUnique({
+      where: { id: tweetId },
+    });
 
+    if (!retweet) {
+      return {
+        ok: false,
+        code: 404,
+        message: "Retweet not found",
+      };
+    }
+
+    await prisma.retweet.delete({
+      where: { id: retweet.id },
+    });
+
+    return {
+      ok: true,
+      code: 200,
+      message: "Retweet removed successfully",
+    };
+  }
+
+  //MAP To DTO
   private mapToDto(tweet: Tweet): TweetDto {
     return {
       id: tweet.id,

@@ -114,7 +114,25 @@ export class TweetController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Error liking tweet: ${error.message}`,
+        message: `Server error: ${error.message}`,
+      });
+    }
+  }
+
+  public static async retweet(req: Request, res: Response): Promise<void> {
+    try {
+      const { user } = req.body;
+      const { tweetId } = req.params;
+
+      const service = new TweetService();
+      const result = await service.retweet(tweetId, user.id);
+
+      const { code, ...response } = result;
+      res.status(code).json(response);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        message: `Server error: ${error.message}`,
       });
     }
   }
