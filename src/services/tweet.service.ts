@@ -39,7 +39,7 @@ export class TweetService {
     id: string,
     query?: { page?: number; take?: number; search?: string }
   ): Promise<ResponseApi> {
-    const tweets = await prisma.tweet.findMany({
+    const tweetSearch = await prisma.tweet.findMany({
       skip: query?.page,
       take: query?.take,
       where: {
@@ -49,7 +49,13 @@ export class TweetService {
       orderBy: { createdAt: "asc" },
     });
 
-    if (!tweets || tweets.length === 0) {
+    const tweetsDefault = await prisma.tweet.findMany({
+      skip: query?.page,
+      take: query?.take,
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (tweetSearch.length === 0 || tweetsDefault.length === 0) {
       return {
         ok: false,
         code: 404,
@@ -57,11 +63,17 @@ export class TweetService {
       };
     }
 
+    const tweets = tweetSearch.length > 0 ? tweetSearch : tweetsDefault;
+
+    const tweetDtos = await Promise.all(
+      tweets.map((tweet) => this.mapToDto(tweet))
+    );
+
     return {
       ok: true,
       code: 200,
       message: "Tweets retrieved successfully",
-      data: tweets.map((tweet) => this.mapToDto(tweet)),
+      data: tweetDtos,
     };
   }
 
@@ -99,6 +111,7 @@ export class TweetService {
   //UPDATE
   public async update(
     id: string,
+    userId: string,
     tweetUpdate: TweetUpdateDto
   ): Promise<ResponseApi> {
     const tweet = await prisma.tweet.findUnique({
@@ -110,6 +123,15 @@ export class TweetService {
         ok: false,
         code: 404,
         message: "Tweet not found.",
+      };
+    }
+
+    // Verifica se o tweet pertence ao usuário
+    if (tweet.userId !== userId) {
+      return {
+        ok: false,
+        code: 404,
+        message: "Not authorized to modify this tweet!",
       };
     }
 
@@ -133,7 +155,7 @@ export class TweetService {
   }
 
   //DELETE
-  public async remove(id: string): Promise<ResponseApi> {
+  public async remove(id: string, userId: string): Promise<ResponseApi> {
     const tweet = await prisma.tweet.findUnique({
       where: { id },
     });
@@ -143,6 +165,15 @@ export class TweetService {
         ok: false,
         code: 404,
         message: "Tweet not found",
+      };
+    }
+
+    // Verifica se o tweet pertence ao usuário
+    if (tweet.userId !== userId) {
+      return {
+        ok: false,
+        code: 404,
+        message: "Not authorized to delete this tweet!",
       };
     }
 
@@ -269,17 +300,11 @@ export class TweetService {
 
   //MAP To DTO
   private async mapToDto(tweet: Tweet): Promise<TweetDto> {
-    const likesCount = await prisma.like.count({
-      where: { tweetId: tweet.id },
-    });
-
-    const retweetsCount = await prisma.retweet.count({
-      where: { tweetId: tweet.id },
-    });
-
-    const repliesCount = await prisma.tweet.count({
-      where: { parentId: tweet.id },
-    });
+    const [likesCount, retweetsCount, repliesCount] = await Promise.all([
+      prisma.like.count({ where: { tweetId: tweet.id } }),
+      prisma.retweet.count({ where: { tweetId: tweet.id } }),
+      prisma.tweet.count({ where: { parentId: tweet.id } }),
+    ]);
     return {
       id: tweet.id,
       userId: tweet.userId,

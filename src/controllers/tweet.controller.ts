@@ -69,10 +69,10 @@ export class TweetController {
   public static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { content } = req.body;
+      const { content, user } = req.body;
 
       const service = new TweetService();
-      const result = await service.update(id, content);
+      const result = await service.update(id, user.id, content);
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -87,9 +87,10 @@ export class TweetController {
   public static async remove(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const { user } = req.body;
 
       const service = new TweetService();
-      const result = await service.remove(id);
+      const result = await service.remove(id, user.id);
 
       const { code, ...response } = result;
       res.status(code).json(response);

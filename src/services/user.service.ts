@@ -24,7 +24,9 @@ export class UserService {
       where.email = { contains: email, mode: "insensitive" };
     }
 
-    const users = await prisma.user.findMany({ where });
+    const users = where
+      ? await prisma.user.findMany({ where })
+      : await prisma.user.findMany();
 
     if (users.length === 0) {
       return {
@@ -33,12 +35,15 @@ export class UserService {
         message: "No users found",
       };
     }
+    const userDtos = await Promise.all(
+      users.map((user) => this.mapToDto(user))
+    );
 
     return {
       ok: true,
       code: 200,
       message: "Users retrieved successfully",
-      data: users.map((user) => this.mapToDto(user)), //retorna dados básicos
+      data: userDtos, //retorna dados básicos
     };
   }
 
@@ -146,7 +151,15 @@ export class UserService {
   }
 
   //DELETE (id)
-  public async remove(id: string): Promise<ResponseApi> {
+  public async remove(id: string, userId: string): Promise<ResponseApi> {
+    // Verificar se o usuário autenticado é o mesmo que está sendo atualizado
+    if (id !== userId) {
+      return {
+        ok: false,
+        code: 403, //forbidden
+        message: "You are not authorized to delete this profile.",
+      };
+    }
     const user = await prisma.user.findUnique({ where: { id } });
 
     if (!user) {
@@ -231,12 +244,11 @@ export class UserService {
 
   //mapeamento para userDto básico
   private async mapToDto(user: User): Promise<UserBaseDto> {
-    const followersCount = await prisma.follower.count({
-      where: { followedId: user.id },
-    });
-    const followingCount = await prisma.follower.count({
-      where: { followerId: user.id },
-    });
+    const [followersCount, followingCount] = await Promise.all([
+      prisma.follower.count({ where: { followedId: user.id } }),
+      prisma.follower.count({ where: { followerId: user.id } }),
+    ]);
+
     return {
       id: user.id,
       name: user.name,
