@@ -178,15 +178,23 @@ export class UserService {
       ok: true,
       code: 200,
       message: "User removed successfully",
-      data: this.mapToDto(userDeleted),
+      data: userDeleted,
     };
   }
 
   //FOLLOW/UNFOLLOW (id)
   public async follow(
-    followedId: string,
-    followerId: string
+    followerId: string,
+    followedId: string
   ): Promise<ResponseApi> {
+    if (followerId === followedId) {
+      return {
+        ok: false,
+        code: 409, //conflict
+        message: "Follower ID and Followed ID can't be the same.",
+      };
+    }
+
     // Verificar se os usuários existem
     const followed = await prisma.user.findUnique({
       where: { id: followedId },
@@ -199,8 +207,8 @@ export class UserService {
     if (!followed || !follower) {
       return {
         ok: false,
-        code: 404,
-        message: "User not found",
+        code: 400, // Bad Request
+        message: "Invalid user ID(s) provided.",
       };
     }
 

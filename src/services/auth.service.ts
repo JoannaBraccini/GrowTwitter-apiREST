@@ -78,12 +78,19 @@ export class AuthService {
       },
     });
 
+    const loggedUser = {
+      token,
+      userId: user.id,
+      username: user.username,
+      name: user.name,
+    };
+
     //feedback de sucesso
     return {
       ok: true,
       code: 200,
       message: "Successfully logged in!",
-      data: { token },
+      data: loggedUser,
     };
   }
 

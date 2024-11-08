@@ -92,10 +92,10 @@ export class UserController {
   public static async follow(req: Request, res: Response): Promise<void> {
     try {
       const { user } = req.body;
-      const { followedId } = req.params;
+      const { id } = req.params;
 
       const service = new UserService();
-      const result = await service.follow(user.id, followedId);
+      const result = await service.follow(user.id, id);
 
       const { code, ...response } = result;
       res.status(code).json(response);

@@ -44,14 +44,14 @@ export class UserRoutes {
 
     //FOLLOW USER (id)
     router.post(
-      "/users/:id/follow",
+      "/users/follow/:id",
       [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
       UserController.follow
     );
 
     //UNFOLLOW USER (id)
     router.delete(
-      "/users/:id/follow",
+      "/users/follow/:id",
       [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
       UserController.follow
     );
