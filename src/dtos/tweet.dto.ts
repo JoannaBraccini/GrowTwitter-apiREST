@@ -11,7 +11,7 @@ export interface TweetDto {
   id: string;
   userId: string;
   type: TweetType;
-  parentId?: string | null;
+  parentId?: string;
   content: string;
   createdAt: Date;
   updatedAt?: Date;

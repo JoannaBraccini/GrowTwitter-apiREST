@@ -35,7 +35,7 @@ export class TweetMiddleware {
     if (parentId && typeof parentId !== "string") {
       errors.push("Parent-Tweet ID must be a string.");
     }
-    if (type !== "TWEET" && type !== "REPLY") {
+    if (type && type !== "TWEET" && type !== "REPLY") {
       errors.push("Type must be TWEET or REPLY");
     }
     if (typeof content !== "string") {

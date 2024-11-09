@@ -29,11 +29,10 @@ export class TweetController {
 
   public static async findAll(req: Request, res: Response): Promise<void> {
     try {
-      const { user } = req.body;
       const { page, take, search } = req.query;
 
       const service = new TweetService();
-      const result = await service.findAll(user.id, {
+      const result = await service.findAll({
         page: page ? Number(page) - 1 : undefined,
         take: take ? Number(take) : undefined,
         search: search ? String(search) : undefined,
@@ -105,7 +104,7 @@ export class TweetController {
   public static async like(req: Request, res: Response): Promise<void> {
     try {
       const { user } = req.body;
-      const { tweetId } = req.params;
+      const tweetId = req.params.id;
 
       const service = new TweetService();
       const result = await service.like(tweetId, user.id);
@@ -123,7 +122,7 @@ export class TweetController {
   public static async retweet(req: Request, res: Response): Promise<void> {
     try {
       const { user } = req.body;
-      const { tweetId } = req.params;
+      const tweetId = req.params.id;
 
       const service = new TweetService();
       const result = await service.retweet(tweetId, user.id);

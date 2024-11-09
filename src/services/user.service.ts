@@ -196,15 +196,15 @@ export class UserService {
     }
 
     // Verificar se os usuários existem
-    const followed = await prisma.user.findUnique({
-      where: { id: followedId },
-    });
-
     const follower = await prisma.user.findUnique({
       where: { id: followerId },
     });
 
-    if (!followed || !follower) {
+    const followed = await prisma.user.findUnique({
+      where: { id: followedId },
+    });
+
+    if (!follower || !followed) {
       return {
         ok: false,
         code: 400, // Bad Request
@@ -222,7 +222,7 @@ export class UserService {
       },
     });
 
-    //se já tiver curtido, deleta o like
+    //se já estiver seguindo, remove o follow
     if (alreadyFollows) {
       await prisma.follower.delete({
         where: { id: alreadyFollows.id },
@@ -233,7 +233,7 @@ export class UserService {
         message: "Follow removed successfully",
       };
     } else {
-      // Criar o like caso não tenha
+      // Seguir caso ainda não seja seguidor
       const follow = await prisma.follower.create({
         data: {
           followerId: followerId,
@@ -253,8 +253,8 @@ export class UserService {
   //mapeamento para userDto básico
   private async mapToDto(user: User): Promise<UserBaseDto> {
     const [followersCount, followingCount] = await Promise.all([
-      prisma.follower.count({ where: { followedId: user.id } }),
       prisma.follower.count({ where: { followerId: user.id } }),
+      prisma.follower.count({ where: { followedId: user.id } }),
     ]);
 
     return {
