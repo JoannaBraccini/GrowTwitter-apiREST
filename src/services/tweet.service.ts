@@ -1,6 +1,6 @@
 import { Tweet, TweetType } from "@prisma/client";
 import { prisma } from "../database/prisma.database";
-import { CreateTweetDto, TweetDto, TweetUpdateDto } from "../dtos";
+import { CreateTweetDto, TweetDto } from "../dtos";
 import { ResponseApi } from "../types/response";
 
 export class TweetService {
