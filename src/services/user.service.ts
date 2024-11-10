@@ -6,7 +6,7 @@ import { Bcrypt } from "../utils/bcrypt";
 
 export class UserService {
   //CREATE -> movido para authService: signup
-  //READ (query many)
+  //READ (optional search query)
   public async findMany({
     name,
     username,
@@ -252,17 +252,19 @@ export class UserService {
 
   //mapeamento para userDto básico
   private async mapToDto(user: User): Promise<UserBaseDto> {
-    const [followersCount, followingCount] = await Promise.all([
+    const [followersCount, followingCount, tweetsCount] = await Promise.all([
       prisma.follower.count({ where: { followerId: user.id } }),
       prisma.follower.count({ where: { followedId: user.id } }),
+      prisma.tweet.count({ where: { userId: user.id } }),
     ]);
 
     return {
       id: user.id,
       name: user.name,
       username: user.username,
-      followers: followersCount, //Contagem de seguidores deste usuário
-      following: followingCount, //Contagem de usuários seguidos por este usuário
+      ...(followersCount > 0 && { followers: followersCount }), // Inclui contagem de seguidores apenas se maior que 0
+      ...(followingCount > 0 && { following: followingCount }), // Inclui contagem de seguidos apenas se maior que 0
+      ...(tweetsCount > 0 && { tweets: tweetsCount }), // Inclui contagem de tweets apenas se maior que 0
     };
   }
 
@@ -275,7 +277,7 @@ export class UserService {
         id: string;
         userId: string;
         type: TweetType;
-        parentId: string | null;
+        parentId?: string | null;
         content: string;
         createdAt: Date;
         updatedAt?: Date;
@@ -293,28 +295,37 @@ export class UserService {
       id,
       name,
       username,
-      followers: followers.map(({ follower }) => ({
-        id: follower.id,
-        name: follower.name,
-        username: follower.username,
-      })),
-      following: following.map(({ followed }) => ({
-        id: followed.id,
-        name: followed.name,
-        username: followed.username,
-      })),
-      tweets: tweets.map((tweet) => ({
-        id: tweet.id,
-        userId: tweet.userId,
-        type: tweet.type,
-        parentId: tweet.parentId,
-        content: tweet.content,
-        createdAt: tweet.createdAt,
-        updatedAt: tweet.updatedAt,
-        likeCount: tweet._count.likes,
-        replyCount: tweet._count.replies,
-        retweetCount: tweet._count.retweets,
-      })),
+      // Inclui apenas se a contagem for maior que 0
+      ...(followers.length > 0 && {
+        followers: followers.map(({ follower }) => ({
+          id: follower.id,
+          name: follower.name,
+          username: follower.username,
+        })),
+      }),
+      ...(following.length > 0 && {
+        following: following.map(({ followed }) => ({
+          id: followed.id,
+          name: followed.name,
+          username: followed.username,
+        })),
+      }),
+      ...(tweets.length > 0 && {
+        tweets: tweets.map((tweet) => ({
+          id: tweet.id,
+          userId: tweet.userId,
+          type: tweet.type,
+          ...(tweet.parentId && { parentId: tweet.parentId }), // Inclui apenas se não for null
+          content: tweet.content,
+          createdAt: tweet.createdAt,
+          updatedAt: tweet.updatedAt,
+          ...(tweet._count.likes > 0 && { likeCount: tweet._count.likes }),
+          ...(tweet._count.replies > 0 && { replyCount: tweet._count.replies }),
+          ...(tweet._count.retweets > 0 && {
+            retweetCount: tweet._count.retweets,
+          }),
+        })),
+      }),
     };
   }
 }

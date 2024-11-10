@@ -105,7 +105,7 @@ export class TweetService {
     return {
       ok: true,
       code: 200,
-      message: "User details retrieved successfully.",
+      message: "Tweet details retrieved successfully.",
       data: this.mapToFullDto(tweet), // Mapeia detalhes
     };
   }
