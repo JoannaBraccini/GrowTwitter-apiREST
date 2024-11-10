@@ -9,10 +9,10 @@ export class UserRoutes {
     const router = Router();
 
     //CREATE USER -> movido para authRoutes: signup
-    //FIND MANY USERS (by query)
+    //FIND ALL USERS (with optional query)
     router.get(
       "/users",
-      [AuthMiddleware.validate, UserMiddleware.validateTypes],
+      [UserMiddleware.validateTypes], //sem validação de token para visualizar
       UserController.findMany
     );
 
@@ -23,7 +23,7 @@ export class UserRoutes {
       UserController.findOne
     );
 
-    //UPDATE USER (id)
+    //UPDATE USER (by id)
     router.put(
       "/users/:id",
       [
@@ -35,12 +35,20 @@ export class UserRoutes {
       UserController.update
     );
 
-    //DELETE USER (id)
+    //DELETE USER (by id)
     router.delete(
       "/users/:id",
       [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
       UserController.remove
     );
+
+    //FOLLOW ACTIONS (by id)
+    router.post(
+      "/users/follow/:id",
+      [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
+      UserController.follow
+    );
+
     return router;
   }
 }

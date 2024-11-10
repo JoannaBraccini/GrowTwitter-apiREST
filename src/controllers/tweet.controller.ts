@@ -29,11 +29,10 @@ export class TweetController {
 
   public static async findAll(req: Request, res: Response): Promise<void> {
     try {
-      const { user } = req.body;
       const { page, take, search } = req.query;
 
       const service = new TweetService();
-      const result = await service.findAll(user.id, {
+      const result = await service.findAll({
         page: page ? Number(page) - 1 : undefined,
         take: take ? Number(take) : undefined,
         search: search ? String(search) : undefined,
@@ -69,10 +68,10 @@ export class TweetController {
   public static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { content } = req.body;
+      const { content, user } = req.body;
 
       const service = new TweetService();
-      const result = await service.update(id, content);
+      const result = await service.update(id, user.id, content);
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -87,9 +86,10 @@ export class TweetController {
   public static async remove(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const { user } = req.body;
 
       const service = new TweetService();
-      const result = await service.remove(id);
+      const result = await service.remove(id, user.id);
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -97,6 +97,42 @@ export class TweetController {
       res.status(500).json({
         ok: false,
         message: `Error removing tweet: ${error.message}`,
+      });
+    }
+  }
+
+  public static async like(req: Request, res: Response): Promise<void> {
+    try {
+      const { user } = req.body;
+      const tweetId = req.params.id;
+
+      const service = new TweetService();
+      const result = await service.like(tweetId, user.id);
+
+      const { code, ...response } = result;
+      res.status(code).json(response);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        message: `Server error: ${error.message}`,
+      });
+    }
+  }
+
+  public static async retweet(req: Request, res: Response): Promise<void> {
+    try {
+      const { user } = req.body;
+      const tweetId = req.params.id;
+
+      const service = new TweetService();
+      const result = await service.retweet(tweetId, user.id);
+
+      const { code, ...response } = result;
+      res.status(code).json(response);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        message: `Server error: ${error.message}`,
       });
     }
   }

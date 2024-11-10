@@ -26,30 +26,38 @@ export class TweetService {
       data: { userId, parentId, type, content },
     });
 
+    const tweetDto = await this.mapToDto(tweetCreated);
+
     return {
       ok: true,
       code: 201,
       message: "Tweet created successfully!",
-      data: this.mapToDto(tweetCreated),
+      data: tweetDto,
     };
   }
 
   //FIND ALL - com paginação e search
-  public async findAll(
-    id: string,
-    query?: { page?: number; take?: number; search?: string }
-  ): Promise<ResponseApi> {
-    const tweets = await prisma.tweet.findMany({
+  public async findAll(query?: {
+    page?: number;
+    take?: number;
+    search?: string;
+  }): Promise<ResponseApi> {
+    const tweetSearch = await prisma.tweet.findMany({
       skip: query?.page,
       take: query?.take,
       where: {
-        userId: id,
         content: { contains: query?.search, mode: "insensitive" },
       },
       orderBy: { createdAt: "asc" },
     });
 
-    if (!tweets || tweets.length === 0) {
+    const tweetsDefault = await prisma.tweet.findMany({
+      skip: query?.page,
+      take: query?.take,
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (tweetSearch.length === 0 || tweetsDefault.length === 0) {
       return {
         ok: false,
         code: 404,
@@ -57,11 +65,17 @@ export class TweetService {
       };
     }
 
+    const tweets = tweetSearch.length > 0 ? tweetSearch : tweetsDefault;
+
+    const tweetDtos = await Promise.all(
+      tweets.map((tweet) => this.mapToDto(tweet))
+    );
+
     return {
       ok: true,
       code: 200,
       message: "Tweets retrieved successfully",
-      data: tweets.map((tweet) => this.mapToDto(tweet)),
+      data: tweetDtos,
     };
   }
 
@@ -91,18 +105,19 @@ export class TweetService {
     return {
       ok: true,
       code: 200,
-      message: "User details retrieved successfully.",
+      message: "Tweet details retrieved successfully.",
       data: this.mapToFullDto(tweet), // Mapeia detalhes
     };
   }
 
   //UPDATE
   public async update(
-    id: string,
-    tweetUpdate: TweetUpdateDto
+    tweetId: string,
+    userId: string,
+    content: string
   ): Promise<ResponseApi> {
     const tweet = await prisma.tweet.findUnique({
-      where: { id },
+      where: { id: tweetId },
     });
 
     if (!tweet) {
@@ -113,9 +128,18 @@ export class TweetService {
       };
     }
 
+    // Verifica se o tweet pertence ao usuário
+    if (tweet.userId !== userId) {
+      return {
+        ok: false,
+        code: 403,
+        message: "Not authorized to modify this tweet!",
+      };
+    }
+
     const tweetUpdated = await prisma.tweet.update({
-      where: { id },
-      data: { ...tweetUpdate },
+      where: { id: tweetId },
+      data: { content: content },
     });
 
     return {
@@ -133,7 +157,7 @@ export class TweetService {
   }
 
   //DELETE
-  public async remove(id: string): Promise<ResponseApi> {
+  public async remove(id: string, userId: string): Promise<ResponseApi> {
     const tweet = await prisma.tweet.findUnique({
       where: { id },
     });
@@ -146,30 +170,154 @@ export class TweetService {
       };
     }
 
-    const tweetDeleted = await prisma.tweet.delete({
-      where: { id },
-    });
+    // Verifica se o tweet pertence ao usuário
+    if (tweet.userId !== userId) {
+      return {
+        ok: false,
+        code: 404,
+        message: "Not authorized to delete this tweet!",
+      };
+    }
+
+    // Mapeia os dados do tweet antes da exclusão
+    const tweetToDelete = await this.mapToDto(tweet);
+    //exclui
+    await prisma.tweet.delete({ where: { id } });
 
     return {
       ok: true,
       code: 200,
       message: "Tweet removed successfully",
-      data: this.mapToDto(tweetDeleted),
+      data: tweetToDelete,
     };
   }
 
-  private mapToDto(tweet: Tweet): TweetDto {
+  //LIKE/UNLIKE
+  public async like(tweetId: string, userId: string): Promise<ResponseApi> {
+    const tweet = await prisma.tweet.findUnique({
+      where: { id: tweetId },
+    });
+
+    if (!tweet) {
+      return {
+        ok: false,
+        code: 404,
+        message: "Tweet not found",
+      };
+    }
+
+    // Verificar se o usuário já curtiu
+    const alreadyLiked = await prisma.like.findUnique({
+      where: {
+        //constraint de chave composta
+        tweetId_userId: {
+          tweetId: tweetId,
+          userId: userId,
+        },
+      },
+    });
+    //se já tiver curtido, deleta o like
+    if (alreadyLiked) {
+      await prisma.like.delete({
+        where: { id: alreadyLiked.id },
+      });
+      return {
+        ok: true,
+        code: 200,
+        message: "Like removed successfully",
+      };
+    } else {
+      // Criar o like caso não exista
+      const like = await prisma.like.create({
+        data: {
+          tweetId: tweetId,
+          userId: userId,
+        },
+      });
+
+      return {
+        ok: true,
+        code: 200,
+        message: "Tweet liked successfully",
+        data: like,
+      };
+    }
+  }
+
+  //RETWEET/CANCEL RETWEET
+  public async retweet(tweetId: string, userId: string): Promise<ResponseApi> {
+    const tweet = await prisma.tweet.findUnique({
+      where: { id: tweetId },
+    });
+
+    if (!tweet) {
+      return {
+        ok: false,
+        code: 404,
+        message: "Tweet not found",
+      };
+    }
+
+    // Verificar se o usuário já retweetou
+    const alreadyRetweeted = await prisma.retweet.findUnique({
+      where: {
+        //constraint de chave composta
+        tweetId_userId: {
+          tweetId: tweetId,
+          userId: userId,
+        },
+      },
+    });
+
+    //se já tiver retweetadp, deleta o retweet
+    if (alreadyRetweeted) {
+      await prisma.retweet.delete({
+        where: { id: alreadyRetweeted.id },
+      });
+      return {
+        ok: true,
+        code: 200,
+        message: "Retweet removed successfully",
+      };
+    } else {
+      // Cria o retweet caso não exista
+      const retweet = await prisma.retweet.create({
+        data: {
+          userId: userId,
+          tweetId: tweetId,
+        },
+      });
+
+      return {
+        ok: true,
+        code: 201,
+        message: "Retweeted successfully",
+        data: retweet,
+      };
+    }
+  }
+
+  //MAP To DTO
+  private async mapToDto(tweet: Tweet): Promise<TweetDto> {
+    const [likesCount, retweetsCount, repliesCount] = await Promise.all([
+      prisma.like.count({ where: { tweetId: tweet.id } }),
+      prisma.retweet.count({ where: { tweetId: tweet.id } }),
+      prisma.tweet.count({ where: { parentId: tweet.id } }),
+    ]);
     return {
       id: tweet.id,
       userId: tweet.userId,
       type: tweet.type,
-      parentId: tweet.parentId || undefined,
+      ...(tweet.parentId !== null && { parentId: tweet.parentId }), // Inclui parentId apenas se definido
       content: tweet.content,
       createdAt: tweet.createdAt,
+      ...(likesCount > 0 && { likes: likesCount }), // Inclui contagem de likes apenas se maior que 0
+      ...(retweetsCount > 0 && { retweets: retweetsCount }), // Inclui contagem de retweets apenas se maior que 0
+      ...(repliesCount > 0 && { replies: repliesCount }), // Inclui contagem de replies apenas se maior que 0
     };
   }
 
-  // Mapeamento para UserDto completo
+  // Mapeamento para TweetDto completo
   private mapToFullDto(
     tweet: Tweet & {
       likes: { id: string; userId: string }[];
@@ -189,26 +337,32 @@ export class TweetService {
       id,
       userId,
       type,
-      parentId,
+      ...(parentId !== null && { parentId }), // Inclui parentId apenas se definido
       content,
       createdAt,
       updatedAt,
-      likes: tweet.likes?.map((like) => ({
-        id: like.id,
-        userId: like.userId,
-      })),
-      retweets: tweet.retweets.map((retweet) => ({
-        id: retweet.id,
-        userId: retweet.userId,
-      })),
-      replies: tweet.replies.map((reply) => ({
-        id: reply.id,
-        userId: reply.userId,
-        type: reply.type,
-        content: reply.content,
-        createdAt: reply.createdAt,
-        updatedAt: reply.updatedAt,
-      })),
+      ...(tweet.likes.length > 0 && {
+        likes: tweet.likes.map((like) => ({
+          id: like.id,
+          userId: like.userId,
+        })),
+      }), // Inclui dado apenas se houver likes
+      ...(tweet.retweets.length > 0 && {
+        retweets: tweet.retweets.map((retweet) => ({
+          id: retweet.id,
+          userId: retweet.userId,
+        })),
+      }), // Inclui dado apenas se houver retweets
+      ...(tweet.replies.length > 0 && {
+        replies: tweet.replies.map((reply) => ({
+          id: reply.id,
+          userId: reply.userId,
+          type: reply.type,
+          content: reply.content,
+          createdAt: reply.createdAt,
+          updatedAt: reply.updatedAt,
+        })),
+      }), // Inclui dado apenas se houver replies
     };
   }
 }

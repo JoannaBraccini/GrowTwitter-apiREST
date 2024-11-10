@@ -11,22 +11,15 @@ export interface TweetDto {
   id: string;
   userId: string;
   type: TweetType;
-  parentId?: string | null;
+  parentId?: string;
   content: string;
   createdAt: Date;
   updatedAt?: Date;
-  likes?: { id: string; userId: string }[];
-  retweets?: { id: string; userId: string }[];
-  replies?: TweetDto[];
+  likes?: { id: string; userId: string }[] | number;
+  retweets?: { id: string; userId: string }[] | number;
+  replies?: TweetDto[] | number;
 }
 
 export interface TweetUpdateDto {
   content: string;
-}
-
-//para like e retweet
-export interface CreateEngagementDto {
-  tweetId: string; //id do tweet pai
-  userId: string;
-  type: "LIKE" | "RETWEET";
 }

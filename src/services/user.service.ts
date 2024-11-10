@@ -6,7 +6,7 @@ import { Bcrypt } from "../utils/bcrypt";
 
 export class UserService {
   //CREATE -> movido para authService: signup
-  //READ (query many)
+  //READ (optional search query)
   public async findMany({
     name,
     username,
@@ -24,7 +24,9 @@ export class UserService {
       where.email = { contains: email, mode: "insensitive" };
     }
 
-    const users = await prisma.user.findMany({ where });
+    const users = where
+      ? await prisma.user.findMany({ where })
+      : await prisma.user.findMany();
 
     if (users.length === 0) {
       return {
@@ -33,12 +35,15 @@ export class UserService {
         message: "No users found",
       };
     }
+    const userDtos = await Promise.all(
+      users.map((user) => this.mapToDto(user))
+    );
 
     return {
       ok: true,
       code: 200,
       message: "Users retrieved successfully",
-      data: users.map((user) => this.mapToDto(user)), //retorna dados básicos
+      data: userDtos, //retorna dados básicos
     };
   }
 
@@ -146,7 +151,15 @@ export class UserService {
   }
 
   //DELETE (id)
-  public async remove(id: string): Promise<ResponseApi> {
+  public async remove(id: string, userId: string): Promise<ResponseApi> {
+    // Verificar se o usuário autenticado é o mesmo que está sendo atualizado
+    if (id !== userId) {
+      return {
+        ok: false,
+        code: 403, //forbidden
+        message: "You are not authorized to delete this profile.",
+      };
+    }
     const user = await prisma.user.findUnique({ where: { id } });
 
     if (!user) {
@@ -165,16 +178,93 @@ export class UserService {
       ok: true,
       code: 200,
       message: "User removed successfully",
-      data: this.mapToDto(userDeleted),
+      data: userDeleted,
     };
   }
 
+  //FOLLOW/UNFOLLOW (id)
+  public async follow(
+    followerId: string,
+    followedId: string
+  ): Promise<ResponseApi> {
+    if (followerId === followedId) {
+      return {
+        ok: false,
+        code: 409, //conflict
+        message: "Follower ID and Followed ID can't be the same.",
+      };
+    }
+
+    // Verificar se os usuários existem
+    const follower = await prisma.user.findUnique({
+      where: { id: followerId },
+    });
+
+    const followed = await prisma.user.findUnique({
+      where: { id: followedId },
+    });
+
+    if (!follower || !followed) {
+      return {
+        ok: false,
+        code: 400, // Bad Request
+        message: "Invalid user ID(s) provided.",
+      };
+    }
+
+    // Verificar se usuário já segue
+    const alreadyFollows = await prisma.follower.findUnique({
+      where: {
+        followerId_followedId: {
+          followerId: followerId,
+          followedId: followedId,
+        },
+      },
+    });
+
+    //se já estiver seguindo, remove o follow
+    if (alreadyFollows) {
+      await prisma.follower.delete({
+        where: { id: alreadyFollows.id },
+      });
+      return {
+        ok: true,
+        code: 200,
+        message: "Follow removed successfully",
+      };
+    } else {
+      // Seguir caso ainda não seja seguidor
+      const follow = await prisma.follower.create({
+        data: {
+          followerId: followerId,
+          followedId: followedId,
+        },
+      });
+
+      return {
+        ok: true,
+        code: 200,
+        message: "User followed successfully",
+        data: follow,
+      };
+    }
+  }
+
   //mapeamento para userDto básico
-  private mapToDto(user: User): UserBaseDto {
+  private async mapToDto(user: User): Promise<UserBaseDto> {
+    const [followersCount, followingCount, tweetsCount] = await Promise.all([
+      prisma.follower.count({ where: { followerId: user.id } }),
+      prisma.follower.count({ where: { followedId: user.id } }),
+      prisma.tweet.count({ where: { userId: user.id } }),
+    ]);
+
     return {
       id: user.id,
       name: user.name,
       username: user.username,
+      ...(followersCount > 0 && { followers: followersCount }), // Inclui contagem de seguidores apenas se maior que 0
+      ...(followingCount > 0 && { following: followingCount }), // Inclui contagem de seguidos apenas se maior que 0
+      ...(tweetsCount > 0 && { tweets: tweetsCount }), // Inclui contagem de tweets apenas se maior que 0
     };
   }
 
@@ -187,7 +277,7 @@ export class UserService {
         id: string;
         userId: string;
         type: TweetType;
-        parentId: string | null;
+        parentId?: string | null;
         content: string;
         createdAt: Date;
         updatedAt?: Date;
@@ -205,28 +295,37 @@ export class UserService {
       id,
       name,
       username,
-      followers: followers.map(({ follower }) => ({
-        id: follower.id,
-        name: follower.name,
-        username: follower.username,
-      })),
-      following: following.map(({ followed }) => ({
-        id: followed.id,
-        name: followed.name,
-        username: followed.username,
-      })),
-      tweets: tweets.map((tweet) => ({
-        id: tweet.id,
-        userId: tweet.userId,
-        type: tweet.type,
-        parentId: tweet.parentId,
-        content: tweet.content,
-        createdAt: tweet.createdAt,
-        updatedAt: tweet.updatedAt,
-        likeCount: tweet._count.likes,
-        replyCount: tweet._count.replies,
-        retweetCount: tweet._count.retweets,
-      })),
+      // Inclui apenas se a contagem for maior que 0
+      ...(followers.length > 0 && {
+        followers: followers.map(({ follower }) => ({
+          id: follower.id,
+          name: follower.name,
+          username: follower.username,
+        })),
+      }),
+      ...(following.length > 0 && {
+        following: following.map(({ followed }) => ({
+          id: followed.id,
+          name: followed.name,
+          username: followed.username,
+        })),
+      }),
+      ...(tweets.length > 0 && {
+        tweets: tweets.map((tweet) => ({
+          id: tweet.id,
+          userId: tweet.userId,
+          type: tweet.type,
+          ...(tweet.parentId && { parentId: tweet.parentId }), // Inclui apenas se não for null
+          content: tweet.content,
+          createdAt: tweet.createdAt,
+          updatedAt: tweet.updatedAt,
+          ...(tweet._count.likes > 0 && { likeCount: tweet._count.likes }),
+          ...(tweet._count.replies > 0 && { replyCount: tweet._count.replies }),
+          ...(tweet._count.retweets > 0 && {
+            retweetCount: tweet._count.retweets,
+          }),
+        })),
+      }),
     };
   }
 }

@@ -8,7 +8,7 @@ export class TweetRoutes {
   public static execute(): Router {
     const router = Router();
 
-    //CREATE TWEET
+    //CREATE TWEET/REPLY
     router.post(
       "/tweets",
       [
@@ -19,17 +19,17 @@ export class TweetRoutes {
       ],
       TweetController.create
     );
-    //FIND ALL TWEETS/SEARCH
-    router.get("/tweets", [AuthMiddleware.validate], TweetController.findAll);
+    //FIND ALL TWEETS (with optional content search)
+    router.get("/tweets", TweetController.findAll); //sem validação de token para visualizar
 
-    //FIND ONE TWEET (id)
+    //FIND ONE TWEET (by id)
     router.get(
       "/tweets/:id",
       [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
       TweetController.findOne
     );
 
-    //UPDATE TWEET
+    //UPDATE TWEET (by id)
     router.put(
       "/tweets/:id",
       [
@@ -41,11 +41,26 @@ export class TweetRoutes {
       TweetController.update
     );
 
-    //DELETE TWEET
-    router.delete("/tweets/:id", [
-      AuthMiddleware.validate,
-      ValidateUuidMiddleware.validate,
-    ]);
+    //DELETE TWEET (by id)
+    router.delete(
+      "/tweets/:id",
+      [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
+      TweetController.remove
+    );
+
+    //LIKE ACTIONS TWEET (by id)
+    router.post(
+      "/tweets/like/:id",
+      [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
+      TweetController.like
+    );
+
+    //RETWEET ACTIONS (by id)
+    router.post(
+      "/tweets/retweet/:id",
+      [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
+      TweetController.retweet
+    );
 
     return router;
   }

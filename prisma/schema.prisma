@@ -72,6 +72,7 @@ model Like {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
+  @@unique([tweetId, userId]) // não permitir duplicidade de likes
   @@map("likes")
 }
 
@@ -84,6 +85,7 @@ model Retweet {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
+  @@unique([tweetId, userId]) // não permitir duplicidade de retweet
   @@map("retweets")
 }
 
