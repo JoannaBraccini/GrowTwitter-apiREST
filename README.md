@@ -65,6 +65,3 @@ Criada como parte dos projetos práticos do curso Starter Web Full Stack da Grow
 
 #### Documentação completa:
 https://documenter.getpostman.com/view/34248306/2sAY52df2o
-
-#### Link da API:
-https://growtwitter-api-6avu.onrender.com/
