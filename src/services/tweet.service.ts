@@ -52,13 +52,10 @@ export class TweetService {
       : undefined,
     orderBy: { createdAt: "desc" }, // Mostrar os mais recentes primeiro
     include: {
-      user: {
-        select: {
-          name: true,
-          username: true,
+        user: {
+          select: { name: true, username: true },
         },
       },
-    },
   });
 
   if (tweets.length === 0) {
