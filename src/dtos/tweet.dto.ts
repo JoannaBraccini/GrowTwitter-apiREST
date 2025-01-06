@@ -9,6 +9,8 @@ export interface CreateTweetDto {
 
 export interface TweetDto {
   id: string;
+  user: string;
+  username: string;
   userId: string;
   type: TweetType;
   parentId?: string;
