@@ -42,30 +42,22 @@ export class TweetService {
     take?: number;
     search?: string;
   }): Promise<ResponseApi> {
-    const tweetSearch = await prisma.tweet.findMany({
+    const tweets = await prisma.tweet.findMany({
       skip: query?.page,
       take: query?.take,
-      where: {
-        content: { contains: query?.search, mode: "insensitive" },
-      },
-      orderBy: { createdAt: "asc" },
-    });
+      where: query?.search
+      ? { content: { contains: query.search, mode: "insensitive" } }
+      : undefined,
+    orderBy: { createdAt: "desc" }, // Para mostrar os mais recentes primeiro
+  });
 
-    const tweetsDefault = await prisma.tweet.findMany({
-      skip: query?.page,
-      take: query?.take,
-      orderBy: { createdAt: "asc" },
-    });
-
-    if (tweetSearch.length === 0 || tweetsDefault.length === 0) {
+    if (tweets.length === 0) {
       return {
         ok: false,
         code: 404,
         message: "No tweets found",
       };
     }
-
-    const tweets = tweetSearch.length > 0 ? tweetSearch : tweetsDefault;
 
     const tweetDtos = await Promise.all(
       tweets.map((tweet) => this.mapToDto(tweet))
