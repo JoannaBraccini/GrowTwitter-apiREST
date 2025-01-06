@@ -49,6 +49,13 @@ export class TweetService {
       ? { content: { contains: query.search, mode: "insensitive" } }
       : undefined,
     orderBy: { createdAt: "desc" }, // Para mostrar os mais recentes primeiro
+      include: {
+      user: {
+        select: {
+          name: true,
+          username: true,
+        },
+      },
   });
 
     if (tweets.length === 0) {
@@ -298,7 +305,7 @@ export class TweetService {
     ]);
     return {
       id: tweet.id,
-      user: tweet.user,
+      name: tweet.name,
       username: tweet.username,
       userId: tweet.userId,
       type: tweet.type,
@@ -314,11 +321,13 @@ export class TweetService {
   // Mapeamento para TweetDto completo
   private mapToFullDto(
     tweet: Tweet & {
-      likes: { id: string; userId: string }[];
-      retweets: { id: string; userId: string }[];
+      likes: { id: string; name:string, username:string, userId: string }[];
+      retweets: { id: string; name:string, username:string, userId: string }[];
       replies: {
         id: string;
         userId: string;
+        name:string; 
+        username:string;
         type: TweetType;
         content: string;
         createdAt: Date;
@@ -326,10 +335,10 @@ export class TweetService {
       }[];
     }
   ): TweetDto {
-    const { id, user, username, userId, type, parentId, content, createdAt, updatedAt } = tweet; //desestrutura
+    const { id, name, username, userId, type, parentId, content, createdAt, updatedAt } = tweet; //desestrutura
     return {
       id,
-      user,
+      name,
       username,
       userId,
       type,
@@ -340,7 +349,7 @@ export class TweetService {
       ...(tweet.likes.length > 0 && {
         likes: tweet.likes.map((like) => ({
           id: like.id,
-          user:like.user,
+          name:like.name,
           username:like.username,
           userId: like.userId,
         })),
@@ -348,7 +357,7 @@ export class TweetService {
       ...(tweet.retweets.length > 0 && {
         retweets: tweet.retweets.map((retweet) => ({
           id: retweet.id,
-          user:retweet.user,
+          name:retweet.name,
           username:retweet.username,
           userId: retweet.userId,
         })),
@@ -356,7 +365,7 @@ export class TweetService {
       ...(tweet.replies.length > 0 && {
         replies: tweet.replies.map((reply) => ({
           id: reply.id,
-          user:reply.user,
+          name:reply.name,
           username:reply.username,
           userId: reply.userId,
           type: reply.type,
