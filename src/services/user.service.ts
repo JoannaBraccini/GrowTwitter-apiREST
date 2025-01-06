@@ -259,12 +259,12 @@ export class UserService {
     ]);
 
     return {
-      id: user.id,
+      userId: user.id,
       name: user.name,
       username: user.username,
-      ...(followersCount > 0 && { followers: followersCount }), // Inclui contagem de seguidores apenas se maior que 0
-      ...(followingCount > 0 && { following: followingCount }), // Inclui contagem de seguidos apenas se maior que 0
-      ...(tweetsCount > 0 && { tweets: tweetsCount }), // Inclui contagem de tweets apenas se maior que 0
+      // ...(followersCount > 0 && { followers: followersCount }), // Inclui contagem de seguidores apenas se maior que 0
+      // ...(followingCount > 0 && { following: followingCount }), // Inclui contagem de seguidos apenas se maior que 0
+      // ...(tweetsCount > 0 && { tweets: tweetsCount }), // Inclui contagem de tweets apenas se maior que 0
     };
   }
 
@@ -282,11 +282,11 @@ export class UserService {
         createdAt: Date;
         updatedAt?: Date;
         //contagem
-        _count: {
-          likes: number;
-          replies: number;
-          retweets: number;
-        };
+        // _count: {
+        //   likes: number;
+        //   replies: number;
+        //   retweets: number;
+        // };
       }[];
     }
   ): UserDto {
@@ -298,14 +298,14 @@ export class UserService {
       // Inclui apenas se a contagem for maior que 0
       ...(followers.length > 0 && {
         followers: followers.map(({ follower }) => ({
-          id: follower.id,
+          userId: follower.id,
           name: follower.name,
           username: follower.username,
         })),
       }),
       ...(following.length > 0 && {
         following: following.map(({ followed }) => ({
-          id: followed.id,
+          userId: followed.id,
           name: followed.name,
           username: followed.username,
         })),
@@ -319,11 +319,11 @@ export class UserService {
           content: tweet.content,
           createdAt: tweet.createdAt,
           updatedAt: tweet.updatedAt,
-          ...(tweet._count.likes > 0 && { likeCount: tweet._count.likes }),
-          ...(tweet._count.replies > 0 && { replyCount: tweet._count.replies }),
-          ...(tweet._count.retweets > 0 && {
-            retweetCount: tweet._count.retweets,
-          }),
+          // ...(tweet._count.likes > 0 && { likeCount: tweet._count.likes }),
+          // ...(tweet._count.replies > 0 && { replyCount: tweet._count.replies }),
+          // ...(tweet._count.retweets > 0 && {
+          //   retweetCount: tweet._count.retweets,
+          // }),
         })),
       }),
     };

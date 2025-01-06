@@ -11,11 +11,11 @@ export interface UserDto {
 }
 
 export interface UserBaseDto {
-  id: string;
+  userId: string;
   name: string;
   username: string;
-  followers?: number;
-  following?: number;
+  // followers?: number;
+  // following?: number;
 }
 
 export interface QueryFilterDto {

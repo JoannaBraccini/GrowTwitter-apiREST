@@ -38,45 +38,46 @@ export class TweetService {
 
   //FIND ALL - com paginação e search
   public async findAll(query?: {
-  page?: number;
-  take?: number;
-  search?: string;
-}): Promise<ResponseApi> {
-  const skip = query?.page && query?.take ? query.page * query.take : undefined;
+    page?: number;
+    take?: number;
+    search?: string;
+  }): Promise<ResponseApi> {
+    const skip =
+      query?.page && query?.take ? query.page * query.take : undefined;
 
-  const tweets = await prisma.tweet.findMany({
-    skip,
-    take: query?.take,
-    where: query?.search
-      ? { content: { contains: query.search, mode: "insensitive" } }
-      : undefined,
-    orderBy: { createdAt: "desc" }, // Mostrar os mais recentes primeiro
-    include: {
+    const tweets = await prisma.tweet.findMany({
+      skip,
+      take: query?.take,
+      where: query?.search
+        ? { content: { contains: query.search, mode: "insensitive" } }
+        : undefined,
+      orderBy: { createdAt: "desc" }, // Mostrar os mais recentes primeiro
+      include: {
         user: {
           select: { name: true, username: true },
         },
       },
-  });
+    });
 
-  if (tweets.length === 0) {
+    if (tweets.length === 0) {
+      return {
+        ok: false,
+        code: 404,
+        message: "No tweets found",
+      };
+    }
+
+    const tweetDtos = await Promise.all(
+      tweets.map((tweet) => this.mapToDto(tweet))
+    );
+
     return {
-      ok: false,
-      code: 404,
-      message: "No tweets found",
+      ok: true,
+      code: 200,
+      message: "Tweets retrieved successfully",
+      data: tweetDtos,
     };
   }
-
-  const tweetDtos = await Promise.all(
-    tweets.map((tweet) => this.mapToDto(tweet))
-  );
-
-  return {
-    ok: true,
-    code: 200,
-    message: "Tweets retrieved successfully",
-    data: tweetDtos,
-  };
-}
 
   //FIND ONE
   public async findOne(id: string): Promise<ResponseApi> {
@@ -298,36 +299,32 @@ export class TweetService {
 
   //MAP To DTO
   private async mapToDto(tweet: Tweet): Promise<TweetDto> {
-    const [likesCount, retweetsCount, repliesCount] = await Promise.all([
-      prisma.like.count({ where: { tweetId: tweet.id } }),
-      prisma.retweet.count({ where: { tweetId: tweet.id } }),
-      prisma.tweet.count({ where: { parentId: tweet.id } }),
-    ]);
+    // const [likesCount, retweetsCount, repliesCount] = await Promise.all([
+    //   prisma.like.count({ where: { tweetId: tweet.id } }),
+    //   prisma.retweet.count({ where: { tweetId: tweet.id } }),
+    //   prisma.tweet.count({ where: { parentId: tweet.id } }),
+    // ]);
     return {
       id: tweet.id,
-      name: tweet.name,
-      username: tweet.username,
       userId: tweet.userId,
       type: tweet.type,
       ...(tweet.parentId !== null && { parentId: tweet.parentId }), // Inclui parentId apenas se definido
       content: tweet.content,
       createdAt: tweet.createdAt,
-      ...(likesCount > 0 && { likes: likesCount }), // Inclui contagem de likes apenas se maior que 0
-      ...(retweetsCount > 0 && { retweets: retweetsCount }), // Inclui contagem de retweets apenas se maior que 0
-      ...(repliesCount > 0 && { replies: repliesCount }), // Inclui contagem de replies apenas se maior que 0
+      // ...(likesCount > 0 && { likes: likesCount }), // Inclui contagem de likes apenas se maior que 0
+      // ...(retweetsCount > 0 && { retweets: retweetsCount }), // Inclui contagem de retweets apenas se maior que 0
+      // ...(repliesCount > 0 && { replies: repliesCount }), // Inclui contagem de replies apenas se maior que 0
     };
   }
 
   // Mapeamento para TweetDto completo
   private mapToFullDto(
     tweet: Tweet & {
-      likes: { id: string; name:string, username:string, userId: string }[];
-      retweets: { id: string; name:string, username:string, userId: string }[];
+      likes: { id: string; userId: string }[];
+      retweets: { id: string; userId: string }[];
       replies: {
         id: string;
         userId: string;
-        name:string; 
-        username:string;
         type: TweetType;
         content: string;
         createdAt: Date;
@@ -335,11 +332,9 @@ export class TweetService {
       }[];
     }
   ): TweetDto {
-    const { id, name, username, userId, type, parentId, content, createdAt, updatedAt } = tweet; //desestrutura
+    const { id, userId, type, parentId, content, createdAt, updatedAt } = tweet; //desestrutura
     return {
       id,
-      name,
-      username,
       userId,
       type,
       ...(parentId !== null && { parentId }), // Inclui parentId apenas se definido
@@ -349,24 +344,18 @@ export class TweetService {
       ...(tweet.likes.length > 0 && {
         likes: tweet.likes.map((like) => ({
           id: like.id,
-          name:like.name,
-          username:like.username,
           userId: like.userId,
         })),
       }), // Inclui dado apenas se houver likes
       ...(tweet.retweets.length > 0 && {
         retweets: tweet.retweets.map((retweet) => ({
           id: retweet.id,
-          name:retweet.name,
-          username:retweet.username,
           userId: retweet.userId,
         })),
       }), // Inclui dado apenas se houver retweets
       ...(tweet.replies.length > 0 && {
         replies: tweet.replies.map((reply) => ({
           id: reply.id,
-          name:reply.name,
-          username:reply.username,
           userId: reply.userId,
           type: reply.type,
           content: reply.content,
