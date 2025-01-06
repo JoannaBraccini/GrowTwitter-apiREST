@@ -38,45 +38,48 @@ export class TweetService {
 
   //FIND ALL - com paginação e search
   public async findAll(query?: {
-    page?: number;
-    take?: number;
-    search?: string;
-  }): Promise<ResponseApi> {
-    const tweets = await prisma.tweet.findMany({
-      skip: query?.page,
-      take: query?.take,
-      where: query?.search
+  page?: number;
+  take?: number;
+  search?: string;
+}): Promise<ResponseApi> {
+  const skip = query?.page && query?.take ? query.page * query.take : undefined;
+
+  const tweets = await prisma.tweet.findMany({
+    skip,
+    take: query?.take,
+    where: query?.search
       ? { content: { contains: query.search, mode: "insensitive" } }
       : undefined,
-    orderBy: { createdAt: "desc" }, // Para mostrar os mais recentes primeiro
-      include: {
+    orderBy: { createdAt: "desc" }, // Mostrar os mais recentes primeiro
+    include: {
       user: {
         select: {
           name: true,
           username: true,
         },
       },
+    },
   });
 
-    if (tweets.length === 0) {
-      return {
-        ok: false,
-        code: 404,
-        message: "No tweets found",
-      };
-    }
-
-    const tweetDtos = await Promise.all(
-      tweets.map((tweet) => this.mapToDto(tweet))
-    );
-
+  if (tweets.length === 0) {
     return {
-      ok: true,
-      code: 200,
-      message: "Tweets retrieved successfully",
-      data: tweetDtos,
+      ok: false,
+      code: 404,
+      message: "No tweets found",
     };
   }
+
+  const tweetDtos = await Promise.all(
+    tweets.map((tweet) => this.mapToDto(tweet))
+  );
+
+  return {
+    ok: true,
+    code: 200,
+    message: "Tweets retrieved successfully",
+    data: tweetDtos,
+  };
+}
 
   //FIND ONE
   public async findOne(id: string): Promise<ResponseApi> {
