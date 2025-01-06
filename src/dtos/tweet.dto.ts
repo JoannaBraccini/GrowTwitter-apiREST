@@ -9,7 +9,7 @@ export interface CreateTweetDto {
 
 export interface TweetDto {
   id: string;
-  user: string;
+  name: string;
   username: string;
   userId: string;
   type: TweetType;
@@ -17,10 +17,8 @@ export interface TweetDto {
   content: string;
   createdAt: Date;
   updatedAt?: Date;
-  likes?: { id: string; userId: string;  user: string;
-  username: string; }[] | number;
-  retweets?: { id: string; userId: string; user: string;
-  username: string; }[] | number;
+  likes?: { id: string; userId: string;  name: string; username: string; }[] | number;
+  retweets?: { id: string; userId: string; name: string; username: string; }[] | number;
   replies?: TweetDto[] | number;
 }
 
