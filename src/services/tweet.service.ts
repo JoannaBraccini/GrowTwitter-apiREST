@@ -306,6 +306,8 @@ export class TweetService {
     ]);
     return {
       id: tweet.id,
+      user: tweet.user,
+      username: tweet.username,
       userId: tweet.userId,
       type: tweet.type,
       ...(tweet.parentId !== null && { parentId: tweet.parentId }), // Inclui parentId apenas se definido
@@ -332,9 +334,11 @@ export class TweetService {
       }[];
     }
   ): TweetDto {
-    const { id, userId, type, parentId, content, createdAt, updatedAt } = tweet; //desestrutura
+    const { id, user, username, userId, type, parentId, content, createdAt, updatedAt } = tweet; //desestrutura
     return {
       id,
+      user,
+      username,
       userId,
       type,
       ...(parentId !== null && { parentId }), // Inclui parentId apenas se definido
@@ -344,18 +348,24 @@ export class TweetService {
       ...(tweet.likes.length > 0 && {
         likes: tweet.likes.map((like) => ({
           id: like.id,
+          user:like.user,
+          username:like.username,
           userId: like.userId,
         })),
       }), // Inclui dado apenas se houver likes
       ...(tweet.retweets.length > 0 && {
         retweets: tweet.retweets.map((retweet) => ({
           id: retweet.id,
+          user:retweet.user,
+          username:retweet.username,
           userId: retweet.userId,
         })),
       }), // Inclui dado apenas se houver retweets
       ...(tweet.replies.length > 0 && {
         replies: tweet.replies.map((reply) => ({
           id: reply.id,
+          user:reply.user,
+          username:reply.username,
           userId: reply.userId,
           type: reply.type,
           content: reply.content,
