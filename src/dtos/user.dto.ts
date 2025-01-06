@@ -11,7 +11,7 @@ export interface UserDto {
 }
 
 export interface UserBaseDto {
-  userId: string;
+  id: string;
   name: string;
   username: string;
   // followers?: number;

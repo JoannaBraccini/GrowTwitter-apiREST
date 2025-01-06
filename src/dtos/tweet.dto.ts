@@ -10,6 +10,10 @@ export interface CreateTweetDto {
 export interface TweetDto {
   id: string;
   userId: string;
+  user?: {
+    name: string;
+    username: string;
+  };
   type: TweetType;
   parentId?: string;
   content: string;

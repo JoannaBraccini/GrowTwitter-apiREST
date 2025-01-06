@@ -26,13 +26,11 @@ export class TweetService {
       data: { userId, parentId, type, content },
     });
 
-    const tweetDto = await this.mapToDto(tweetCreated);
-
     return {
       ok: true,
       code: 201,
       message: "Tweet created successfully!",
-      data: tweetDto,
+      data: tweetCreated,
     };
   }
 
@@ -84,11 +82,16 @@ export class TweetService {
     const tweet = await prisma.tweet.findUnique({
       where: { id },
       include: {
+        user: {
+          select: { name: true, username: true },
+        },
         likes: true,
         retweets: true,
         replies: {
           include: {
-            user: true,
+            user: {
+              select: { name: true, username: true },
+            },
           },
         },
       },
@@ -160,6 +163,14 @@ export class TweetService {
   public async remove(id: string, userId: string): Promise<ResponseApi> {
     const tweet = await prisma.tweet.findUnique({
       where: { id },
+      include: {
+        user: {
+          select: {
+            name: true,
+            username: true,
+          },
+        },
+      },
     });
 
     if (!tweet) {
@@ -298,28 +309,35 @@ export class TweetService {
   }
 
   //MAP To DTO
-  private async mapToDto(tweet: Tweet): Promise<TweetDto> {
-    // const [likesCount, retweetsCount, repliesCount] = await Promise.all([
-    //   prisma.like.count({ where: { tweetId: tweet.id } }),
-    //   prisma.retweet.count({ where: { tweetId: tweet.id } }),
-    //   prisma.tweet.count({ where: { parentId: tweet.id } }),
-    // ]);
+  private async mapToDto(
+    tweet: Tweet & { user: { name: string; username: string } }
+  ): Promise<TweetDto> {
+    const [likesCount, retweetsCount, repliesCount] = await Promise.all([
+      prisma.like.count({ where: { tweetId: tweet.id } }),
+      prisma.retweet.count({ where: { tweetId: tweet.id } }),
+      prisma.tweet.count({ where: { parentId: tweet.id } }),
+    ]);
     return {
       id: tweet.id,
       userId: tweet.userId,
+      user: {
+        name: tweet.user.name,
+        username: tweet.user.username,
+      },
       type: tweet.type,
       ...(tweet.parentId !== null && { parentId: tweet.parentId }), // Inclui parentId apenas se definido
       content: tweet.content,
       createdAt: tweet.createdAt,
-      // ...(likesCount > 0 && { likes: likesCount }), // Inclui contagem de likes apenas se maior que 0
-      // ...(retweetsCount > 0 && { retweets: retweetsCount }), // Inclui contagem de retweets apenas se maior que 0
-      // ...(repliesCount > 0 && { replies: repliesCount }), // Inclui contagem de replies apenas se maior que 0
+      ...(likesCount > 0 && { likes: likesCount }), // Inclui contagem de likes apenas se maior que 0
+      ...(retweetsCount > 0 && { retweets: retweetsCount }), // Inclui contagem de retweets apenas se maior que 0
+      ...(repliesCount > 0 && { replies: repliesCount }), // Inclui contagem de replies apenas se maior que 0
     };
   }
 
   // Mapeamento para TweetDto completo
   private mapToFullDto(
     tweet: Tweet & {
+      user: { name: string; username: string };
       likes: { id: string; userId: string }[];
       retweets: { id: string; userId: string }[];
       replies: {
@@ -332,7 +350,8 @@ export class TweetService {
       }[];
     }
   ): TweetDto {
-    const { id, userId, type, parentId, content, createdAt, updatedAt } = tweet; //desestrutura
+    const { id, userId, type, parentId, content, createdAt, updatedAt, user } =
+      tweet; //desestrutura
     return {
       id,
       userId,
@@ -341,6 +360,10 @@ export class TweetService {
       content,
       createdAt,
       updatedAt,
+      user: {
+        name: user.name,
+        username: user.username,
+      },
       ...(tweet.likes.length > 0 && {
         likes: tweet.likes.map((like) => ({
           id: like.id,
@@ -357,6 +380,10 @@ export class TweetService {
         replies: tweet.replies.map((reply) => ({
           id: reply.id,
           userId: reply.userId,
+          user: {
+            name: user.name,
+            username: user.username,
+          },
           type: reply.type,
           content: reply.content,
           createdAt: reply.createdAt,
