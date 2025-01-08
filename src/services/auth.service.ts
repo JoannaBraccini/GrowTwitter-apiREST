@@ -4,6 +4,8 @@ import { CreatedUserDto, LoginDto, SignupDto } from "../dtos";
 import { ResponseApi } from "../types/response";
 import { Bcrypt } from "../utils/bcrypt";
 import { User } from "@prisma/client";
+import { JWT } from "../utils/jwt";
+import { AuthUser } from "../types/user";
 
 export class AuthService {
   public async signup(createUser: SignupDto): Promise<ResponseApi> {
@@ -69,32 +71,32 @@ export class AuthService {
     }
 
     //gerar token
-    const token = randomUUID();
+    const jwt = new JWT();
 
-    const loggedUser = {
-      token,
-      userId: user.id,
-      username: user.username,
+    const payload: AuthUser = {
+      id: user.id,
       name: user.name,
+      username: user.username,
+      email: user.email,
     };
+    const token = jwt.generateToken(payload);
+
+    // const loggedUser = {
+    //   token,
+    //   userId: user.id,
+    //   username: user.username,
+    //   name: user.name,
+    // };
 
     //feedback de sucesso
     return {
       ok: true,
       code: 200,
       message: "Successfully logged in!",
-      data: loggedUser,
+      data: { user: payload, token },
     };
   }
 
-  public async validateToken(token: string): Promise<User | null> {
-    //busca o user pelo token
-    const user = await prisma.user.findFirst({
-      where: { authToken: token },
-    });
-
-    return user; //usuário se a validação passar
-  }
   //mapeamento para userDto básico
   private mapToDto(user: User): CreatedUserDto {
     return {

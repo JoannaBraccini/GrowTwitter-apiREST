@@ -10,12 +10,11 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(uuid()) @db.Uuid
-  name      String  @db.VarChar(100)
-  email     String  @unique @db.VarChar(50)
-  username  String  @unique @db.VarChar(30)
-  password  String
-  authToken String? @map("auth_token") //token de autenticação -> remover
+  id       String @id @default(uuid()) @db.Uuid
+  name     String @db.VarChar(100)
+  email    String @unique @db.VarChar(50)
+  username String @unique @db.VarChar(30)
+  password String
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()

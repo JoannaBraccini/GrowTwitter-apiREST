@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthService } from "../../services/auth.service";
+import { JWT } from "../../utils/jwt";
 
 export class AuthMiddleware {
   public static async validate(
@@ -18,11 +19,11 @@ export class AuthMiddleware {
       return;
     }
 
-    //chama o service
-    const service = new AuthService();
-    const userFound = await service.validateToken(token);
+    const jwt = new JWT();
 
-    if (!userFound) {
+    const userDecoded = jwt.verifyToken(token);
+
+    if (!userDecoded) {
       res.status(401).json({
         ok: false,
         message: "Not authenticated!",
@@ -31,8 +32,8 @@ export class AuthMiddleware {
     }
 
     req.body.user = {
-      id: userFound?.id,
-      username: userFound?.username,
+      id: userDecoded?.id,
+      username: userDecoded?.username,
     };
 
     next();
