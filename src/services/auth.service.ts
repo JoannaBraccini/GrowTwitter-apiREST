@@ -70,13 +70,6 @@ export class AuthService {
 
     //gerar token
     const token = randomUUID();
-    //atualizar db com novo token
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        authToken: token,
-      },
-    });
 
     const loggedUser = {
       token,
