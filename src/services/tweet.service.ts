@@ -54,6 +54,15 @@ export class TweetService {
         user: {
           select: { name: true, username: true },
         },
+        likes: {
+          select: { user: { select: { name: true, username: true } } },
+        },
+        retweets: {
+          select: { user: { select: { name: true, username: true } } },
+        },
+        replies: {
+          select: { user: { select: { name: true, username: true } } },
+        },
       },
     });
 
@@ -85,8 +94,20 @@ export class TweetService {
         user: {
           select: { name: true, username: true },
         },
-        likes: true,
-        retweets: true,
+        likes: {
+          include: {
+            user: {
+              select: { name: true, username: true },
+            },
+          },
+        },
+        retweets: {
+          include: {
+            user: {
+              select: { name: true, username: true },
+            },
+          },
+        },
         replies: {
           include: {
             user: {
@@ -280,7 +301,7 @@ export class TweetService {
       },
     });
 
-    //se já tiver retweetadp, deleta o retweet
+    //se já tiver retweetado, deleta o retweet
     if (alreadyRetweeted) {
       await prisma.retweet.delete({
         where: { id: alreadyRetweeted.id },
@@ -338,11 +359,20 @@ export class TweetService {
   private mapToFullDto(
     tweet: Tweet & {
       user: { name: string; username: string };
-      likes: { id: string; userId: string }[];
-      retweets: { id: string; userId: string }[];
+      likes: {
+        id: string;
+        userId: string;
+        user: { name: string; username: string };
+      }[];
+      retweets: {
+        id: string;
+        userId: string;
+        user: { name: string; username: string };
+      }[];
       replies: {
         id: string;
         userId: string;
+        user: { name: string; username: string };
         type: TweetType;
         content: string;
         createdAt: Date;
@@ -368,22 +398,21 @@ export class TweetService {
         likes: tweet.likes.map((like) => ({
           id: like.id,
           userId: like.userId,
+          user: { name: like.user.name, username: like.user.username },
         })),
       }), // Inclui dado apenas se houver likes
       ...(tweet.retweets.length > 0 && {
         retweets: tweet.retweets.map((retweet) => ({
           id: retweet.id,
           userId: retweet.userId,
+          user: { name: retweet.user.name, username: retweet.user.username },
         })),
       }), // Inclui dado apenas se houver retweets
       ...(tweet.replies.length > 0 && {
         replies: tweet.replies.map((reply) => ({
           id: reply.id,
           userId: reply.userId,
-          user: {
-            name: user.name,
-            username: user.username,
-          },
+          user: { name: reply.user.name, username: reply.user.username },
           type: reply.type,
           content: reply.content,
           createdAt: reply.createdAt,

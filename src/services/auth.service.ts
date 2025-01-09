@@ -81,13 +81,6 @@ export class AuthService {
     };
     const token = jwt.generateToken(payload);
 
-    // const loggedUser = {
-    //   token,
-    //   userId: user.id,
-    //   username: user.username,
-    //   name: user.name,
-    // };
-
     //feedback de sucesso
     return {
       ok: true,

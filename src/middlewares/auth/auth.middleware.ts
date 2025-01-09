@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthService } from "../../services/auth.service";
 import { JWT } from "../../utils/jwt";
 
 export class AuthMiddleware {
@@ -8,16 +7,20 @@ export class AuthMiddleware {
     res: Response,
     next: NextFunction
   ) {
-    //busca o dado
-    const token = req.headers.authorization;
+    //Busca o dado
+    const authorization = req.headers.authorization;
 
-    if (!token) {
+    if (!authorization) {
       res.status(401).json({
         ok: false,
         message: "Not authenticated!",
       });
       return;
     }
+
+    //Desestrutura o bearer token para usar somente o token
+    const [_, token] = authorization.split(" ");
+    // const token = authorization.split(" ")[1] -> assim também funciona, pegando apenas a segunda posição que é o token
 
     const jwt = new JWT();
 
