@@ -54,10 +54,14 @@ export class UserController {
   public static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { username, password, user } = req.body;
+      const userLogged = req.authUser; //criado no index.d.ts
+      const { username, password } = req.body;
 
       const service = new UserService();
-      const result = await service.update(id, user.id, { username, password }); //id no params e objeto no body
+      const result = await service.update(id, userLogged.id, {
+        username,
+        password,
+      });
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -73,10 +77,10 @@ export class UserController {
   public static async remove(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { user } = req.body;
+      const userLogged = req.authUser;
 
       const service = new UserService();
-      const result = await service.remove(id, user.id);
+      const result = await service.remove(id, userLogged.id);
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -91,11 +95,11 @@ export class UserController {
   //FOLLOW/UNFOLLOW (id)
   public static async follow(req: Request, res: Response): Promise<void> {
     try {
-      const { user } = req.body;
+      const userLogged = req.authUser;
       const { id } = req.params;
 
       const service = new UserService();
-      const result = await service.follow(user.id, id);
+      const result = await service.follow(userLogged.id, id);
 
       const { code, ...response } = result;
       res.status(code).json(response);

@@ -6,9 +6,9 @@ export class TweetController {
   public static async create(req: Request, res: Response): Promise<void> {
     try {
       const { parentId, type, content } = req.body;
-      const { id } = req.body.user;
+      const userLogged = req.authUser;
       const data: CreateTweetDto = {
-        userId: id,
+        userId: userLogged.id,
         parentId,
         type,
         content,
@@ -68,10 +68,11 @@ export class TweetController {
   public static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { content, user } = req.body;
+      const userLogged = req.authUser;
+      const { content } = req.body;
 
       const service = new TweetService();
-      const result = await service.update(id, user.id, content);
+      const result = await service.update(id, userLogged.id, content);
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -86,10 +87,10 @@ export class TweetController {
   public static async remove(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { user } = req.body;
+      const userLogged = req.authUser;
 
       const service = new TweetService();
-      const result = await service.remove(id, user.id);
+      const result = await service.remove(id, userLogged.id);
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -103,11 +104,11 @@ export class TweetController {
 
   public static async like(req: Request, res: Response): Promise<void> {
     try {
-      const { user } = req.body;
+      const userLogged = req.authUser;
       const tweetId = req.params.id;
 
       const service = new TweetService();
-      const result = await service.like(tweetId, user.id);
+      const result = await service.like(tweetId, userLogged.id);
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -121,11 +122,11 @@ export class TweetController {
 
   public static async retweet(req: Request, res: Response): Promise<void> {
     try {
-      const { user } = req.body;
+      const userLogged = req.authUser;
       const tweetId = req.params.id;
 
       const service = new TweetService();
-      const result = await service.retweet(tweetId, user.id);
+      const result = await service.retweet(tweetId, userLogged.id);
 
       const { code, ...response } = result;
       res.status(code).json(response);
