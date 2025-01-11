@@ -22,6 +22,14 @@ export class AuthMiddleware {
     const [_, token] = authorization.split(" ");
     // const token = authorization.split(" ")[1] -> assim também funciona, pegando apenas a segunda posição que é o token
 
+    if (!token) {
+      res.status(401).json({
+        ok: false,
+        message: "Not authenticated!",
+      });
+      return;
+    }
+
     const jwt = new JWT();
 
     const userDecoded = jwt.verifyToken(token);
@@ -34,9 +42,11 @@ export class AuthMiddleware {
       return;
     }
 
-    req.body.user = {
-      id: userDecoded?.id,
-      username: userDecoded?.username,
+    req.authUser = {
+      id: userDecoded.id,
+      name: userDecoded.name,
+      username: userDecoded.username,
+      email: userDecoded.email,
     };
 
     next();
