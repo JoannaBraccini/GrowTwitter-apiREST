@@ -2,6 +2,7 @@ import { Tweet, TweetType } from "@prisma/client";
 import { prisma } from "../database/prisma.database";
 import { CreateTweetDto, TweetDto } from "../dtos";
 import { ResponseApi } from "../types/response";
+import { AuthUser } from "../types/user";
 
 export class TweetService {
   //CREATE
@@ -22,6 +23,7 @@ export class TweetService {
         };
       }
     }
+
     const tweetCreated = await prisma.tweet.create({
       data: { userId, parentId, type, content },
     });
@@ -35,20 +37,40 @@ export class TweetService {
   }
 
   //FIND ALL - com paginação e search
-  public async findAll(query?: {
-    page?: number;
-    take?: number;
-    search?: string;
-  }): Promise<ResponseApi> {
+  public async findAll(
+    userId?: string,
+    query?: {
+      page?: number;
+      take?: number;
+      search?: string;
+    }
+  ): Promise<ResponseApi> {
     const skip =
       query?.page && query?.take ? query.page * query.take : undefined;
+
+    let where: any = {};
+
+    if (query?.search) {
+      //Validação para feed de usuários seguidos
+      if (userId && query.search === "following") {
+        const following = await prisma.follower.findMany({
+          //Filtra os usuários da lista de seguidos
+          where: { followerId: userId },
+          select: { followedId: true },
+        });
+        //Mapeia os usuários da lista de seguidos
+        const followingIds = following.map((f) => f.followedId);
+        where.userId = { in: followingIds };
+        //Busca comum
+      } else {
+        where.content = { contains: query.search, mode: "insensitive" };
+      }
+    }
 
     const tweets = await prisma.tweet.findMany({
       skip,
       take: query?.take,
-      where: query?.search
-        ? { content: { contains: query.search, mode: "insensitive" } }
-        : undefined,
+      where,
       orderBy: { createdAt: "desc" }, // Mostrar os mais recentes primeiro
       include: {
         user: {
@@ -181,9 +203,9 @@ export class TweetService {
   }
 
   //DELETE
-  public async remove(id: string, userId: string): Promise<ResponseApi> {
+  public async remove(tweetId: string, userId: string): Promise<ResponseApi> {
     const tweet = await prisma.tweet.findUnique({
-      where: { id },
+      where: { id: tweetId },
       include: {
         user: {
           select: {
@@ -214,7 +236,7 @@ export class TweetService {
     // Mapeia os dados do tweet antes da exclusão
     const tweetToDelete = await this.mapToDto(tweet);
     //exclui
-    await prisma.tweet.delete({ where: { id } });
+    await prisma.tweet.delete({ where: { id: tweetId } });
 
     return {
       ok: true,

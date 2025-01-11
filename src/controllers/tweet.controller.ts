@@ -30,13 +30,17 @@ export class TweetController {
   public static async findAll(req: Request, res: Response): Promise<void> {
     try {
       const { page, take, search } = req.query;
+      const userLogged = req.authUser;
 
       const service = new TweetService();
-      const result = await service.findAll({
-        page: page ? Number(page) - 1 : undefined,
-        take: take ? Number(take) : undefined,
-        search: search ? String(search) : undefined,
-      });
+      const result = await service.findAll(
+        userLogged ? userLogged.id : undefined,
+        {
+          page: page ? Number(page) - 1 : undefined,
+          take: take ? Number(take) : undefined,
+          search: search ? String(search) : undefined,
+        }
+      );
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -50,10 +54,10 @@ export class TweetController {
 
   public static async findOne(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const { tweetId } = req.params;
       const service = new TweetService();
 
-      const result = await service.findOne(id);
+      const result = await service.findOne(tweetId);
       const { code, ...response } = result;
 
       res.status(code).json(response);
@@ -67,12 +71,12 @@ export class TweetController {
 
   public static async update(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const { tweetId } = req.params;
       const userLogged = req.authUser;
       const { content } = req.body;
 
       const service = new TweetService();
-      const result = await service.update(id, userLogged.id, content);
+      const result = await service.update(tweetId, userLogged.id, content);
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -86,11 +90,11 @@ export class TweetController {
 
   public static async remove(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const { tweetId } = req.params;
       const userLogged = req.authUser;
 
       const service = new TweetService();
-      const result = await service.remove(id, userLogged.id);
+      const result = await service.remove(tweetId, userLogged.id);
 
       const { code, ...response } = result;
       res.status(code).json(response);

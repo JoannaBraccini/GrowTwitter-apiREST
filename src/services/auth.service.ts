@@ -86,7 +86,7 @@ export class AuthService {
       ok: true,
       code: 200,
       message: "Successfully logged in!",
-      data: { user: payload, token },
+      data: { token, user: payload },
     };
   }
 
