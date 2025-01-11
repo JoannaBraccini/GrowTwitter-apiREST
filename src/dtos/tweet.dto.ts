@@ -19,29 +19,21 @@ export interface TweetDto {
   content: string;
   createdAt: Date;
   updatedAt?: Date;
-  likes?:
-    | {
-        id: string;
-        userId: string;
-        user?: {
-          name: string;
-          username: string;
-        };
-      }[]
-    | number;
-  retweets?:
-    | {
-        id: string;
-        userId: string;
-        user?: {
-          name: string;
-          username: string;
-        };
-      }[]
-    | number;
-  replies?: TweetDto[] | number;
+
+  likesCount?: number;
+  retweetsCount?: number;
+  repliesCount?: number;
+
+  likes?: ActionsDto[];
+  retweets?: ActionsDto[];
+  replies?: TweetDto[];
 }
 
-export interface TweetUpdateDto {
-  content: string;
+export interface ActionsDto {
+  id: string;
+  userId: string;
+  user: {
+    name: string;
+    username: string;
+  };
 }
