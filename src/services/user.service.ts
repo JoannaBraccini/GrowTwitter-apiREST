@@ -5,96 +5,111 @@ import { Prisma, TweetType, User } from "@prisma/client";
 import { Bcrypt } from "../utils/bcrypt";
 
 export class UserService {
-  //CREATE -> movido para authService: signup
   //READ (optional search query)
   public async findMany({
     name,
     username,
     email,
   }: QueryFilterDto): Promise<ResponseApi> {
-    const where: Prisma.UserWhereInput = {};
+    try {
+      const where: Prisma.UserWhereInput = {};
 
-    if (name) {
-      where.name = { contains: name, mode: "insensitive" };
-    }
-    if (username) {
-      where.username = { contains: username, mode: "insensitive" };
-    }
-    if (email) {
-      where.email = { contains: email, mode: "insensitive" };
-    }
+      if (name) {
+        where.name = { contains: name, mode: "insensitive" };
+      }
+      if (username) {
+        where.username = { contains: username, mode: "insensitive" };
+      }
+      if (email) {
+        where.email = { contains: email, mode: "insensitive" };
+      }
 
-    const users = where
-      ? await prisma.user.findMany({ where })
-      : await prisma.user.findMany();
+      const users = where
+        ? await prisma.user.findMany({ where })
+        : await prisma.user.findMany();
 
-    if (users.length === 0) {
+      if (users.length === 0) {
+        return {
+          ok: false,
+          code: 404,
+          message: "No users found",
+        };
+      }
+      const userDtos = await Promise.all(
+        users.map((user) => this.mapToDto(user))
+      );
+
+      return {
+        ok: true,
+        code: 200,
+        message: "Users retrieved successfully",
+        data: userDtos, //retorna dados básicos
+      };
+    } catch (error: any) {
       return {
         ok: false,
-        code: 404,
-        message: "No users found",
+        code: 500,
+        message: `Internal server error: ${error.message}`,
       };
     }
-    const userDtos = await Promise.all(
-      users.map((user) => this.mapToDto(user))
-    );
-
-    return {
-      ok: true,
-      code: 200,
-      message: "Users retrieved successfully",
-      data: userDtos, //retorna dados básicos
-    };
   }
 
   //READ (id one)
   public async findOne(id: string): Promise<ResponseApi> {
-    const user = await prisma.user.findUnique({
-      where: { id },
-      include: {
-        //lista de seguidores deste usuário
-        followers: {
-          include: {
-            follower: true, //dados do seguidor
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id },
+        include: {
+          //lista de seguidores deste usuário
+          followers: {
+            include: {
+              follower: true, //dados do seguidor
+            },
           },
-        },
-        //lista de seguidos por este usuário
-        following: {
-          include: {
-            followed: true, //dados do usuário seguido
+          //lista de seguidos por este usuário
+          following: {
+            include: {
+              followed: true, //dados do usuário seguido
+            },
           },
-        },
-        //lista de tweets deste usuário
-        tweets: {
-          include: {
-            //incluir a contagem de:
-            _count: {
-              select: {
-                //likes, replies e retweets
-                likes: true,
-                replies: true,
-                retweets: true,
+          //lista de tweets deste usuário
+          tweets: {
+            include: {
+              //incluir a contagem de:
+              _count: {
+                select: {
+                  //likes, replies e retweets
+                  likes: true,
+                  replies: true,
+                  retweets: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      });
 
-    if (!user) {
+      if (!user) {
+        return {
+          ok: false,
+          code: 404,
+          message: "User not found.",
+        };
+      }
+
+      return {
+        ok: true,
+        code: 200,
+        message: "User details retrieved successfully.",
+        data: this.mapToFullDto(user), // Mapeia detalhes
+      };
+    } catch (error: any) {
       return {
         ok: false,
-        code: 404,
-        message: "User not found.",
+        code: 500,
+        message: `Internal server error: ${error.message}`,
       };
     }
-
-    return {
-      ok: true,
-      code: 200,
-      message: "User details retrieved successfully.",
-      data: this.mapToFullDto(user), // Mapeia detalhes
-    };
   }
 
   //UPDATE (id)
@@ -107,47 +122,56 @@ export class UserService {
     if (id !== userId) {
       return {
         ok: false,
-        code: 403, //forbidden
+        code: 401,
         message: "You are not authorized to modify this profile.",
       };
     }
-    //verificar se já existe usuário com username cadastrado
-    if (userUpdate.username) {
-      const existingUser = await prisma.user.findFirst({
-        where: { username: userUpdate.username, NOT: { id } }, //ignora o próprio id na busca
-      });
-      if (existingUser) {
-        return {
-          ok: false,
-          code: 409, //conflict
-          message: "Username is already in use.",
-        };
+
+    try {
+      //verificar se já existe usuário com username cadastrado
+      if (userUpdate.username) {
+        const existingUser = await prisma.user.findFirst({
+          where: { username: userUpdate.username, NOT: { id } }, //ignora o próprio id na busca
+        });
+        if (existingUser) {
+          return {
+            ok: false,
+            code: 409, //conflict
+            message: "Username is already in use.",
+          };
+        }
       }
+
+      //gerar novo hash para a senha atualizada
+      if (userUpdate.password) {
+        const bcrypt = new Bcrypt();
+        userUpdate.password = await bcrypt.generateHash(userUpdate.password);
+      }
+
+      //salva os dados novos
+      const userUpdated = await prisma.user.update({
+        where: { id },
+        data: { ...userUpdate },
+      });
+
+      return {
+        ok: true,
+        code: 200,
+        message: "User profile updated successfully.",
+        data: {
+          id: userUpdated.id,
+          name: userUpdated.name,
+          username: userUpdated.username,
+          email: userUpdated.email,
+        },
+      };
+    } catch (error: any) {
+      return {
+        ok: false,
+        code: 500,
+        message: `Internal server error: ${error.message}`,
+      };
     }
-
-    //gerar novo hash para a senha atualizada
-    if (userUpdate.password) {
-      const bcrypt = new Bcrypt();
-      userUpdate.password = await bcrypt.generateHash(userUpdate.password);
-    }
-
-    //salva os dados novos
-    const userUpdated = await prisma.user.update({
-      where: { id },
-      data: { ...userUpdate },
-    });
-
-    return {
-      ok: true,
-      code: 200,
-      message: "User profile updated successfully!",
-      data: {
-        id: userUpdated.id,
-        name: userUpdated.name,
-        username: userUpdated.username,
-        email: userUpdated.email,
-      },
-    };
   }
 
   //DELETE (id)
@@ -156,30 +180,39 @@ export class UserService {
     if (id !== userId) {
       return {
         ok: false,
-        code: 403, //forbidden
+        code: 401,
         message: "You are not authorized to delete this profile.",
       };
     }
-    const user = await prisma.user.findUnique({ where: { id } });
 
-    if (!user) {
+    try {
+      const user = await prisma.user.findUnique({ where: { id } });
+
+      if (!user) {
+        return {
+          ok: false,
+          code: 404,
+          message: "User not found",
+        };
+      }
+
+      const userDeleted = await prisma.user.delete({
+        where: { id },
+      });
+
+      return {
+        ok: true,
+        code: 200,
+        message: "User removed successfully",
+        data: userDeleted,
+      };
+    } catch (error: any) {
       return {
         ok: false,
-        code: 404,
-        message: "User not found",
+        code: 500,
+        message: `Internal server error: ${error.message}`,
       };
     }
-
-    const userDeleted = await prisma.user.delete({
-      where: { id },
-    });
-
-    return {
-      ok: true,
-      code: 200,
-      message: "User removed successfully",
-      data: userDeleted,
-    };
   }
 
   //FOLLOW/UNFOLLOW (id)
@@ -195,57 +228,65 @@ export class UserService {
       };
     }
 
-    // Verificar se os usuários existem
-    const follower = await prisma.user.findUnique({
-      where: { id: followerId },
-    });
+    try {
+      // Verificar se os usuários existem
+      const follower = await prisma.user.findUnique({
+        where: { id: followerId },
+      });
 
-    const followed = await prisma.user.findUnique({
-      where: { id: followedId },
-    });
+      const followed = await prisma.user.findUnique({
+        where: { id: followedId },
+      });
 
-    if (!follower || !followed) {
+      if (!follower || !followed) {
+        return {
+          ok: false,
+          code: 404, // Not Found
+          message: "User not found.",
+        };
+      }
+
+      // Verificar se usuário já segue
+      const alreadyFollows = await prisma.follower.findUnique({
+        where: {
+          followerId_followedId: {
+            followerId: followerId,
+            followedId: followedId,
+          },
+        },
+      });
+
+      //se já estiver seguindo, remove o follow
+      if (alreadyFollows) {
+        await prisma.follower.delete({
+          where: { id: alreadyFollows.id },
+        });
+        return {
+          ok: true,
+          code: 200,
+          message: "Follow removed successfully",
+        };
+      } else {
+        // Seguir caso ainda não seja seguidor
+        const follow = await prisma.follower.create({
+          data: {
+            followerId: followerId,
+            followedId: followedId,
+          },
+        });
+
+        return {
+          ok: true,
+          code: 200,
+          message: "User followed successfully",
+          data: follow,
+        };
+      }
+    } catch (error: any) {
       return {
         ok: false,
-        code: 400, // Bad Request
-        message: "Invalid user ID(s) provided.",
-      };
-    }
-
-    // Verificar se usuário já segue
-    const alreadyFollows = await prisma.follower.findUnique({
-      where: {
-        followerId_followedId: {
-          followerId: followerId,
-          followedId: followedId,
-        },
-      },
-    });
-
-    //se já estiver seguindo, remove o follow
-    if (alreadyFollows) {
-      await prisma.follower.delete({
-        where: { id: alreadyFollows.id },
-      });
-      return {
-        ok: true,
-        code: 200,
-        message: "Follow removed successfully",
-      };
-    } else {
-      // Seguir caso ainda não seja seguidor
-      const follow = await prisma.follower.create({
-        data: {
-          followerId: followerId,
-          followedId: followedId,
-        },
-      });
-
-      return {
-        ok: true,
-        code: 200,
-        message: "User followed successfully",
-        data: follow,
+        code: 500,
+        message: `Internal server error: ${error.message}`,
       };
     }
   }

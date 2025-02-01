@@ -8,29 +8,37 @@ export class TweetService {
   public async create(createTweet: CreateTweetDto): Promise<ResponseApi> {
     const { userId, parentId, type, content } = createTweet;
 
-    //Verificar se o tweet sendo respondido ou compartilhado existe no banco de dados
-    if (parentId) {
-      const parentTweet = await this.getTweetById(parentId);
+    try {
+      //Verificar se o tweet sendo respondido ou compartilhado existe no banco de dados
+      if (parentId) {
+        const parentTweet = await this.getTweetById(parentId);
 
-      if (!parentTweet) {
-        return {
-          ok: false,
-          code: 404,
-          message: "Tweet not found!",
-        };
+        if (!parentTweet) {
+          return {
+            ok: false,
+            code: 404,
+            message: "Tweet not found.",
+          };
+        }
       }
+
+      const tweetCreated = await prisma.tweet.create({
+        data: { userId, parentId, type, content },
+      });
+
+      return {
+        ok: true,
+        code: 201,
+        message: "Tweet created successfully.",
+        data: tweetCreated,
+      };
+    } catch (error: any) {
+      return {
+        ok: false,
+        code: 500,
+        message: `Internal server error: ${error.message}`,
+      };
     }
-
-    const tweetCreated = await prisma.tweet.create({
-      data: { userId, parentId, type, content },
-    });
-
-    return {
-      ok: true,
-      code: 201,
-      message: "Tweet created successfully!",
-      data: tweetCreated,
-    };
   }
 
   //FIND ALL - com paginação e search
@@ -47,72 +55,155 @@ export class TweetService {
 
     let where: any = {};
 
-    if (query?.search) {
-      //Validação para feed de usuários seguidos
-      if (userId && query.search === "following") {
-        const following = await prisma.follower.findMany({
-          //Filtra os usuários da lista de seguidos
-          where: { followerId: userId },
-          select: { followedId: true },
-        });
-        //Mapeia os usuários da lista de seguidos
-        const followingIds = following.map((f) => f.followedId);
-        where.userId = { in: followingIds };
-        //Busca comum
-      } else {
-        where.content = { contains: query.search, mode: "insensitive" };
+    try {
+      if (query?.search) {
+        //Validação para feed de usuários seguidos
+        if (userId && query.search === "following") {
+          const following = await prisma.follower.findMany({
+            //Filtra os usuários da lista de seguidos
+            where: { followerId: userId },
+            select: { followedId: true },
+          });
+          //Mapeia os usuários da lista de seguidos
+          const followingIds = following.map((f) => f.followedId);
+          where.userId = { in: followingIds };
+          //Busca comum
+        } else {
+          where.content = { contains: query.search, mode: "insensitive" };
+        }
       }
-    }
 
-    const tweets = await prisma.tweet.findMany({
-      skip,
-      take: query?.take,
-      where,
-      orderBy: { createdAt: "desc", updatedAt: "desc" }, // Mostrar os mais recentes primeiro
-      include: this.includeTweetRelations(),
-    });
+      const tweets = await prisma.tweet.findMany({
+        skip,
+        take: query?.take,
+        where,
+        orderBy: { createdAt: "desc", updatedAt: "desc" }, // Mostrar os mais recentes primeiro
+        include: this.includeTweetRelations(),
+      });
 
-    if (tweets.length === 0) {
+      if (tweets.length === 0) {
+        return {
+          ok: false,
+          code: 404,
+          message: "No tweets found",
+        };
+      }
+
+      const tweetDtos = await Promise.all(
+        tweets.map((tweet) => this.mapToDto(tweet))
+      );
+
+      return {
+        ok: true,
+        code: 200,
+        message: "Tweets retrieved successfully",
+        data: tweetDtos,
+      };
+    } catch (error: any) {
       return {
         ok: false,
-        code: 404,
-        message: "No tweets found",
+        code: 500,
+        message: `Internal server error: ${error.message}`,
       };
     }
+  }
 
-    const tweetDtos = await Promise.all(
-      tweets.map((tweet) => this.mapToDto(tweet))
-    );
+  //FIND FEED - com paginação e search
+  public async findFeed(
+    userId?: string,
+    query?: {
+      page?: number;
+      take?: number;
+      search?: string;
+    }
+  ): Promise<ResponseApi> {
+    const skip =
+      query?.page && query?.take ? query.page * query.take : undefined;
 
-    return {
-      ok: true,
-      code: 200,
-      message: "Tweets retrieved successfully",
-      data: tweetDtos,
-    };
+    let where: any = {};
+
+    try {
+      if (query?.search) {
+        //Validação para feed de usuários seguidos
+        if (userId && query.search === "following") {
+          const following = await prisma.follower.findMany({
+            //Filtra os usuários da lista de seguidos
+            where: { followerId: userId },
+            select: { followedId: true },
+          });
+          //Mapeia os usuários da lista de seguidos
+          const followingIds = following.map((f) => f.followedId);
+          where.userId = { in: followingIds };
+          //Busca comum
+        } else {
+          where.content = { contains: query.search, mode: "insensitive" };
+        }
+      }
+
+      const tweets = await prisma.tweet.findMany({
+        skip,
+        take: query?.take,
+        where,
+        orderBy: { createdAt: "desc", updatedAt: "desc" }, // Mostrar os mais recentes primeiro
+        include: this.includeTweetRelations(),
+      });
+
+      if (tweets.length === 0) {
+        return {
+          ok: false,
+          code: 404,
+          message: "No tweets found",
+        };
+      }
+
+      const tweetDtos = await Promise.all(
+        tweets.map((tweet) => this.mapToDto(tweet))
+      );
+
+      return {
+        ok: true,
+        code: 200,
+        message: "Tweets retrieved successfully",
+        data: tweetDtos,
+      };
+    } catch (error: any) {
+      return {
+        ok: false,
+        code: 500,
+        message: `Internal server error: ${error.message}`,
+      };
+    }
   }
 
   //FIND ONE
   public async findOne(id: string): Promise<ResponseApi> {
-    const tweet = await prisma.tweet.findUnique({
-      where: { id },
-      include: this.includeTweetRelations(),
-    });
+    try {
+      const tweet = await prisma.tweet.findUnique({
+        where: { id },
+        include: this.includeTweetRelations(),
+      });
 
-    if (!tweet) {
+      if (!tweet) {
+        return {
+          ok: false,
+          code: 404,
+          message: "Tweet not found.",
+        };
+      }
+
+      return {
+        ok: true,
+        code: 200,
+        message: "Tweet details retrieved successfully.",
+        data: this.mapToFullDto(tweet), // Mapeia detalhes
+      };
+    } catch (error: any) {
       return {
         ok: false,
-        code: 404,
-        message: "Tweet not found.",
+        code: 500,
+        message: `Internal server error: ${error.message}`,
       };
     }
-
-    return {
-      ok: true,
-      code: 200,
-      message: "Tweet details retrieved successfully.",
-      data: this.mapToFullDto(tweet), // Mapeia detalhes
-    };
   }
 
   //UPDATE
@@ -121,157 +212,189 @@ export class TweetService {
     userId: string,
     content: string
   ): Promise<ResponseApi> {
-    const tweet = await this.getTweetById(tweetId);
+    try {
+      const tweet = await this.getTweetById(tweetId);
 
-    if (!tweet) {
+      if (!tweet) {
+        return {
+          ok: false,
+          code: 404,
+          message: "Tweet not found.",
+        };
+      }
+
+      // Verifica se o tweet pertence ao usuário
+      if (tweet.userId !== userId) {
+        return {
+          ok: false,
+          code: 401,
+          message: "Not authorized to modify this tweet.",
+        };
+      }
+
+      const tweetUpdated = await prisma.tweet.update({
+        where: { id: tweetId },
+        data: { content: content },
+      });
+
+      return {
+        ok: true,
+        code: 200,
+        message: "Tweet content updated successfully.",
+        data: await this.mapToDto(tweetUpdated),
+      };
+    } catch (error: any) {
       return {
         ok: false,
-        code: 404,
-        message: "Tweet not found.",
+        code: 500,
+        message: `Internal server error: ${error.message}`,
       };
     }
-
-    // Verifica se o tweet pertence ao usuário
-    if (tweet.userId !== userId) {
-      return {
-        ok: false,
-        code: 403,
-        message: "Not authorized to modify this tweet!",
-      };
-    }
-
-    const tweetUpdated = await prisma.tweet.update({
-      where: { id: tweetId },
-      data: { content: content },
-    });
-
-    return {
-      ok: true,
-      code: 200,
-      message: "Tweet content updated successfully!",
-      data: await this.mapToDto(tweetUpdated),
-    };
   }
 
   //DELETE
   public async remove(tweetId: string, userId: string): Promise<ResponseApi> {
-    const tweet = await prisma.tweet.findUnique({
-      where: { id: tweetId },
-      include: this.includeTweetRelations(),
-    });
+    try {
+      const tweet = await prisma.tweet.findUnique({
+        where: { id: tweetId },
+        include: this.includeTweetRelations(),
+      });
 
-    if (!tweet) {
+      if (!tweet) {
+        return {
+          ok: false,
+          code: 404,
+          message: "Tweet not found",
+        };
+      }
+
+      // Verifica se o tweet pertence ao usuário
+      if (tweet.userId !== userId) {
+        return {
+          ok: false,
+          code: 401,
+          message: "Not authorized to delete this tweet.",
+        };
+      }
+
+      // Mapeia os dados do tweet antes da exclusão
+      const tweetToDelete = await this.mapToDto(tweet);
+      //Exclui os dependentes (like, retweet e reply)
+      await prisma.like.deleteMany({ where: { tweetId: tweetId } });
+      await prisma.retweet.deleteMany({ where: { tweetId: tweetId } });
+      await prisma.tweet.deleteMany({ where: { parentId: tweetId } });
+      //Exclui o tweet
+      await prisma.tweet.delete({ where: { id: tweetId } });
+
+      return {
+        ok: true,
+        code: 200,
+        message: "Tweet removed successfully",
+        data: tweetToDelete,
+      };
+    } catch (error: any) {
       return {
         ok: false,
-        code: 404,
-        message: "Tweet not found",
+        code: 500,
+        message: `Internal server error: ${error.message}`,
       };
     }
-
-    // Verifica se o tweet pertence ao usuário
-    if (tweet.userId !== userId) {
-      return {
-        ok: false,
-        code: 404,
-        message: "Not authorized to delete this tweet!",
-      };
-    }
-
-    // Mapeia os dados do tweet antes da exclusão
-    const tweetToDelete = await this.mapToDto(tweet);
-    //Exclui os dependentes (like, retweet e reply)
-    await prisma.like.deleteMany({ where: { tweetId: tweetId } });
-    await prisma.retweet.deleteMany({ where: { tweetId: tweetId } });
-    await prisma.tweet.deleteMany({ where: { parentId: tweetId } });
-    //Exclui o tweet
-    await prisma.tweet.delete({ where: { id: tweetId } });
-
-    return {
-      ok: true,
-      code: 200,
-      message: "Tweet removed successfully",
-      data: tweetToDelete,
-    };
   }
 
   //LIKE/UNLIKE
   public async like(tweetId: string, userId: string): Promise<ResponseApi> {
-    const tweet = await this.getTweetById(tweetId);
+    try {
+      const tweet = await this.getTweetById(tweetId);
 
-    if (!tweet) {
+      if (!tweet) {
+        return {
+          ok: false,
+          code: 404,
+          message: "Tweet not found",
+        };
+      }
+
+      // Verificar se o usuário já curtiu
+      const alreadyLiked = await prisma.like.findUnique({
+        where: {
+          //constraint de chave composta
+          tweetId_userId: { tweetId, userId },
+        },
+      });
+      //se já tiver curtido, deleta o like
+      if (alreadyLiked) {
+        await prisma.like.delete({ where: { id: alreadyLiked.id } });
+        return { ok: true, code: 200, message: "Like removed successfully" };
+      } else {
+        // Criar o like caso não exista
+        const like = await prisma.like.create({
+          data: { tweetId, userId },
+        });
+        return {
+          ok: true,
+          code: 201,
+          message: "Tweet liked successfully",
+          data: like,
+        };
+      }
+    } catch (error: any) {
       return {
         ok: false,
-        code: 404,
-        message: "Tweet not found",
-      };
-    }
-
-    // Verificar se o usuário já curtiu
-    const alreadyLiked = await prisma.like.findUnique({
-      where: {
-        //constraint de chave composta
-        tweetId_userId: { tweetId, userId },
-      },
-    });
-    //se já tiver curtido, deleta o like
-    if (alreadyLiked) {
-      await prisma.like.delete({ where: { id: alreadyLiked.id } });
-      return { ok: true, code: 200, message: "Like removed successfully" };
-    } else {
-      // Criar o like caso não exista
-      const like = await prisma.like.create({
-        data: { tweetId, userId },
-      });
-      return {
-        ok: true,
-        code: 200,
-        message: "Tweet liked successfully",
-        data: like,
+        code: 500,
+        message: `Internal server error: ${error.message}`,
       };
     }
   }
 
   //RETWEET/CANCEL RETWEET
   public async retweet(tweetId: string, userId: string): Promise<ResponseApi> {
-    const tweet = await this.getTweetById(tweetId);
+    try {
+      const tweet = await this.getTweetById(tweetId);
 
-    if (!tweet) {
+      if (!tweet) {
+        return {
+          ok: false,
+          code: 404,
+          message: "Tweet not found",
+        };
+      }
+
+      // Verificar se o usuário já retweetou
+      const alreadyRetweeted = await prisma.retweet.findUnique({
+        where: {
+          //constraint de chave composta
+          tweetId_userId: { tweetId, userId },
+        },
+      });
+
+      //se já tiver retweetado, deleta o retweet
+      if (alreadyRetweeted) {
+        await prisma.retweet.delete({
+          where: { id: alreadyRetweeted.id },
+        });
+        return {
+          ok: true,
+          code: 200,
+          message: "Retweet removed successfully",
+        };
+      } else {
+        // Cria o retweet caso não exista
+        const retweet = await prisma.retweet.create({
+          data: { userId, tweetId },
+        });
+
+        return {
+          ok: true,
+          code: 201,
+          message: "Retweeted successfully",
+          data: retweet,
+        };
+      }
+    } catch (error: any) {
       return {
         ok: false,
-        code: 404,
-        message: "Tweet not found",
-      };
-    }
-
-    // Verificar se o usuário já retweetou
-    const alreadyRetweeted = await prisma.retweet.findUnique({
-      where: {
-        //constraint de chave composta
-        tweetId_userId: { tweetId, userId },
-      },
-    });
-
-    //se já tiver retweetado, deleta o retweet
-    if (alreadyRetweeted) {
-      await prisma.retweet.delete({
-        where: { id: alreadyRetweeted.id },
-      });
-      return {
-        ok: true,
-        code: 200,
-        message: "Retweet removed successfully",
-      };
-    } else {
-      // Cria o retweet caso não exista
-      const retweet = await prisma.retweet.create({
-        data: { userId, tweetId },
-      });
-
-      return {
-        ok: true,
-        code: 201,
-        message: "Retweeted successfully",
-        data: retweet,
+        code: 500,
+        message: `Internal server error: ${error.message}`,
       };
     }
   }

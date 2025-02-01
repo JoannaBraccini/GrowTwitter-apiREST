@@ -3,7 +3,14 @@
   "info": {
     "title": "GrowTwitter API",
     "description": "API para o GrowTwitter, uma plataforma de microblogging.",
-    "version": "1.0.0"
+    "contact": {
+      "email": "devjoannabraccini@gmail.com"
+    },
+    "version": "2.0.0"
+  },
+  "externalDocs": {
+    "description": "Growdev",
+    "url": "http://growdev.com.br"
   },
   "servers": [
     {
@@ -15,13 +22,25 @@
       "description": "Servidor Render"
     }
   ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Endpoints relacionados à autenticação de usuários"
+    },
+    {
+      "name": "Users",
+      "description": "Endpoints relacionados aos usuários"
+    },
+    {
+      "name": "Tweets",
+      "description": "Endpoints relacionados aos tweets"
+    }
+  ],
   "paths": {
     "/signup": {
       "post": {
         "summary": "Cria um novo usuário",
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -38,17 +57,42 @@
                   "password": {
                     "type": "string"
                   }
-                }
+                },
+                "required": ["username", "email", "password"]
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Usuário criado com sucesso"
+            "description": "Usuário criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
           },
-          "400": {
-            "description": "Requisição inválida"
+          "409": {
+            "description": "Requisição inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       }
@@ -56,9 +100,7 @@
     "/login": {
       "post": {
         "summary": "Autentica um usuário",
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -69,36 +111,113 @@
                   "email": {
                     "type": "string"
                   },
+                  "username": {
+                    "type": "string"
+                  },
                   "password": {
                     "type": "string"
                   }
-                }
+                },
+                "required": ["password"],
+                "oneOf": [
+                  { "required": ["email"] },
+                  { "required": ["username"] }
+                ]
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Autenticação bem-sucedida"
+            "description": "Autenticação bem-sucedida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
           },
           "401": {
-            "description": "Credenciais inválidas"
+            "description": "Credenciais inválidas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       }
     },
     "/users": {
       "get": {
-        "summary": "Retorna todos os usuários",
-        "tags": [
-          "Users"
+        "summary": "Retorna todos os usuários. Query opcional.",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
-            "description": "Lista de usuários"
+            "description": "Usuários buscados com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Nenhum usuário encontrado"
+            "description": "Nenhum usuário encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       }
@@ -106,40 +225,62 @@
     "/users/{id}": {
       "get": {
         "summary": "Retorna um usuário pelo ID",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Detalhes do usuário"
+            "description": "Detalhes do usuário",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Usuário não encontrado"
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       },
       "put": {
         "summary": "Atualiza um usuário pelo ID",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -166,60 +307,170 @@
         },
         "responses": {
           "200": {
-            "description": "Usuário atualizado com sucesso"
+            "description": "Usuário atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Usuário não encontrado"
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       },
       "delete": {
         "summary": "Remove um usuário pelo ID",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Usuário removido com sucesso"
+            "description": "Usuário removido com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Usuário não encontrado"
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       }
     },
     "/users/follow/{id}": {
       "post": {
-        "summary": "Segue um usuário pelo ID",
-        "tags": [
-          "Users"
-        ],
+        "summary": "Seguir ou deixar de seguir um usuário pelo ID",
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Usuário seguido com sucesso"
+            "description": "Usuário seguido ou deixado de seguir com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Usuário não encontrado"
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflito na requisição",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       }
@@ -227,9 +478,7 @@
     "/tweets": {
       "post": {
         "summary": "Cria um novo tweet ou reply",
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "requestBody": {
           "required": true,
           "content": {
@@ -250,39 +499,58 @@
         },
         "responses": {
           "201": {
-            "description": "Tweet criado com sucesso"
+            "description": "Tweet criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
           },
-          "400": {
-            "description": "Requisição inválida"
+          "404": {
+            "description": "Tweet pai não encontrado para responder",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       },
       "get": {
         "summary": "Retorna todos os tweets",
-        "tags": [
-          "Tweets"
-        ],
-        "responses": {
-          "200": {
-            "description": "Lista de tweets"
-          },
-          "404": {
-            "description": "Nenhum tweet encontrado"
-          }
-        }
-      }
-    },
-    "/tweets/{id}": {
-      "get": {
-        "summary": "Retorna um tweet pelo ID",
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -290,25 +558,158 @@
         ],
         "responses": {
           "200": {
-            "description": "Detalhes do tweet"
+            "description": "Lista de tweets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Tweet não encontrado"
+            "description": "Nenhum tweet encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
-      },
-      "put": {
-        "summary": "Atualiza um tweet pelo ID",
-        "tags": [
-          "Tweets"
+      }
+    },
+    "/tweets/feed": {
+      "get": {
+        "summary": "Retorna os tweets do usuário e dos usuários seguidos",
+        "tags": ["Tweets"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
+        "responses": {
+          "200": {
+            "description": "Lista de tweets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum tweet encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tweets/{id}": {
+      "get": {
+        "summary": "Retorna um tweet pelo ID",
+        "tags": ["Tweets"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do tweet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tweet não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualiza um tweet pelo ID",
+        "tags": ["Tweets"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -329,88 +730,272 @@
         },
         "responses": {
           "200": {
-            "description": "Tweet atualizado com sucesso"
+            "description": "Tweet atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Tweet não encontrado"
+            "description": "Tweet não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       },
       "delete": {
         "summary": "Remove um tweet pelo ID",
-        "tags": [
-          "Tweets"
-        ],
+        "tags": ["Tweets"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Tweet removido com sucesso"
+            "description": "Tweet removido com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Tweet não encontrado"
+            "description": "Tweet não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       }
     },
     "/tweets/like/{id}": {
       "post": {
-        "summary": "Dá like em um tweet pelo ID",
-        "tags": [
-          "Tweets"
-        ],
+        "summary": "Dá or remove o like em um tweet pelo ID",
+        "tags": ["Tweets"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Tweet curtido com sucesso"
+            "description": "Like removido com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Tweet curtido com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Tweet não encontrado"
+            "description": "Tweet não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
       }
     },
     "/tweets/retweet/{id}": {
       "post": {
-        "summary": "Dá retweet em um tweet pelo ID",
-        "tags": [
-          "Tweets"
-        ],
+        "summary": "Compartilha/remove compartilhamento de um tweet pelo ID",
+        "tags": ["Tweets"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Tweet retweetado com sucesso"
+            "description": "Retweet cancelado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Tweet retweetado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Tweet não encontrado"
+            "description": "Tweet não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseFail"
+                }
+              }
+            }
           }
         }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResponseSuccess": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "example": true
+          },
+          "code": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "example": "Operação realizada com sucesso."
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": ["ok", "code", "message", "data"]
+      },
+      "ResponseFail": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "example": false
+          },
+          "code": {
+            "type": "integer",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "example": "Erro na operação"
+          }
+        },
+        "required": ["ok", "code", "message"]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }

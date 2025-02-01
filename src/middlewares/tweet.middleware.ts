@@ -10,7 +10,7 @@ export class TweetMiddleware {
     const errors: string[] = [];
 
     if (!type) {
-      errors.push("Tweet type is required!");
+      errors.push("Tweet type is required.");
     } else if (type === "REPLY" && !parentId) {
       errors.push("Parent Tweed ID is required for REPLY");
     }
@@ -18,7 +18,7 @@ export class TweetMiddleware {
       errors.push("Parent Tweed ID is only valid for RETWEET or REPLY");
     }
     if (!content || content.trim().length === 0) {
-      errors.push("Content is required!");
+      errors.push("Content is required.");
     }
 
     if (errors.length > 0) {

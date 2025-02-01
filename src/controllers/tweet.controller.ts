@@ -52,6 +52,31 @@ export class TweetController {
     }
   }
 
+  public static async findFeed(req: Request, res: Response): Promise<void> {
+    try {
+      const { page, take, search } = req.query;
+      const userLogged = req.authUser;
+
+      const service = new TweetService();
+      const result = await service.findFeed(
+        userLogged ? userLogged.id : undefined,
+        {
+          page: page ? Number(page) - 1 : undefined,
+          take: take ? Number(take) : undefined,
+          search: search ? String(search) : undefined,
+        }
+      );
+
+      const { code, ...response } = result;
+      res.status(code).json(response);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        message: `An error occurred while fetching tweets: ${error.message}`,
+      });
+    }
+  }
+
   public static async findOne(req: Request, res: Response): Promise<void> {
     try {
       const { tweetId } = req.params;

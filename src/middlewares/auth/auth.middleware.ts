@@ -13,7 +13,7 @@ export class AuthMiddleware {
     if (!authorization) {
       res.status(401).json({
         ok: false,
-        message: "Not authenticated!",
+        message: "Not authenticated.",
       });
       return;
     }
@@ -25,7 +25,7 @@ export class AuthMiddleware {
     if (!token) {
       res.status(401).json({
         ok: false,
-        message: "Not authenticated!",
+        message: "Not authenticated.",
       });
       return;
     }
@@ -37,7 +37,7 @@ export class AuthMiddleware {
     if (!userDecoded) {
       res.status(401).json({
         ok: false,
-        message: "Not authenticated!",
+        message: "Not authenticated.",
       });
       return;
     }

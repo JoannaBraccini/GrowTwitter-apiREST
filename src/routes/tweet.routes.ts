@@ -22,6 +22,13 @@ export class TweetRoutes {
     //FIND ALL TWEETS (with optional content search)
     router.get("/tweets", TweetController.findAll); //sem validação de token para visualizar
 
+    //FEED (tweet do usuário e usuários seguidos)
+    router.get(
+      "tweets/feed",
+      AuthMiddleware.validate,
+      TweetController.findFeed
+    );
+
     //FIND ONE TWEET (by id)
     router.get(
       "/tweets/:id",
