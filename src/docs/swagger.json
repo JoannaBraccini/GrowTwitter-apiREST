@@ -1,0 +1,417 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GrowTwitter API",
+    "description": "API para o GrowTwitter, uma plataforma de microblogging.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor local"
+    },
+    {
+      "url": "https://growtwitter-api-er4d.onrender.com",
+      "description": "Servidor Render"
+    }
+  ],
+  "paths": {
+    "/signup": {
+      "post": {
+        "summary": "Cria um novo usuário",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Autentica um usuário",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticação bem-sucedida"
+          },
+          "401": {
+            "description": "Credenciais inválidas"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Retorna todos os usuários",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de usuários"
+          },
+          "404": {
+            "description": "Nenhum usuário encontrado"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Retorna um usuário pelo ID",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do usuário"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualiza um usuário pelo ID",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário atualizado com sucesso"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove um usuário pelo ID",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário removido com sucesso"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          }
+        }
+      }
+    },
+    "/users/follow/{id}": {
+      "post": {
+        "summary": "Segue um usuário pelo ID",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário seguido com sucesso"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          }
+        }
+      }
+    },
+    "/tweets": {
+      "post": {
+        "summary": "Cria um novo tweet ou reply",
+        "tags": [
+          "Tweets"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "parentId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tweet criado com sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          }
+        }
+      },
+      "get": {
+        "summary": "Retorna todos os tweets",
+        "tags": [
+          "Tweets"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de tweets"
+          },
+          "404": {
+            "description": "Nenhum tweet encontrado"
+          }
+        }
+      }
+    },
+    "/tweets/{id}": {
+      "get": {
+        "summary": "Retorna um tweet pelo ID",
+        "tags": [
+          "Tweets"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do tweet"
+          },
+          "404": {
+            "description": "Tweet não encontrado"
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualiza um tweet pelo ID",
+        "tags": [
+          "Tweets"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tweet atualizado com sucesso"
+          },
+          "404": {
+            "description": "Tweet não encontrado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove um tweet pelo ID",
+        "tags": [
+          "Tweets"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tweet removido com sucesso"
+          },
+          "404": {
+            "description": "Tweet não encontrado"
+          }
+        }
+      }
+    },
+    "/tweets/like/{id}": {
+      "post": {
+        "summary": "Dá like em um tweet pelo ID",
+        "tags": [
+          "Tweets"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tweet curtido com sucesso"
+          },
+          "404": {
+            "description": "Tweet não encontrado"
+          }
+        }
+      }
+    },
+    "/tweets/retweet/{id}": {
+      "post": {
+        "summary": "Dá retweet em um tweet pelo ID",
+        "tags": [
+          "Tweets"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tweet retweetado com sucesso"
+          },
+          "404": {
+            "description": "Tweet não encontrado"
+          }
+        }
+      }
+    }
+  }
+}
