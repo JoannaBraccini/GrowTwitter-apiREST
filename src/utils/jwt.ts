@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import { AuthUser } from "../types/user";
-import { error } from "console";
 
 export class JWT {
   public generateToken(data: AuthUser): string {
