@@ -42,137 +42,36 @@ export class TweetService {
   }
 
   //FIND ALL - com paginação e search
-  public async findAll(
-    userId?: string,
-    query?: {
-      page?: number;
-      take?: number;
-      search?: string;
-    }
-  ): Promise<ResponseApi> {
-    const skip =
-      query?.page && query?.take ? query.page * query.take : undefined;
-
-    let where: any = {};
-
-    try {
-      if (query?.search) {
-        //Validação para feed de usuários seguidos
-        if (userId && query.search === "following") {
-          const following = await prisma.follower.findMany({
-            //Filtra os usuários da lista de seguidos
-            where: { followerId: userId },
-            select: { followedId: true },
-          });
-          //Mapeia os usuários da lista de seguidos
-          const followingIds = following.map((f) => f.followedId);
-          where.userId = { in: followingIds };
-          //Busca comum
-        } else {
-          where.content = { contains: query.search, mode: "insensitive" };
-        }
-      }
-
-      const tweets = await prisma.tweet.findMany({
-        skip,
-        take: query?.take,
-        where,
-        orderBy: { createdAt: "desc", updatedAt: "desc" }, // Mostrar os mais recentes primeiro
-        include: this.includeTweetRelations(),
-      });
-
-      if (tweets.length === 0) {
-        return {
-          ok: false,
-          code: 404,
-          message: "No tweets found",
-        };
-      }
-
-      const tweetDtos = await Promise.all(
-        tweets.map((tweet) => this.mapToDto(tweet))
-      );
-
-      return {
-        ok: true,
-        code: 200,
-        message: "Tweets retrieved successfully",
-        data: tweetDtos,
-      };
-    } catch (error: any) {
-      return {
-        ok: false,
-        code: 500,
-        message: `Internal server error: ${error.message}`,
-      };
-    }
+  public async findAll(query?: {
+    page?: number;
+    take?: number;
+    search?: string;
+  }): Promise<ResponseApi> {
+    return this.getTweetsPaginated({}, query); // Busca todos os tweets sem filtro de usuário
   }
 
   //FIND FEED - com paginação e search
   public async findFeed(
-    userId?: string,
-    query?: {
-      page?: number;
-      take?: number;
-      search?: string;
-    }
+    userId: string,
+    query?: { page?: number; take?: number; search?: string }
   ): Promise<ResponseApi> {
-    const skip =
-      query?.page && query?.take ? query.page * query.take : undefined;
-
-    let where: any = {};
-
-    try {
-      if (query?.search) {
-        //Validação para feed de usuários seguidos
-        if (userId && query.search === "following") {
-          const following = await prisma.follower.findMany({
-            //Filtra os usuários da lista de seguidos
-            where: { followerId: userId },
-            select: { followedId: true },
-          });
-          //Mapeia os usuários da lista de seguidos
-          const followingIds = following.map((f) => f.followedId);
-          where.userId = { in: followingIds };
-          //Busca comum
-        } else {
-          where.content = { contains: query.search, mode: "insensitive" };
-        }
-      }
-
-      const tweets = await prisma.tweet.findMany({
-        skip,
-        take: query?.take,
-        where,
-        orderBy: { createdAt: "desc", updatedAt: "desc" }, // Mostrar os mais recentes primeiro
-        include: this.includeTweetRelations(),
-      });
-
-      if (tweets.length === 0) {
-        return {
-          ok: false,
-          code: 404,
-          message: "No tweets found",
-        };
-      }
-
-      const tweetDtos = await Promise.all(
-        tweets.map((tweet) => this.mapToDto(tweet))
-      );
-
-      return {
-        ok: true,
-        code: 200,
-        message: "Tweets retrieved successfully",
-        data: tweetDtos,
-      };
-    } catch (error: any) {
-      return {
-        ok: false,
-        code: 500,
-        message: `Internal server error: ${error.message}`,
-      };
+    if (!userId) {
+      return { ok: false, code: 400, message: "User ID is required for feed." };
     }
+
+    //Filtra os usuários da lista de seguidos
+    const following = await prisma.follower.findMany({
+      where: { followerId: userId },
+      select: { followedId: true },
+    });
+    //Mapeia os usuários da lista de seguidos
+    const followingIds = following.map((f) => f.followedId);
+
+    return this.getTweetsPaginated(
+      { userId: { in: [...followingIds, userId] } },
+      query,
+      true
+    );
   }
 
   //FIND ONE
@@ -403,6 +302,53 @@ export class TweetService {
   //FIND UNIQUE
   private async getTweetById(tweetId: string) {
     return await prisma.tweet.findUnique({ where: { id: tweetId } });
+  }
+
+  //FIND PAGINATED
+  private async getTweetsPaginated(
+    where: any,
+    query?: { page?: number; take?: number; search?: string },
+    useFullDto: boolean = false
+  ): Promise<ResponseApi> {
+    const skip =
+      query?.page && query?.take ? query.page * query.take : undefined;
+
+    if (query?.search) {
+      where.content = { contains: query.search, mode: "insensitive" };
+    }
+
+    try {
+      const tweets = await prisma.tweet.findMany({
+        skip,
+        take: query?.take,
+        where,
+        orderBy: { createdAt: "desc", updatedAt: "desc" }, // Mostrar os mais recentes primeiro
+        include: this.includeTweetRelations(),
+      });
+
+      if (!tweets.length) {
+        return { ok: false, code: 404, message: "No tweets found." };
+      }
+
+      const tweetDtos = await Promise.all(
+        tweets.map((tweet) =>
+          useFullDto ? this.mapToFullDto(tweet) : this.mapToDto(tweet)
+        )
+      );
+
+      return {
+        ok: true,
+        code: 200,
+        message: "Tweets retrieved successfully.",
+        data: tweetDtos,
+      };
+    } catch (error: any) {
+      return {
+        ok: false,
+        code: 500,
+        message: `Internal server error: ${error.message}`,
+      };
+    }
   }
 
   //FIND RELATED
