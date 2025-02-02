@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { prisma } from "../database/prisma.database";
 import { CreatedUserDto, LoginDto, SignupDto } from "../dtos";
 import { ResponseApi } from "../types/response";
@@ -15,6 +14,7 @@ export class AuthService {
       const user = await prisma.user.findFirst({
         where: { OR: [{ email }, { username }] }, //verificar se usuário já existe com email/username cadastrado
       });
+
       // Se um dos dois retornar, então:
       if (user) {
         const message =
@@ -23,7 +23,7 @@ export class AuthService {
             : "Username is already in use.";
         return {
           ok: false,
-          code: 409,
+          code: 409, //conflict
           message,
         };
       }

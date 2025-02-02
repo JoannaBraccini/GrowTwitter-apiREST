@@ -54,7 +54,7 @@ export class UserController {
   public static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const userLogged = req.authUser; //criado no index.d.ts
+      const userLogged = req.AuthUser; //criado no index.d.ts
       const { username, password } = req.body;
 
       const service = new UserService();
@@ -77,7 +77,7 @@ export class UserController {
   public static async remove(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const userLogged = req.authUser;
+      const userLogged = req.AuthUser;
 
       const service = new UserService();
       const result = await service.remove(id, userLogged.id);
@@ -95,7 +95,7 @@ export class UserController {
   //FOLLOW/UNFOLLOW (id)
   public static async follow(req: Request, res: Response): Promise<void> {
     try {
-      const userLogged = req.authUser;
+      const userLogged = req.AuthUser;
       const { id } = req.params;
 
       const service = new UserService();

@@ -79,7 +79,7 @@ url = env("DATABASE_URL")
 extensions = [hstore(schema: "nome_do_schema")] <small>`--caso queira usar um outro schema`</small>  
 }
 
-### - Configurar `req.authUser`
+### - Configurar `req.AuthUser`
 
 - Criar arquivo index.d.ts na raiz com as configurações desejadas
 - Criar type AuthUser

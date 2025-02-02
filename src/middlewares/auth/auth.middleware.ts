@@ -42,7 +42,7 @@ export class AuthMiddleware {
       return;
     }
 
-    req.authUser = {
+    req.AuthUser = {
       id: userDecoded.id,
       name: userDecoded.name,
       username: userDecoded.username,
