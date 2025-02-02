@@ -47,7 +47,6 @@ describe("Find All TweetService", () => {
 
     prismaMock.tweet.findMany.mockResolvedValueOnce(tweetsMock);
     const result = await sut.findAll(query);
-    console.log(result.data);
 
     expect(result.code).toBe(200);
     expect(result.ok).toBeTruthy();

@@ -30,17 +30,13 @@ export class TweetController {
   public static async findAll(req: Request, res: Response): Promise<void> {
     try {
       const { page, take, search } = req.query;
-      const userLogged = req.AuthUser;
 
       const service = new TweetService();
-      const result = await service.findAll(
-        userLogged ? userLogged.id : undefined,
-        {
-          page: page ? Number(page) - 1 : undefined,
-          take: take ? Number(take) : undefined,
-          search: search ? String(search) : undefined,
-        }
-      );
+      const result = await service.findAll({
+        page: page ? Number(page) - 1 : undefined,
+        take: take ? Number(take) : undefined,
+        search: search ? String(search) : undefined,
+      });
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -58,14 +54,11 @@ export class TweetController {
       const userLogged = req.AuthUser;
 
       const service = new TweetService();
-      const result = await service.findFeed(
-        userLogged ? userLogged.id : undefined,
-        {
-          page: page ? Number(page) - 1 : undefined,
-          take: take ? Number(take) : undefined,
-          search: search ? String(search) : undefined,
-        }
-      );
+      const result = await service.findFeed(userLogged.id, {
+        page: page ? Number(page) - 1 : undefined,
+        take: take ? Number(take) : undefined,
+        search: search ? String(search) : undefined,
+      });
 
       const { code, ...response } = result;
       res.status(code).json(response);

@@ -1,24 +1,29 @@
-import { Tweet, TweetType } from "@prisma/client";
+import { TweetType } from "@prisma/client";
 import { randomUUID } from "crypto";
 
 interface TweetMockParams {
   id?: string;
-  parentId?: string;
-  type?: TweetType;
   userId?: string;
+  type?: TweetType;
+  parentId?: string;
   content?: string;
+  user?: {
+    name?: string;
+    username?: string;
+  };
 }
 
 export class TweetMock {
-  public static build(params?: TweetMockParams): Tweet {
+  public static build(params?: TweetMockParams) {
     return {
       id: params?.id || randomUUID(),
-      parentId: params?.parentId || null,
-      type: params?.type || TweetType.TWEET,
       userId: params?.userId || randomUUID(),
+      type: params?.type || TweetType.TWEET,
+      parentId: params?.parentId || null,
       content: params?.content || "Texto do Tweet",
       createdAt: new Date(),
       updatedAt: new Date(),
+      user: params?.user || { name: "Nome", username: "username" },
     };
   }
 }

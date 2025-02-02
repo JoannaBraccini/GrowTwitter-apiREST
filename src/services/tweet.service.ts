@@ -55,22 +55,24 @@ export class TweetService {
     userId: string,
     query?: { page?: number; take?: number; search?: string }
   ): Promise<ResponseApi> {
-    if (!userId) {
-      return { ok: false, code: 400, message: "User ID is required for feed." };
-    }
-
     //Filtra os usuários da lista de seguidos
     const following = await prisma.follower.findMany({
       where: { followerId: userId },
       select: { followedId: true },
     });
-    //Mapeia os usuários da lista de seguidos
-    const followingIds = following.map((f) => f.followedId);
 
+    //Mapeia os usuários da lista de seguidos
+    const followingIds = following ? following.map((f) => f.followedId) : [];
+
+    // Se o usuário não segue ninguém, garante que ele veja seus próprios tweets
+    const idsToSearch =
+      followingIds.length > 0 ? [...followingIds, userId] : [userId];
+
+    // Busca os tweets onde o userId seja do usuário logado ou do usuário seguido
     return this.getTweetsPaginated(
-      { userId: { in: [...followingIds, userId] } },
+      { userId: { in: idsToSearch } },
       query,
-      true
+      true // Para Map Full
     );
   }
 
@@ -322,11 +324,11 @@ export class TweetService {
         skip,
         take: query?.take,
         where,
-        orderBy: { createdAt: "desc", updatedAt: "desc" }, // Mostrar os mais recentes primeiro
+        orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }], // Mostrar os mais recentes primeiro
         include: this.includeTweetRelations(),
       });
 
-      if (!tweets.length) {
+      if (!tweets || tweets.length < 1) {
         return { ok: false, code: 404, message: "No tweets found." };
       }
 
