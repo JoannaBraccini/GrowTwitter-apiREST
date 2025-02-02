@@ -51,8 +51,9 @@ export class AuthService {
   }
 
   public async login(data: LoginDto): Promise<ResponseApi> {
+    const { email, username, password } = data;
+
     try {
-      const { email, username, password } = data;
       //verificar email/username
       const user = await prisma.user.findFirst({
         where: {
