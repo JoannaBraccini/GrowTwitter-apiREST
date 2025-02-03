@@ -1,6 +1,6 @@
 import { Follower, User } from "@prisma/client";
 import { randomUUID } from "crypto";
-import { UserBaseDto, UserDto } from "../../../src/dtos";
+import { TweetDto, UserBaseDto, UserDto } from "../../../src/dtos";
 
 interface UserMockParams {
   id?: string;
@@ -8,13 +8,13 @@ interface UserMockParams {
   username?: string;
   email?: string;
   password?: string;
-  followers?: { followerId: string; followedId: string }[];
+  followers?: UserBaseDto[];
+  following?: UserBaseDto[];
+  tweets?: TweetDto[];
 }
 
 export class UserMock {
-  public static build(
-    params?: UserMockParams
-  ): User & { followers: Follower[] } {
+  public static build(params?: UserMockParams): User & Partial<UserDto> {
     const user: User = {
       id: params?.id || randomUUID(),
       name: params?.name || "Usuario Teste",
@@ -25,18 +25,15 @@ export class UserMock {
       updatedAt: new Date(),
     };
 
-    // Cria o array de seguidores com base nos params
-    const followers =
-      params?.followers?.map((follower) => ({
-        id: randomUUID(),
-        followerId: follower.followerId,
-        followedId: follower.followedId,
-        createdAt: new Date(),
-      })) || [];
+    const followers = params?.followers || [];
+    const following = params?.following || [];
+    const tweets = params?.tweets || [];
 
     return {
       ...user,
-      followers, // Adiciona followers aos dados
+      followers,
+      following,
+      tweets,
     };
   }
 }

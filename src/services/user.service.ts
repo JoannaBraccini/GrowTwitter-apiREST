@@ -59,34 +59,7 @@ export class UserService {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        include: {
-          //lista de seguidores deste usuário
-          followers: {
-            include: {
-              follower: true, //dados do seguidor
-            },
-          },
-          //lista de seguidos por este usuário
-          following: {
-            include: {
-              followed: true, //dados do usuário seguido
-            },
-          },
-          //lista de tweets deste usuário
-          tweets: {
-            include: {
-              //incluir a contagem de:
-              _count: {
-                select: {
-                  //likes, replies e retweets
-                  likes: true,
-                  replies: true,
-                  retweets: true,
-                },
-              },
-            },
-          },
-        },
+        include: this.includeUserRelations(),
       });
 
       if (!user) {
@@ -113,11 +86,8 @@ export class UserService {
   }
 
   //UPDATE (id)
-  public async update(
-    id: string,
-    userId: string,
-    userUpdate: UserUpdateDto
-  ): Promise<ResponseApi> {
+  public async update(updateUser: UserUpdateDto): Promise<ResponseApi> {
+    const { id, userId, name, username, oldPassword, newPassword } = updateUser;
     // Verificar se o usuário autenticado é o mesmo que está sendo atualizado
     if (id !== userId) {
       return {
@@ -128,10 +98,20 @@ export class UserService {
     }
 
     try {
+      const user = await prisma.user.findUnique({
+        where: { id },
+      });
+      if (!user) {
+        return {
+          code: 404,
+          ok: false,
+          message: "User not found",
+        };
+      }
       //verificar se já existe usuário com username cadastrado
-      if (userUpdate.username) {
+      if (username) {
         const existingUser = await prisma.user.findFirst({
-          where: { username: userUpdate.username, NOT: { id } }, //ignora o próprio id na busca
+          where: { username: username, NOT: { id } }, //ignora o próprio id na busca
         });
         if (existingUser) {
           return {
@@ -143,15 +123,41 @@ export class UserService {
       }
 
       //gerar novo hash para a senha atualizada
-      if (userUpdate.password) {
+      let hashedPassword: string | undefined;
+      if (oldPassword && newPassword) {
         const bcrypt = new Bcrypt();
-        userUpdate.password = await bcrypt.generateHash(userUpdate.password);
+        const passwordValid = await bcrypt.verify(oldPassword, user.password);
+
+        if (!passwordValid) {
+          return {
+            ok: false,
+            code: 400,
+            message: "Wrong password",
+          };
+        }
+
+        const passwordCompare = await bcrypt.verify(newPassword, user.password);
+
+        if (passwordCompare) {
+          return {
+            ok: false,
+            code: 400,
+            message: "The new password must be different from the previous one",
+          };
+        }
+
+        hashedPassword = await bcrypt.generateHash(newPassword);
       }
+
+      const dataToUpdate: Partial<User> = {};
+      if (name) dataToUpdate.name = name;
+      if (username) dataToUpdate.username = username;
+      if (hashedPassword) dataToUpdate.password = hashedPassword;
 
       //salva os dados novos
       const userUpdated = await prisma.user.update({
         where: { id },
-        data: { ...userUpdate },
+        data: { ...dataToUpdate },
       });
 
       return {
@@ -291,6 +297,44 @@ export class UserService {
     }
   }
 
+  //Métodos Privados
+  //FIND UNIQUE
+  private async getUserById(userId: string) {
+    return await prisma.user.findUnique({ where: { id: userId } });
+  }
+
+  //FIND RELATED
+  private includeUserRelations() {
+    return {
+      //lista de seguidores deste usuário
+      followers: {
+        include: {
+          follower: true, //dados do seguidor
+        },
+      },
+      //lista de seguidos por este usuário
+      following: {
+        include: {
+          followed: true, //dados do usuário seguido
+        },
+      },
+      //lista de tweets deste usuário
+      tweets: {
+        include: {
+          //incluir a contagem de:
+          _count: {
+            select: {
+              //likes, replies e retweets
+              likes: true,
+              replies: true,
+              retweets: true,
+            },
+          },
+        },
+      },
+    };
+  }
+
   //mapeamento para userDto básico
   private async mapToDto(user: User): Promise<UserBaseDto> {
     const [followersCount, followingCount, tweetsCount] = await Promise.all([
@@ -336,37 +380,38 @@ export class UserService {
       id,
       name,
       username,
-      // Inclui apenas se a contagem for maior que 0
-      ...(followers.length > 0 && {
-        followers: followers.map(({ follower }) => ({
-          id: follower.id,
-          name: follower.name,
-          username: follower.username,
-        })),
-      }),
-      ...(following.length > 0 && {
-        following: following.map(({ followed }) => ({
-          id: followed.id,
-          name: followed.name,
-          username: followed.username,
-        })),
-      }),
-      ...(tweets.length > 0 && {
-        tweets: tweets.map((tweet) => ({
-          id: tweet.id,
-          userId: tweet.userId,
-          type: tweet.type,
-          ...(tweet.parentId && { parentId: tweet.parentId }), // Inclui apenas se não for null
-          content: tweet.content,
-          createdAt: tweet.createdAt,
-          updatedAt: tweet.updatedAt,
-          ...(tweet._count.likes > 0 && { likeCount: tweet._count.likes }),
-          ...(tweet._count.replies > 0 && { replyCount: tweet._count.replies }),
-          ...(tweet._count.retweets > 0 && {
-            retweetCount: tweet._count.retweets,
-          }),
-        })),
-      }),
+      // Se a lista estiver vazia retorna []
+      followers:
+        followers.length > 0
+          ? followers.map(({ follower }) => ({
+              id: follower.id,
+              name: follower.name,
+              username: follower.username,
+            }))
+          : [],
+      following:
+        following.length > 0
+          ? following.map(({ followed }) => ({
+              id: followed.id,
+              name: followed.name,
+              username: followed.username,
+            }))
+          : [],
+      tweets:
+        tweets.length > 0
+          ? tweets.map((tweet) => ({
+              id: tweet.id,
+              userId: tweet.userId,
+              type: tweet.type,
+              parentId: tweet.parentId ?? undefined,
+              content: tweet.content,
+              createdAt: tweet.createdAt,
+              updatedAt: tweet.updatedAt,
+              likeCount: tweet._count.likes,
+              replyCount: tweet._count.replies,
+              retweetCount: tweet._count.retweets,
+            }))
+          : [],
     };
   }
 }

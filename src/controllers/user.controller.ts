@@ -54,13 +54,17 @@ export class UserController {
   public static async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const userLogged = req.AuthUser; //criado no index.d.ts
-      const { username, password } = req.body;
+      const { id: userId } = req.AuthUser; //criado no index.d.ts
+      const { name, username, oldPassword, newPassword } = req.body;
 
       const service = new UserService();
-      const result = await service.update(id, userLogged.id, {
+      const result = await service.update({
+        id,
+        userId,
+        name,
         username,
-        password,
+        oldPassword,
+        newPassword,
       });
 
       const { code, ...response } = result;

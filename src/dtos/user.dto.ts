@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { TweetDto } from "./tweet.dto";
 //CreateUserDto->movido para auth.dto: signup
 export interface UserDto {
@@ -25,10 +26,10 @@ export interface QueryFilterDto {
 }
 
 export interface UserUpdateDto {
+  id: string;
+  userId: string;
+  name?: string;
   username?: string;
-  password?: string;
-}
-
-export interface UserUpdatedDto extends UserBaseDto {
-  email: string;
+  oldPassword?: string;
+  newPassword?: string;
 }
