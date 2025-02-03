@@ -24,10 +24,12 @@ export class AuthController {
       res.status(code).json(response);
       //em caso de erro de servidor cai no catch
     } catch (error: any) {
-      res.status(500).json({
-        ok: false,
-        message: `An error occurred while creating user: ${error.message}`,
-      });
+      if (!res.headersSent) {
+        res.status(500).json({
+          ok: false,
+          message: `An unexpected error occurred: ${error.message}`,
+        });
+      }
     }
   }
 
