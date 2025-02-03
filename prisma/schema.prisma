@@ -91,4 +91,5 @@ model Retweet {
 enum TweetType {
   TWEET
   REPLY
+  RETWEET
 }
