@@ -24,12 +24,10 @@ export class AuthController {
       res.status(code).json(response);
       //em caso de erro de servidor cai no catch
     } catch (error: any) {
-      if (!res.headersSent) {
-        res.status(500).json({
-          ok: false,
-          message: `An unexpected error occurred: ${error.message}`,
-        });
-      }
+      res.status(500).json({
+        ok: false,
+        message: `An unexpected error occurred: ${error.message}`,
+      });
     }
   }
 
@@ -45,7 +43,7 @@ export class AuthController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Server error: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }

@@ -1,7 +1,6 @@
 import supertest from "supertest";
 import { createServer } from "../../../src/express.server";
 import { SignupDto } from "../../../src/dtos";
-import { prismaMock } from "../../config/prisma.mock";
 import { randomUUID } from "crypto";
 import { AuthService } from "../../../src/services/auth.service";
 
@@ -154,7 +153,7 @@ describe("POST /signup", () => {
     });
   });
 
-  it("Deve retornar 500 quando ocorrer erro de excessão", async () => {
+  it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
     const body: SignupDto = {
       name: "Nome do Usuário",
       email: "email@email.com",

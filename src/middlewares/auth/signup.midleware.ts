@@ -27,6 +27,7 @@ export class SignupMiddleware {
         ok: false,
         message: errors,
       });
+      return;
     }
     next();
   }
@@ -45,6 +46,7 @@ export class SignupMiddleware {
         ok: false,
         message: "All fields must be strings.",
       });
+      return;
     }
     next();
   }
@@ -80,6 +82,7 @@ export class SignupMiddleware {
         ok: false,
         message: errors,
       });
+      return;
     }
     next();
   }
