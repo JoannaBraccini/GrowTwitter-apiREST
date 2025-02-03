@@ -33,3 +33,5 @@ export interface UserUpdateDto {
   oldPassword?: string;
   newPassword?: string;
 }
+
+export type UserDeleteDto = Pick<UserUpdateDto, "id" | "userId">;

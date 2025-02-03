@@ -81,10 +81,10 @@ export class UserController {
   public static async remove(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const userLogged = req.AuthUser;
+      const { id: userId } = req.AuthUser;
 
       const service = new UserService();
-      const result = await service.remove(id, userLogged.id);
+      const result = await service.remove({ id, userId });
 
       const { code, ...response } = result;
       res.status(code).json(response);

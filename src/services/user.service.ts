@@ -1,5 +1,11 @@
 import { prisma } from "../database/prisma.database";
-import { UserDto, QueryFilterDto, UserBaseDto, UserUpdateDto } from "../dtos";
+import {
+  UserDto,
+  QueryFilterDto,
+  UserBaseDto,
+  UserUpdateDto,
+  UserDeleteDto,
+} from "../dtos";
 import { ResponseApi } from "../types/response";
 import { Prisma, TweetType, User } from "@prisma/client";
 import { Bcrypt } from "../utils/bcrypt";
@@ -183,16 +189,7 @@ export class UserService {
   }
 
   //DELETE (id)
-  public async remove(id: string, userId: string): Promise<ResponseApi> {
-    // Verificar se o usuário autenticado é o mesmo que está sendo atualizado
-    if (id !== userId) {
-      return {
-        ok: false,
-        code: 401,
-        message: "You are not authorized to delete this profile.",
-      };
-    }
-
+  public async remove({ id, userId }: UserDeleteDto): Promise<ResponseApi> {
     try {
       const user = await prisma.user.findUnique({ where: { id } });
 
@@ -201,6 +198,15 @@ export class UserService {
           ok: false,
           code: 404,
           message: "User not found",
+        };
+      }
+
+      // Verificar se o usuário autenticado é o mesmo que está sendo atualizado
+      if (id !== userId) {
+        return {
+          ok: false,
+          code: 401,
+          message: "You are not authorized to delete this profile.",
         };
       }
 
