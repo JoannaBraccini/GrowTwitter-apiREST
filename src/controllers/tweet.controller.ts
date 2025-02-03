@@ -90,11 +90,11 @@ export class TweetController {
   public static async update(req: Request, res: Response): Promise<void> {
     try {
       const { tweetId } = req.params;
-      const userLogged = req.AuthUser;
+      const { id: userId } = req.AuthUser;
       const { content } = req.body;
 
       const service = new TweetService();
-      const result = await service.update(tweetId, userLogged.id, content);
+      const result = await service.update({ tweetId, userId, content });
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -109,10 +109,10 @@ export class TweetController {
   public static async remove(req: Request, res: Response): Promise<void> {
     try {
       const { tweetId } = req.params;
-      const userLogged = req.AuthUser;
+      const { id: userId } = req.AuthUser;
 
       const service = new TweetService();
-      const result = await service.remove(tweetId, userLogged.id);
+      const result = await service.remove({ tweetId, userId });
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -126,11 +126,11 @@ export class TweetController {
 
   public static async like(req: Request, res: Response): Promise<void> {
     try {
-      const userLogged = req.AuthUser;
+      const { id: userId } = req.AuthUser;
       const tweetId = req.params.id;
 
       const service = new TweetService();
-      const result = await service.like(tweetId, userLogged.id);
+      const result = await service.like({ tweetId, userId });
 
       const { code, ...response } = result;
       res.status(code).json(response);
@@ -144,11 +144,11 @@ export class TweetController {
 
   public static async retweet(req: Request, res: Response): Promise<void> {
     try {
-      const userLogged = req.AuthUser;
+      const { id: userId } = req.AuthUser;
       const tweetId = req.params.id;
 
       const service = new TweetService();
-      const result = await service.retweet(tweetId, userLogged.id);
+      const result = await service.retweet({ tweetId, userId });
 
       const { code, ...response } = result;
       res.status(code).json(response);

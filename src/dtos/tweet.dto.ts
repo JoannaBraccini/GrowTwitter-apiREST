@@ -7,6 +7,12 @@ export interface CreateTweetDto {
   content: string;
 }
 
+export type UpdateTweetDto = Pick<TweetDto, "userId" | "content"> & {
+  tweetId: string;
+};
+
+export type ActionTweetDto = Pick<TweetDto, "userId"> & { tweetId: string };
+
 export interface TweetDto {
   id: string;
   userId: string;

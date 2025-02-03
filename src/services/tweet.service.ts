@@ -1,6 +1,12 @@
 import { Tweet } from "@prisma/client";
 import { prisma } from "../database/prisma.database";
-import { ActionsDto, CreateTweetDto, TweetDto } from "../dtos";
+import {
+  ActionsDto,
+  CreateTweetDto,
+  ActionTweetDto,
+  TweetDto,
+  UpdateTweetDto,
+} from "../dtos";
 import { ResponseApi } from "../types/response";
 
 export class TweetService {
@@ -108,11 +114,11 @@ export class TweetService {
   }
 
   //UPDATE
-  public async update(
-    tweetId: string,
-    userId: string,
-    content: string
-  ): Promise<ResponseApi> {
+  public async update({
+    tweetId,
+    userId,
+    content,
+  }: UpdateTweetDto): Promise<ResponseApi> {
     try {
       const tweet = await this.getTweetById(tweetId);
 
@@ -132,7 +138,6 @@ export class TweetService {
           message: "Not authorized to modify this tweet.",
         };
       }
-
       const tweetUpdated = await prisma.tweet.update({
         where: { id: tweetId },
         data: { content: content },
@@ -154,7 +159,10 @@ export class TweetService {
   }
 
   //DELETE
-  public async remove(tweetId: string, userId: string): Promise<ResponseApi> {
+  public async remove({
+    tweetId,
+    userId,
+  }: ActionTweetDto): Promise<ResponseApi> {
     try {
       const tweet = await prisma.tweet.findUnique({
         where: { id: tweetId },
@@ -203,7 +211,7 @@ export class TweetService {
   }
 
   //LIKE/UNLIKE
-  public async like(tweetId: string, userId: string): Promise<ResponseApi> {
+  public async like({ tweetId, userId }: ActionTweetDto): Promise<ResponseApi> {
     try {
       const tweet = await this.getTweetById(tweetId);
 
@@ -248,7 +256,10 @@ export class TweetService {
   }
 
   //RETWEET/CANCEL RETWEET
-  public async retweet(tweetId: string, userId: string): Promise<ResponseApi> {
+  public async retweet({
+    tweetId,
+    userId,
+  }: ActionTweetDto): Promise<ResponseApi> {
     try {
       const tweet = await this.getTweetById(tweetId);
 
@@ -384,7 +395,7 @@ export class TweetService {
           }
         : undefined,
       type: tweet.type,
-      parentId: tweet.parentId === null ? undefined : tweet.parentId,
+      parentId: tweet.parentId ? tweet.parentId : undefined,
       content: tweet.content,
       createdAt: tweet.createdAt,
       updatedAt: tweet.updatedAt,
