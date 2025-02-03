@@ -88,14 +88,6 @@ export class UserService {
   //UPDATE (id)
   public async update(updateUser: UserUpdateDto): Promise<ResponseApi> {
     const { id, userId, name, username, oldPassword, newPassword } = updateUser;
-    // Verificar se o usuário autenticado é o mesmo que está sendo atualizado
-    if (id !== userId) {
-      return {
-        ok: false,
-        code: 401,
-        message: "You are not authorized to modify this profile.",
-      };
-    }
 
     try {
       const user = await prisma.user.findUnique({
@@ -108,6 +100,16 @@ export class UserService {
           message: "User not found",
         };
       }
+
+      // Verificar se o usuário autenticado é o mesmo que está sendo atualizado
+      if (id !== userId) {
+        return {
+          ok: false,
+          code: 401,
+          message: "You are not authorized to modify this profile.",
+        };
+      }
+
       //verificar se já existe usuário com username cadastrado
       if (username) {
         const existingUser = await prisma.user.findFirst({
@@ -142,7 +144,7 @@ export class UserService {
           return {
             ok: false,
             code: 400,
-            message: "The new password must be different from the previous one",
+            message: "New password must be different from the previous one",
           };
         }
 
