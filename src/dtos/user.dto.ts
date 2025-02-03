@@ -35,3 +35,4 @@ export interface UserUpdateDto {
 }
 
 export type UserDeleteDto = Pick<UserUpdateDto, "id" | "userId">;
+export type UserFollowDto = Pick<UserUpdateDto, "id" | "userId">;

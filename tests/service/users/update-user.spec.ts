@@ -26,7 +26,7 @@ describe("Update UserService", () => {
     expect(result).toEqual({
       ok: false,
       code: 404,
-      message: "User not found",
+      message: "User not found.",
     });
     expect(result.data).toBeUndefined();
   });

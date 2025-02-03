@@ -5,6 +5,7 @@ import {
   UserBaseDto,
   UserUpdateDto,
   UserDeleteDto,
+  UserFollowDto,
 } from "../dtos";
 import { ResponseApi } from "../types/response";
 import { Prisma, TweetType, User } from "@prisma/client";
@@ -103,7 +104,7 @@ export class UserService {
         return {
           code: 404,
           ok: false,
-          message: "User not found",
+          message: "User not found.",
         };
       }
 
@@ -197,7 +198,7 @@ export class UserService {
         return {
           ok: false,
           code: 404,
-          message: "User not found",
+          message: "User not found.",
         };
       }
 
@@ -230,18 +231,10 @@ export class UserService {
   }
 
   //FOLLOW/UNFOLLOW (id)
-  public async follow(
-    followerId: string,
-    followedId: string
-  ): Promise<ResponseApi> {
-    if (followerId === followedId) {
-      return {
-        ok: false,
-        code: 409, //conflict
-        message: "Follower ID and Followed ID can't be the same.",
-      };
-    }
-
+  public async follow({
+    userId: followerId,
+    id: followedId,
+  }: UserFollowDto): Promise<ResponseApi> {
     try {
       // Verificar se os usuários existem
       const follower = await prisma.user.findUnique({
@@ -257,6 +250,15 @@ export class UserService {
           ok: false,
           code: 404, // Not Found
           message: "User not found.",
+        };
+      }
+
+      //Verificar se usuário tenta seguir a si mesmo
+      if (followerId === followedId) {
+        return {
+          ok: false,
+          code: 409, //conflict
+          message: "Follower ID and Followed ID can't be the same.",
         };
       }
 
@@ -291,7 +293,7 @@ export class UserService {
 
         return {
           ok: true,
-          code: 200,
+          code: 201,
           message: "User followed successfully",
           data: follow,
         };

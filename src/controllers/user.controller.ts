@@ -99,11 +99,11 @@ export class UserController {
   //FOLLOW/UNFOLLOW (id)
   public static async follow(req: Request, res: Response): Promise<void> {
     try {
-      const userLogged = req.AuthUser;
+      const { id: userId } = req.AuthUser;
       const { id } = req.params;
 
       const service = new UserService();
-      const result = await service.follow(userLogged.id, id);
+      const result = await service.follow({ userId, id });
 
       const { code, ...response } = result;
       res.status(code).json(response);
