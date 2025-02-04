@@ -21,7 +21,7 @@ describe("POST /signup", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Name is required."],
+      message: ["Name is required"],
     });
   });
 
@@ -37,7 +37,7 @@ describe("POST /signup", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Email is required."],
+      message: ["Email is required"],
     });
   });
 
@@ -53,7 +53,7 @@ describe("POST /signup", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Password is required."],
+      message: ["Password is required"],
     });
   });
 
@@ -69,7 +69,7 @@ describe("POST /signup", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Username is required."],
+      message: ["Username is required"],
     });
   });
   //Types
@@ -85,7 +85,7 @@ describe("POST /signup", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: "All fields must be strings.",
+      message: "All fields must be strings",
     });
   });
   //Length
@@ -101,7 +101,7 @@ describe("POST /signup", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Name must be at least 3 characters long."],
+      message: ["Name must be at least 3 characters long"],
     });
   });
 
@@ -117,7 +117,7 @@ describe("POST /signup", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Username must be at least 3 characters long."],
+      message: ["Username must be at least 3 characters long"],
     });
   });
 
@@ -133,7 +133,7 @@ describe("POST /signup", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Password must be at least 4 characters long."],
+      message: ["Password must be at least 4 characters long"],
     });
   });
 
@@ -149,7 +149,7 @@ describe("POST /signup", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Invalid email."],
+      message: ["Invalid email"],
     });
   });
 
@@ -185,7 +185,7 @@ describe("POST /signup", () => {
     const mockAuth = {
       ok: true,
       code: 201,
-      message: "User created successfully.",
+      message: "User created successfully",
       data: {
         id: randomUUID(),
         name: "Nome do Usuário",
@@ -201,7 +201,7 @@ describe("POST /signup", () => {
     expect(response.status).toBe(201);
     expect(response.body).toEqual({
       ok: true,
-      message: "User created successfully.",
+      message: "User created successfully",
       data: {
         id: expect.any(String),
         name: expect.any(String),

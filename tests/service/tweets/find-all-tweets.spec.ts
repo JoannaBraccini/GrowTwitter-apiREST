@@ -15,7 +15,7 @@ describe("Find All TweetService", () => {
 
     expect(result.code).toBe(404);
     expect(result.ok).toBeFalsy();
-    expect(result.message).toMatch("No tweets found.");
+    expect(result.message).toMatch("No tweets found");
     expect(result.data).toBeUndefined();
     expect(result.data).not.toBeDefined();
   });
@@ -50,7 +50,7 @@ describe("Find All TweetService", () => {
 
     expect(result.code).toBe(200);
     expect(result.ok).toBeTruthy();
-    expect(result.message).toMatch("Tweets retrieved successfully.");
+    expect(result.message).toMatch("Tweets retrieved successfully");
     expect(result.data).toHaveLength(5);
     result.data.forEach((tweet: Tweet) => {
       expect(tweet).toHaveProperty("content");

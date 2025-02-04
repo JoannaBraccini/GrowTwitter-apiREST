@@ -6,9 +6,9 @@ export class TweetController {
   public static async create(req: Request, res: Response): Promise<void> {
     try {
       const { parentId, type, content } = req.body;
-      const userLogged = req.AuthUser;
+      const { id: userId } = req.AuthUser;
       const data: CreateTweetDto = {
-        userId: userLogged.id,
+        userId,
         parentId,
         type,
         content,
@@ -22,7 +22,7 @@ export class TweetController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `An error occurred while creating tweet: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -43,7 +43,7 @@ export class TweetController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `An error occurred while fetching tweets: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -65,7 +65,7 @@ export class TweetController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `An error occurred while fetching tweets: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -82,7 +82,7 @@ export class TweetController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Error fetching tweet: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -101,7 +101,7 @@ export class TweetController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Error updating tweet: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -119,7 +119,7 @@ export class TweetController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Error removing tweet: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -137,7 +137,7 @@ export class TweetController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Server error: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -155,7 +155,7 @@ export class TweetController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Server error: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }

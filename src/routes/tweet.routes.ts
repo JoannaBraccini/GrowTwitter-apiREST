@@ -14,8 +14,9 @@ export class TweetRoutes {
       [
         AuthMiddleware.validate,
         TweetMiddleware.validateRequired,
+        ValidateUuidMiddleware.validate,
         TweetMiddleware.validateTypes,
-        TweetMiddleware.validateLenght,
+        TweetMiddleware.validateLength,
       ],
       TweetController.create
     );
@@ -43,7 +44,7 @@ export class TweetRoutes {
         AuthMiddleware.validate,
         ValidateUuidMiddleware.validate,
         TweetMiddleware.validateTypes,
-        TweetMiddleware.validateLenght,
+        TweetMiddleware.validateLength,
       ],
       TweetController.update
     );

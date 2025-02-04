@@ -11,7 +11,7 @@ export class ValidateUuidMiddleware {
     if (!regexUuid.test(id)) {
       res.status(400).json({
         ok: false,
-        message: "Identifier must be a UUID.",
+        message: "Identifier must be a UUID",
       });
       return;
     }
@@ -20,14 +20,14 @@ export class ValidateUuidMiddleware {
     if (parentId && !regexUuid.test(parentId)) {
       res.status(400).json({
         ok: false,
-        message: "Parent-Tweet ID must be a UUID.",
+        message: "Parent-Tweet ID must be a UUID",
       });
       return;
     }
     if (userId && !regexUuid.test(userId)) {
       res.status(400).json({
         ok: false,
-        message: "Parent-Tweet ID must be a UUID.",
+        message: "Parent-Tweet ID must be a UUID",
       });
       return;
     }

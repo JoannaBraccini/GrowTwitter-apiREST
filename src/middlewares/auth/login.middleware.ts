@@ -11,7 +11,7 @@ export class LoginMiddleware {
     if (!email && !username) {
       res.status(400).json({
         ok: false,
-        message: "Email or username are required.",
+        message: "Email or username are required",
       });
       return;
     }
@@ -19,7 +19,7 @@ export class LoginMiddleware {
     if (!password) {
       res.status(400).json({
         ok: false,
-        message: "Password is required.",
+        message: "Password is required",
       });
       return;
     }
@@ -37,7 +37,7 @@ export class LoginMiddleware {
     ) {
       res.status(400).json({
         ok: false,
-        message: "All fields must be strings.",
+        message: "All fields must be strings",
       });
       return;
     }

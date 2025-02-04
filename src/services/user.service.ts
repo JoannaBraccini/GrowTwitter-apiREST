@@ -73,14 +73,14 @@ export class UserService {
         return {
           ok: false,
           code: 404,
-          message: "User not found.",
+          message: "User not found",
         };
       }
 
       return {
         ok: true,
         code: 200,
-        message: "User details retrieved successfully.",
+        message: "User details retrieved successfully",
         data: this.mapToFullDto(user), // Mapeia detalhes
       };
     } catch (error: any) {
@@ -102,7 +102,7 @@ export class UserService {
         return {
           code: 404,
           ok: false,
-          message: "User not found.",
+          message: "User not found",
         };
       }
 
@@ -111,7 +111,7 @@ export class UserService {
         return {
           ok: false,
           code: 401,
-          message: "You are not authorized to modify this profile.",
+          message: "You are not authorized to modify this profile",
         };
       }
 
@@ -124,7 +124,7 @@ export class UserService {
           return {
             ok: false,
             code: 409, //conflict
-            message: "Username is already in use.",
+            message: "Username is already in use",
           };
         }
       }
@@ -170,7 +170,7 @@ export class UserService {
       return {
         ok: true,
         code: 200,
-        message: "User profile updated successfully.",
+        message: "User profile updated successfully",
         data: {
           id: userUpdated.id,
           name: userUpdated.name,
@@ -196,7 +196,7 @@ export class UserService {
         return {
           ok: false,
           code: 404,
-          message: "User not found.",
+          message: "User not found",
         };
       }
 
@@ -205,7 +205,7 @@ export class UserService {
         return {
           ok: false,
           code: 401,
-          message: "You are not authorized to delete this profile.",
+          message: "You are not authorized to delete this profile",
         };
       }
 
@@ -243,7 +243,7 @@ export class UserService {
         return {
           ok: false,
           code: 404, // Not Found
-          message: "User not found.",
+          message: "User not found",
         };
       }
 
@@ -252,7 +252,7 @@ export class UserService {
         return {
           ok: false,
           code: 409, //conflict
-          message: "Follower ID and Followed ID can't be the same.",
+          message: "Follower ID and Followed ID can't be the same",
         };
       }
 

@@ -10,15 +10,16 @@ export class TweetMiddleware {
     const errors: string[] = [];
 
     if (!type) {
-      errors.push("Tweet type is required.");
-    } else if (type === "REPLY" && !parentId) {
-      errors.push("Parent Tweed ID is required for REPLY");
+      errors.push("Tweet type is required");
     }
-    if ((parentId && type !== "REPLY") || type !== "RETWEET") {
+    if ((type === "REPLY" || type === "RETWEET") && !parentId) {
+      errors.push("Parent Tweet ID is required for REPLY or RETWEET");
+    }
+    if (parentId && type !== "REPLY" && type !== "RETWEET") {
       errors.push("Parent Tweed ID is only valid for RETWEET or REPLY");
     }
     if (!content || content.trim().length === 0) {
-      errors.push("Content is required.");
+      errors.push("Content is required");
     }
 
     if (errors.length > 0) {
@@ -32,17 +33,14 @@ export class TweetMiddleware {
   }
 
   public static validateTypes(req: Request, res: Response, next: NextFunction) {
-    const { type, parentId, content } = req.body;
+    const { type, content } = req.body;
     const errors: string[] = [];
 
-    if (parentId && typeof parentId !== "string") {
-      errors.push("Parent-Tweet ID must be a string.");
-    }
-    if (type && type !== "TWEET" && type !== "REPLY") {
-      errors.push("Type must be TWEET or REPLY");
+    if (type && type !== "TWEET" && type !== "REPLY" && type !== "RETWEET") {
+      errors.push("Type must be TWEET, REPLY or RETWEET");
     }
     if (typeof content !== "string") {
-      errors.push("Content must be a string.");
+      errors.push("Content must be a string");
     }
 
     if (errors.length > 0) {
@@ -55,7 +53,7 @@ export class TweetMiddleware {
     next();
   }
 
-  public static validateLenght(
+  public static validateLength(
     req: Request,
     res: Response,
     next: NextFunction
@@ -65,8 +63,7 @@ export class TweetMiddleware {
     if (content.length > 280) {
       res.status(400).json({
         ok: false,
-        message:
-          "Content exceeds the maximum allowed length of 280 characters.",
+        message: "Content exceeds the maximum allowed length of 280 characters",
       });
       return;
     }

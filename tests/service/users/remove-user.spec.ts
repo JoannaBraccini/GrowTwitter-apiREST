@@ -16,7 +16,7 @@ describe("Remove UserService", () => {
     expect(result).toEqual({
       ok: false,
       code: 404,
-      message: "User not found.",
+      message: "User not found",
     });
     expect(result.data).toBeUndefined();
   });
@@ -32,7 +32,7 @@ describe("Remove UserService", () => {
     expect(result.code).toBe(401);
     expect(result.ok).toBeFalsy();
     expect(result.message).toMatch(
-      "You are not authorized to delete this profile."
+      "You are not authorized to delete this profile"
     );
     expect(result.data).toBeUndefined();
   });

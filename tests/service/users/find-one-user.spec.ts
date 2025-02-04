@@ -14,7 +14,7 @@ describe("Find One UsertService", () => {
     expect(result).toEqual({
       ok: false,
       code: 404,
-      message: "User not found.",
+      message: "User not found",
     });
     expect(prisma).toHaveBeenCalled();
   });
@@ -42,7 +42,7 @@ describe("Find One UsertService", () => {
 
     expect(result.code).toBe(200);
     expect(result.ok).toBeTruthy();
-    expect(result.message).toMatch("User details retrieved successfully.");
+    expect(result.message).toMatch("User details retrieved successfully");
     expect(result.data).toEqual({
       id: "id-valido",
       name: "Usuario Teste",

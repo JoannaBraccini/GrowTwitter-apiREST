@@ -21,7 +21,7 @@ describe("POST /login", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: "Email or username are required.",
+      message: "Email or username are required",
     });
   });
 
@@ -36,10 +36,9 @@ describe("POST /login", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: "Password is required.",
+      message: "Password is required",
     });
   });
-
   //Types
   it("Deve retornar 400 quando campos obrigatórios não forem String", async () => {
     const body = {
@@ -52,10 +51,10 @@ describe("POST /login", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: "All fields must be strings.",
+      message: "All fields must be strings",
     });
   });
-
+  //Controller
   it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
     const body: LoginDto = {
       email: "",
@@ -76,7 +75,7 @@ describe("POST /login", () => {
       message: "An unexpected error occurred: Exception",
     });
   });
-
+  //Service
   it("Deve retornar 200 quando autenticação for completada", async () => {
     const body: LoginDto = {
       email: "",
@@ -86,7 +85,7 @@ describe("POST /login", () => {
     const mockAuth = {
       ok: true,
       code: 200,
-      message: "Successfully logged in.",
+      message: "Successfully logged in",
       data: {
         token: "Bearer token",
         user: {
@@ -104,7 +103,7 @@ describe("POST /login", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       ok: true,
-      message: "Successfully logged in.",
+      message: "Successfully logged in",
       data: {
         token: expect.any(String),
         user: expect.objectContaining({

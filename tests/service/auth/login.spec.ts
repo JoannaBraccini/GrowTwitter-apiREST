@@ -21,7 +21,7 @@ describe("Login AuthService", () => {
     expect(result.code).toBe(401);
     expect(result.ok).toBeFalsy();
     expect(result.message).toBeDefined();
-    expect(result.message).toMatch("Invalid credentials.");
+    expect(result.message).toMatch("Invalid credentials");
     expect(result.data).toBeUndefined();
   });
 
@@ -47,7 +47,7 @@ describe("Login AuthService", () => {
     expect(bcrypt).toHaveBeenCalledTimes(1);
     expect(result.code).toBe(401);
     expect(result.ok).toBeFalsy();
-    expect(result.message).toMatch("Invalid credentials.");
+    expect(result.message).toMatch("Invalid credentials");
     expect(result.data).toBeUndefined();
   });
 
@@ -94,7 +94,7 @@ describe("Login AuthService", () => {
     expect(result).toEqual({
       ok: true,
       code: 200,
-      message: "Successfully logged in.",
+      message: "Successfully logged in",
       data: {
         token: expect.any(String),
         user: {

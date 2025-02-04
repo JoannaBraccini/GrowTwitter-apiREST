@@ -13,19 +13,19 @@ export class AuthMiddleware {
     if (!authorization) {
       res.status(401).json({
         ok: false,
-        message: "Not authenticated.",
+        message: "Unauthorized: Token is required",
       });
       return;
     }
 
     //Desestrutura o bearer token para usar somente o token
-    const [_, token] = authorization.split(" ");
-    // const token = authorization.split(" ")[1] -> assim também funciona, pegando apenas a segunda posição que é o token
+    // const [_, token] = authorization.split(" ");
+    const token = authorization.split(" ")[1];
 
-    if (!token) {
+    if (!token || !authorization.startsWith("Bearer")) {
       res.status(401).json({
         ok: false,
-        message: "Not authenticated.",
+        message: "Unauthorized: Invalid or missing token",
       });
       return;
     }
@@ -37,7 +37,7 @@ export class AuthMiddleware {
     if (!userDecoded) {
       res.status(401).json({
         ok: false,
-        message: "Not authenticated.",
+        message: "Unauthorized: Invalid or expired token",
       });
       return;
     }

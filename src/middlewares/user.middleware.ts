@@ -34,15 +34,15 @@ export class UserMiddleware {
     const errors: string[] = [];
 
     if (name && name.length < 3) {
-      errors.push("Name must be at least 3 characters long.");
+      errors.push("Name must be at least 3 characters long");
     }
 
     if (username && username.length < 3) {
-      errors.push("Username must be at least 3 characters long.");
+      errors.push("Username must be at least 3 characters long");
     }
 
     if (password && password.length < 4) {
-      errors.push("Password must be at least 4 characters long.");
+      errors.push("Password must be at least 4 characters long");
     }
 
     if (errors.length > 0) {

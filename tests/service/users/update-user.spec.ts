@@ -26,7 +26,7 @@ describe("Update UserService", () => {
     expect(result).toEqual({
       ok: false,
       code: 404,
-      message: "User not found.",
+      message: "User not found",
     });
     expect(result.data).toBeUndefined();
   });
@@ -42,7 +42,7 @@ describe("Update UserService", () => {
     expect(result.code).toBe(401);
     expect(result.ok).toBeFalsy();
     expect(result.message).toMatch(
-      "You are not authorized to modify this profile."
+      "You are not authorized to modify this profile"
     );
     expect(result.data).toBeUndefined();
   });
@@ -70,7 +70,7 @@ describe("Update UserService", () => {
     expect(result).toEqual({
       ok: false,
       code: 409,
-      message: "Username is already in use.",
+      message: "Username is already in use",
     });
     expect(result.data).toBeUndefined();
   });
@@ -169,7 +169,7 @@ describe("Update UserService", () => {
     expect(result).toEqual({
       ok: true,
       code: 200,
-      message: "User profile updated successfully.",
+      message: "User profile updated successfully",
       data: expect.objectContaining({
         id: userMock.id,
         name: userMock.name,

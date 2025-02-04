@@ -23,7 +23,7 @@ describe("Follow UserService", () => {
     expect(result).toEqual({
       ok: false,
       code: 404,
-      message: "User not found.",
+      message: "User not found",
     });
     expect(result.data).toBeUndefined();
   });
@@ -38,7 +38,7 @@ describe("Follow UserService", () => {
     expect(result).toEqual({
       ok: false,
       code: 404,
-      message: "User not found.",
+      message: "User not found",
     });
     expect(result.data).toBeUndefined();
   });
@@ -55,7 +55,7 @@ describe("Follow UserService", () => {
     expect(result).toEqual({
       ok: false,
       code: 409,
-      message: "Follower ID and Followed ID can't be the same.",
+      message: "Follower ID and Followed ID can't be the same",
     });
     expect(result.data).toBeUndefined();
   });

@@ -23,7 +23,7 @@ describe("Create TweetService", () => {
     expect(result.code).not.toBe(201);
     expect(result.code).toBe(404);
     expect(result.ok).toBeFalsy();
-    expect(result.message).toMatch("Tweet not found.");
+    expect(result.message).toMatch("Tweet not found");
     expect(result.data).toBeUndefined();
   });
 
@@ -53,7 +53,7 @@ describe("Create TweetService", () => {
     expect(result).toEqual({
       ok: true,
       code: 201,
-      message: "Tweet created successfully.",
+      message: "Tweet created successfully",
       data: tweetMock,
     });
   });

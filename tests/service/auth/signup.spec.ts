@@ -23,7 +23,7 @@ describe("Signup AuthService", () => {
 
     expect(result.code).toBe(409);
     expect(result.ok).toBeFalsy();
-    expect(result.message).toMatch("Email is already in use.");
+    expect(result.message).toMatch("Email is already in use");
     expect(result.data).toBeUndefined;
     expect(result).not.toBeNull();
   });
@@ -38,7 +38,7 @@ describe("Signup AuthService", () => {
 
     expect(result.code).toBe(409);
     expect(result.ok).toBeFalsy();
-    expect(result.message).toMatch("Username is already in use.");
+    expect(result.message).toMatch("Username is already in use");
     expect(result.data).toBeUndefined;
     expect(result).not.toBeNull();
   });
@@ -80,7 +80,7 @@ describe("Signup AuthService", () => {
     expect(result).toEqual({
       ok: true,
       code: 201,
-      message: "User created successfully.",
+      message: "User created successfully",
       data: {
         id: expect.any(String),
         name: body.name,

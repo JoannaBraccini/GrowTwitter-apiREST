@@ -31,7 +31,7 @@ describe("Remove TweetService", () => {
 
     expect(result.code).toBe(401);
     expect(result.ok).toBeFalsy();
-    expect(result.message).toMatch("Not authorized to delete this tweet.");
+    expect(result.message).toMatch("Not authorized to delete this tweet");
     expect(result.data).toBeUndefined();
   });
 

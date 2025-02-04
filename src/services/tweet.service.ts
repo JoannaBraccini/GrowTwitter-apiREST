@@ -23,7 +23,7 @@ export class TweetService {
           return {
             ok: false,
             code: 404,
-            message: "Tweet not found.",
+            message: "Tweet not found",
           };
         }
       }
@@ -35,8 +35,15 @@ export class TweetService {
       return {
         ok: true,
         code: 201,
-        message: "Tweet created successfully.",
-        data: tweetCreated,
+        message: "Tweet created successfully",
+        data: {
+          id: tweetCreated.id,
+          parentId: tweetCreated.parentId,
+          type: tweetCreated.type,
+          content: tweetCreated.content,
+          userId: tweetCreated.userId,
+          createdAt: tweetCreated.createdAt,
+        },
       };
     } catch (error: any) {
       return {
@@ -94,14 +101,14 @@ export class TweetService {
         return {
           ok: false,
           code: 404,
-          message: "Tweet not found.",
+          message: "Tweet not found",
         };
       }
 
       return {
         ok: true,
         code: 200,
-        message: "Tweet details retrieved successfully.",
+        message: "Tweet details retrieved successfully",
         data: this.mapToFullDto(tweet), // Mapeia detalhes
       };
     } catch (error: any) {
@@ -126,7 +133,7 @@ export class TweetService {
         return {
           ok: false,
           code: 404,
-          message: "Tweet not found.",
+          message: "Tweet not found",
         };
       }
 
@@ -135,7 +142,7 @@ export class TweetService {
         return {
           ok: false,
           code: 401,
-          message: "Not authorized to modify this tweet.",
+          message: "Not authorized to modify this tweet",
         };
       }
       const tweetUpdated = await prisma.tweet.update({
@@ -146,7 +153,7 @@ export class TweetService {
       return {
         ok: true,
         code: 200,
-        message: "Tweet content updated successfully.",
+        message: "Tweet content updated successfully",
         data: await this.mapToDto(tweetUpdated),
       };
     } catch (error: any) {
@@ -182,7 +189,7 @@ export class TweetService {
         return {
           ok: false,
           code: 401,
-          message: "Not authorized to delete this tweet.",
+          message: "Not authorized to delete this tweet",
         };
       }
 
@@ -340,7 +347,7 @@ export class TweetService {
       });
 
       if (!tweets || tweets.length < 1) {
-        return { ok: false, code: 404, message: "No tweets found." };
+        return { ok: false, code: 404, message: "No tweets found" };
       }
 
       const tweetDtos = await Promise.all(
@@ -352,7 +359,7 @@ export class TweetService {
       return {
         ok: true,
         code: 200,
-        message: "Tweets retrieved successfully.",
+        message: "Tweets retrieved successfully",
         data: tweetDtos,
       };
     } catch (error: any) {

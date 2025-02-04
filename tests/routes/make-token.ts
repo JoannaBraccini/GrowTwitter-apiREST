@@ -5,9 +5,9 @@ import { AuthUser } from "../../src/types/user";
 export function makeToken(params?: Partial<AuthUser>) {
   const payload: AuthUser = {
     id: randomUUID(),
-    name: params?.name || "Test Name",
+    name: params?.name || "Nome do Usuário",
     username: params?.username || "username",
-    email: params?.email || "test@email.com",
+    email: params?.email || "email@email.com",
   };
 
   const jwt = new JWT();

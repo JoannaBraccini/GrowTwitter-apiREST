@@ -14,7 +14,7 @@ describe("Find One TweetService", () => {
     expect(result).toEqual({
       ok: false,
       code: 404,
-      message: "Tweet not found.",
+      message: "Tweet not found",
     });
     expect(prisma).toHaveBeenCalled();
   });
@@ -42,7 +42,7 @@ describe("Find One TweetService", () => {
 
     expect(result.code).toBe(200);
     expect(result.ok).toBeTruthy();
-    expect(result.message).toMatch("Tweet details retrieved successfully.");
+    expect(result.message).toMatch("Tweet details retrieved successfully");
     expect(result.data).toMatchObject({
       id: "id-valido",
       userId: expect.any(String),

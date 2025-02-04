@@ -18,7 +18,7 @@ describe("Find Feed TweetService", () => {
     expect(result).toEqual({
       ok: false,
       code: 404,
-      message: "No tweets found.",
+      message: "No tweets found",
     });
     expect(result.data).toBeUndefined();
   });
@@ -62,7 +62,7 @@ describe("Find Feed TweetService", () => {
 
     expect(result.code).toBe(200);
     expect(result.ok).toBeTruthy();
-    expect(result.message).toMatch("Tweets retrieved successfully.");
+    expect(result.message).toMatch("Tweets retrieved successfully");
     expect(result.data).toBeDefined();
     result.data.forEach((tweet: TweetMock) => {
       expect(tweet).toEqual({

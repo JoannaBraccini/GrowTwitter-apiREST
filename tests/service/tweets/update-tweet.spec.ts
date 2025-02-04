@@ -22,7 +22,7 @@ describe("Update TweetService", () => {
     expect(result).toEqual({
       ok: false,
       code: 404,
-      message: "Tweet not found.",
+      message: "Tweet not found",
     });
     expect(result.data).toBeUndefined();
   });
@@ -37,7 +37,7 @@ describe("Update TweetService", () => {
 
     expect(result.code).toBe(401);
     expect(result.ok).toBeFalsy();
-    expect(result.message).toMatch("Not authorized to modify this tweet.");
+    expect(result.message).toMatch("Not authorized to modify this tweet");
     expect(result.data).toBeUndefined();
   });
 
@@ -70,7 +70,7 @@ describe("Update TweetService", () => {
     expect(result).toEqual({
       ok: true,
       code: 200,
-      message: "Tweet content updated successfully.",
+      message: "Tweet content updated successfully",
       data: expect.objectContaining({
         content: "Texto do Tweet",
         id: "id-tweet",

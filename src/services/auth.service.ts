@@ -19,8 +19,8 @@ export class AuthService {
       if (user) {
         const message =
           user.email === email
-            ? "Email is already in use."
-            : "Username is already in use.";
+            ? "Email is already in use"
+            : "Username is already in use";
         return {
           ok: false,
           code: 409, //conflict
@@ -38,7 +38,7 @@ export class AuthService {
       return {
         ok: true,
         code: 201,
-        message: "User created successfully.",
+        message: "User created successfully",
         data: this.mapToDto(userCreated), //retornar somente dados básicos
       };
     } catch (error: any) {
@@ -65,7 +65,7 @@ export class AuthService {
         return {
           ok: false,
           code: 401, //não autorizado
-          message: "Invalid credentials.",
+          message: "Invalid credentials",
         };
       }
       //verificar senha
@@ -77,7 +77,7 @@ export class AuthService {
         return {
           ok: false,
           code: 401,
-          message: "Invalid credentials.",
+          message: "Invalid credentials",
         };
       }
 
@@ -96,7 +96,7 @@ export class AuthService {
       return {
         ok: true,
         code: 200,
-        message: "Successfully logged in.",
+        message: "Successfully logged in",
         data: { token, user: payload },
       };
     } catch (error: any) {
