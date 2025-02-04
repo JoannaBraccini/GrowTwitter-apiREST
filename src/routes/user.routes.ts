@@ -8,7 +8,6 @@ export class UserRoutes {
   public static execute(): Router {
     const router = Router();
 
-    //CREATE USER -> movido para authRoutes: signup
     //FIND ALL USERS (with optional query)
     router.get(
       "/users",

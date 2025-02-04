@@ -6,7 +6,7 @@ import { TweetMock } from "../mock/tweet.mock";
 describe("Find All TweetService", () => {
   const createSut = () => new TweetService();
 
-  it("Deve retornar 404 quando não forem localizados tweets no sistema", async () => {
+  it("Deve retornar status 404 quando não forem localizados tweets no sistema", async () => {
     const sut = createSut();
     const query = { page: 1, take: 10 };
 
@@ -20,7 +20,7 @@ describe("Find All TweetService", () => {
     expect(result.data).not.toBeDefined();
   });
 
-  it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const sut = createSut();
     const query = {};
 
@@ -34,7 +34,7 @@ describe("Find All TweetService", () => {
     });
   });
 
-  it("Deve retornar 200 quando tweets existirem no sistema", async () => {
+  it("Deve retornar status 200 quando tweets existirem no sistema", async () => {
     const sut = createSut();
     const query = {};
     const tweetsMock = Array.from({ length: 5 }, (_, index) => {

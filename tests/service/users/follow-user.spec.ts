@@ -13,7 +13,7 @@ describe("Follow UserService", () => {
   });
   const createSut = () => new UserService();
 
-  it("Deve retornar 404 quando ID fornecido (Follower) não existir no sistema", async () => {
+  it("Deve retornar status 404 quando ID fornecido (Follower) não existir no sistema", async () => {
     const sut = createSut();
     const body = { id: "id-seguido", userId: "id-seguidor-invalido" };
 
@@ -28,7 +28,7 @@ describe("Follow UserService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 404 quando ID fornecido (Followed) não existir no sistema", async () => {
+  it("Deve retornar status 404 quando ID fornecido (Followed) não existir no sistema", async () => {
     const sut = createSut();
     const body = { id: "id-seguido-invalido", userId: "id-seguidor" };
 
@@ -43,7 +43,7 @@ describe("Follow UserService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 409 quando IDs fornecidos (Followed e Follower) forem iguais", async () => {
+  it("Deve retornar status 409 quando IDs fornecidos (Followed e Follower) forem iguais", async () => {
     const sut = createSut();
     const userMock = UserMock.build({ id: "id-seguidor" });
     const body = { id: "id-seguidor", userId: "id-seguidor" };
@@ -60,7 +60,7 @@ describe("Follow UserService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 500 quando ocorrer erro de Exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de Exceção", async () => {
     const sut = createSut();
     const body = { id: "id-seguidor", userId: "id-seguido" };
     prismaMock.user.findUnique.mockRejectedValueOnce(new Error("Exception"));
@@ -73,7 +73,7 @@ describe("Follow UserService", () => {
     });
   });
 
-  it("Deve retornar 201 quando o Follow for cadastrado do sistema", async () => {
+  it("Deve retornar status 201 quando o Follow for cadastrado do sistema", async () => {
     const sut = createSut();
     const body = { id: "id-seguidor", userId: "id-seguido" };
     const userMock = UserMock.build({
@@ -100,7 +100,7 @@ describe("Follow UserService", () => {
     });
   });
 
-  it("Deve retornar 200 quando o Follow existente for removido do sistema", async () => {
+  it("Deve retornar status 200 quando o Follow existente for removido do sistema", async () => {
     const sut = createSut();
     const body = { id: "id-seguido", userId: "id-seguidor" };
     const userMock = UserMock.build({

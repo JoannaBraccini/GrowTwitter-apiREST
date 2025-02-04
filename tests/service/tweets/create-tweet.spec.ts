@@ -13,7 +13,7 @@ describe("Create TweetService", () => {
   });
   const createSut = () => new TweetService();
 
-  it("Deve retornar 404 quando, na criação de um reply, o ID do tweet respondido não for encontrado no sistema", async () => {
+  it("Deve retornar status 404 quando, na criação de um reply, o ID do tweet respondido não for encontrado no sistema", async () => {
     const sut = createSut();
     const body = makeCreate({ parentId: "id-invalido" });
 
@@ -27,7 +27,7 @@ describe("Create TweetService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const sut = createSut();
     const body = makeCreate();
 
@@ -42,7 +42,7 @@ describe("Create TweetService", () => {
     expect(result.data).not.toBeDefined();
   });
 
-  it("Deve retornar 201 quando tweet/reply for cadastrado no sistema", async () => {
+  it("Deve retornar status 201 quando tweet/reply for cadastrado no sistema", async () => {
     const sut = createSut();
     const body = makeCreate();
     const tweetMock = TweetMock.build(body);

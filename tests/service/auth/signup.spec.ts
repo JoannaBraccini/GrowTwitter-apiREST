@@ -13,7 +13,7 @@ describe("Signup AuthService", () => {
   });
   const createSut = () => new AuthService();
 
-  it("Deve retornar 409 quando email já existir no sistema", async () => {
+  it("Deve retornar status 409 quando email já existir no sistema", async () => {
     const sut = createSut();
     const body = makeSignup({ email: "teste@email.com" });
     const userMock = UserMock.build({ email: "teste@email.com" });
@@ -28,7 +28,7 @@ describe("Signup AuthService", () => {
     expect(result).not.toBeNull();
   });
 
-  it("Deve retornar 409 quando username já existir no sistema", async () => {
+  it("Deve retornar status 409 quando username já existir no sistema", async () => {
     const sut = createSut();
     const body = makeSignup({ username: "usertest" });
     const userMock = UserMock.build({ username: "usertest" });
@@ -43,7 +43,7 @@ describe("Signup AuthService", () => {
     expect(result).not.toBeNull();
   });
 
-  it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const sut = createSut();
     const body = makeSignup();
 
@@ -57,7 +57,7 @@ describe("Signup AuthService", () => {
     });
   });
 
-  it("Deve retornar 201 quando usuário for cadastrado no sistema", async () => {
+  it("Deve retornar status 201 quando usuário for cadastrado no sistema", async () => {
     const sut = createSut();
     const body = makeSignup();
 

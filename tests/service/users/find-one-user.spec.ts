@@ -5,7 +5,7 @@ import { UserMock } from "../mock/user.mock";
 describe("Find One UsertService", () => {
   const createSut = () => new UserService();
 
-  it("Deve retornar 404 quando o ID fornecido não existir no sistema", async () => {
+  it("Deve retornar status 404 quando o ID fornecido não existir no sistema", async () => {
     const sut = createSut();
 
     const prisma = prismaMock.user.findUnique.mockResolvedValueOnce(null);
@@ -19,7 +19,7 @@ describe("Find One UsertService", () => {
     expect(prisma).toHaveBeenCalled();
   });
 
-  it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const sut = createSut();
 
     prismaMock.user.findUnique.mockRejectedValueOnce(new Error("Exception"));
@@ -33,7 +33,7 @@ describe("Find One UsertService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 200 quando o ID fornecido for encontrado no sistema", async () => {
+  it("Deve retornar status 200 quando o ID fornecido for encontrado no sistema", async () => {
     const sut = createSut();
     const userMock = UserMock.build({ id: "id-valido" });
 

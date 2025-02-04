@@ -7,6 +7,7 @@ export class TweetController {
     try {
       const { parentId, type, content } = req.body;
       const { id: userId } = req.AuthUser;
+
       const data: CreateTweetDto = {
         userId,
         parentId,

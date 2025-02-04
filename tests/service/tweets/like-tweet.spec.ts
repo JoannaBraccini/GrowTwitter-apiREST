@@ -12,7 +12,7 @@ describe("Like TweetService", () => {
   });
   const createSut = () => new TweetService();
 
-  it("Deve retornar 404 quando ID fornecido não existir no sistema", async () => {
+  it("Deve retornar status 404 quando ID fornecido não existir no sistema", async () => {
     const sut = createSut();
     const body = { tweetId: "id-invalido", userId: "id-usuario" };
 
@@ -27,7 +27,7 @@ describe("Like TweetService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 500 quando ocorrer erro de Exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de Exceção", async () => {
     const sut = createSut();
     const body = { tweetId: "id-tweet", userId: "id-usuario" };
     prismaMock.tweet.findUnique.mockRejectedValueOnce(new Error("Exception"));
@@ -40,7 +40,7 @@ describe("Like TweetService", () => {
     });
   });
 
-  it("Deve retornar 201 quando o like for cadastrado do sistema", async () => {
+  it("Deve retornar status 201 quando o like for cadastrado do sistema", async () => {
     const sut = createSut();
     const body = { tweetId: "id-tweet", userId: "id-usuario" };
     const tweetMock = TweetMock.build({
@@ -64,7 +64,7 @@ describe("Like TweetService", () => {
     });
   });
 
-  it("Deve retornar 200 quando o like existente for removido do sistema", async () => {
+  it("Deve retornar status 200 quando o like existente for removido do sistema", async () => {
     const sut = createSut();
     const body = { tweetId: "id-tweet", userId: "id-usuario" };
     const tweetMock = TweetMock.build({

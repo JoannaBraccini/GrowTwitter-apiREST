@@ -12,7 +12,7 @@ describe("Update TweetService", () => {
   });
   const createSut = () => new TweetService();
 
-  it("Deve retornar 404 quando ID fornecido não existir no sistema", async () => {
+  it("Deve retornar status 404 quando ID fornecido não existir no sistema", async () => {
     const sut = createSut();
     const body = makeUpdate();
 
@@ -27,7 +27,7 @@ describe("Update TweetService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 401 quando ID do usuário logado não for igual ao userId do Tweet", async () => {
+  it("Deve retornar status 401 quando ID do usuário logado não for igual ao userId do Tweet", async () => {
     const sut = createSut();
     const tweetMock = TweetMock.build({ userId: "outro-usuario" });
     const body = makeUpdate();
@@ -41,7 +41,7 @@ describe("Update TweetService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 500 quando ocorrer erro de Exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de Exceção", async () => {
     const sut = createSut();
     const body = makeUpdate();
 
@@ -55,7 +55,7 @@ describe("Update TweetService", () => {
     });
   });
 
-  it("Deve retornar 200 quando o tweet for atualizado no sistema", async () => {
+  it("Deve retornar status 200 quando o tweet for atualizado no sistema", async () => {
     const sut = createSut();
     const body = makeUpdate({ tweetId: "id-tweet", userId: "id-usuario" });
     const tweetMock: Tweet = TweetMock.build({

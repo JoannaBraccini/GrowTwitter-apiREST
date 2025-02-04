@@ -8,7 +8,7 @@ import { UserMock } from "../mock/user.mock";
 describe("Login AuthService", () => {
   const createSut = () => new AuthService();
 
-  it("Deve retornar 401 quando o dado (email ou username) fornecido não existir no sistema", async () => {
+  it("Deve retornar status 401 quando o dado (email ou username) fornecido não existir no sistema", async () => {
     const sut = createSut();
     const body: LoginDto = {
       email: "invalid@email.com",
@@ -25,7 +25,7 @@ describe("Login AuthService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 401 quando a senha informada estiver incorreta", async () => {
+  it("Deve retornar status 401 quando a senha informada estiver incorreta", async () => {
     const sut = createSut();
     const body: LoginDto = {
       username: "username",
@@ -51,7 +51,7 @@ describe("Login AuthService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 500 quando ocorrer um erro de exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer um erro de exceção", async () => {
     const sut = createSut();
     const body: LoginDto = {
       username: "username",
@@ -68,7 +68,7 @@ describe("Login AuthService", () => {
     });
   });
 
-  it("Deve retornar 200 quando o usuário entrar no sistema", async () => {
+  it("Deve retornar status 200 quando o usuário entrar no sistema", async () => {
     const sut = createSut();
     const body: LoginDto = {
       username: "username",

@@ -11,7 +11,7 @@ const endpoint = "/tweets";
 
 describe("POST /tweets", () => {
   //Auth
-  it("Deve retornar 401 quando token não for informado", async () => {
+  it("Deve retornar status 401 quando token não for informado", async () => {
     const response = await supertest(server).post(endpoint);
 
     expect(response.status).toBe(401);
@@ -21,7 +21,7 @@ describe("POST /tweets", () => {
     });
   });
 
-  it("Deve retornar 401 quando for informado token de formato inválido", async () => {
+  it("Deve retornar status 401 quando for informado token de formato inválido", async () => {
     const response = await supertest(server)
       .post(endpoint)
       .set("Authorization", "invalid_token");
@@ -33,7 +33,7 @@ describe("POST /tweets", () => {
     });
   });
 
-  it("Deve retornar 401 quando for informado token inválido ou expirado", async () => {
+  it("Deve retornar status 401 quando for informado token inválido ou expirado", async () => {
     const response = await supertest(server)
       .post(endpoint)
       .set("Authorization", "Bearer invalidToken");
@@ -44,9 +44,8 @@ describe("POST /tweets", () => {
       message: "Unauthorized: Invalid or expired token",
     });
   });
-
   //Required
-  it("Deve retornar 400 quando Tipo do tweet não for informado", async () => {
+  it("Deve retornar status 400 quando Tipo do tweet não for informado", async () => {
     const token = makeToken();
     const response = await supertest(server)
       .post(endpoint)
@@ -60,7 +59,7 @@ describe("POST /tweets", () => {
     });
   });
 
-  it("Deve retornar 400 quando parentId não for informado para Retweet/Reply", async () => {
+  it("Deve retornar status 400 quando parentId não for informado para Retweet/Reply", async () => {
     const token = makeToken();
     const response = await supertest(server)
       .post(endpoint)
@@ -74,7 +73,7 @@ describe("POST /tweets", () => {
     });
   });
 
-  it("Deve retornar 400 quando parentId for inválido", async () => {
+  it("Deve retornar status 400 quando parentId for inválido", async () => {
     const token = makeToken();
     const response = await supertest(server)
       .post(endpoint)
@@ -88,7 +87,7 @@ describe("POST /tweets", () => {
     });
   });
 
-  it("Deve retornar 400 quando parentId for informado para Tweet", async () => {
+  it("Deve retornar status 400 quando parentId for informado para Tweet", async () => {
     const token = makeToken();
     const response = await supertest(server)
       .post(endpoint)
@@ -106,7 +105,7 @@ describe("POST /tweets", () => {
     });
   });
 
-  it("Deve retornar 400 quando Conteúdo do tweet não for informado", async () => {
+  it("Deve retornar status 400 quando Conteúdo do tweet não for informado", async () => {
     const token = makeToken();
     const response = await supertest(server)
       .post(endpoint)
@@ -120,7 +119,7 @@ describe("POST /tweets", () => {
     });
   });
   //Types
-  it("Deve retornar 400 quando Tipo for inválido", async () => {
+  it("Deve retornar status 400 quando Tipo for inválido", async () => {
     const token = makeToken();
     const response = await supertest(server)
       .post(endpoint)
@@ -134,7 +133,7 @@ describe("POST /tweets", () => {
     });
   });
 
-  it("Deve retornar 400 quando tipo do Content for inválido", async () => {
+  it("Deve retornar status 400 quando tipo do Content for inválido", async () => {
     const token = makeToken();
     const response = await supertest(server)
       .post(endpoint)
@@ -148,7 +147,7 @@ describe("POST /tweets", () => {
     });
   });
   //Length
-  it("Deve retornar 400 quando Content for maior que o limite permitido", async () => {
+  it("Deve retornar status 400 quando Content for maior que o limite permitido", async () => {
     const token = makeToken();
     const response = await supertest(server)
       .post(endpoint)
@@ -167,7 +166,7 @@ describe("POST /tweets", () => {
     });
   });
   //Controller
-  it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const token = makeToken();
     // Simulando um erro no controller
     jest.spyOn(TweetService.prototype, "create").mockImplementationOnce(() => {
@@ -190,7 +189,7 @@ describe("POST /tweets", () => {
     });
   });
   //Service
-  it("Deve retornar 201 quando Tweet for cadastrado no sistema", async () => {
+  it("Deve retornar status 201 quando Tweet for cadastrado no sistema", async () => {
     const token = makeToken();
     const body: CreateTweetDto = {
       userId: randomUUID(),

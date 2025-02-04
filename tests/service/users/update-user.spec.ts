@@ -16,7 +16,7 @@ describe("Update UserService", () => {
   });
   const createSut = () => new UserService();
 
-  it("Deve retornar 404 quando ID fornecido não existir no sistema", async () => {
+  it("Deve retornar status 404 quando ID fornecido não existir no sistema", async () => {
     const sut = createSut();
     const body = makeUpdate({ userId: "usuario-id", id: "id-invalido" });
 
@@ -31,7 +31,7 @@ describe("Update UserService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 401 quando ID do usuário logado não for igual ao ID do usuário a ser atualizado", async () => {
+  it("Deve retornar status 401 quando ID do usuário logado não for igual ao ID do usuário a ser atualizado", async () => {
     const sut = createSut();
     const userMock = UserMock.build({ id: "outro-usuario" });
     const body = makeUpdate();
@@ -47,7 +47,7 @@ describe("Update UserService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 409 quando o username escolhido já existir no sistema", async () => {
+  it("Deve retornar status 409 quando o username escolhido já existir no sistema", async () => {
     const sut = createSut();
     const userMock1 = UserMock.build({
       id: "usuario-id",
@@ -75,7 +75,7 @@ describe("Update UserService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 400 quando a senha fornecida (oldPassword) estiver incorreta", async () => {
+  it("Deve retornar status 400 quando a senha fornecida (oldPassword) estiver incorreta", async () => {
     const sut = createSut();
     const userMock = UserMock.build({
       id: "usuario-id",
@@ -103,7 +103,7 @@ describe("Update UserService", () => {
     expect(bcrypt).toHaveBeenCalledWith(body.oldPassword, userMock.password);
   });
 
-  it("Deve retornar 400 quando a senha fornecida (newPassword) for igual à senha cadastrada no sistema", async () => {
+  it("Deve retornar status 400 quando a senha fornecida (newPassword) for igual à senha cadastrada no sistema", async () => {
     const sut = createSut();
     const userMock = UserMock.build({
       id: "usuario-id",
@@ -136,7 +136,7 @@ describe("Update UserService", () => {
     expect(bcryptNew).toHaveBeenCalledWith(body.newPassword, userMock.password);
   });
 
-  it("Deve retornar 500 quando ocorrer erro de Exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de Exceção", async () => {
     const sut = createSut();
     const body = makeUpdate();
 
@@ -150,7 +150,7 @@ describe("Update UserService", () => {
     });
   });
 
-  it("Deve retornar 200 quando o usuário for atualizado no sistema", async () => {
+  it("Deve retornar status 200 quando o usuário for atualizado no sistema", async () => {
     const sut = createSut();
     const userMock = UserMock.build({
       id: "id-usuario",

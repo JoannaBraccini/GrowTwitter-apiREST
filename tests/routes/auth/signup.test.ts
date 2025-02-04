@@ -9,7 +9,7 @@ const endpoint = "/signup";
 
 describe("POST /signup", () => {
   //Required
-  it("Deve retornar 400 quando nome não for fornecido", async () => {
+  it("Deve retornar status 400 quando nome não for fornecido", async () => {
     const body: SignupDto = {
       name: "",
       email: "email@email.com",
@@ -25,7 +25,7 @@ describe("POST /signup", () => {
     });
   });
 
-  it("Deve retornar 400 quando email não for fornecido", async () => {
+  it("Deve retornar status 400 quando email não for fornecido", async () => {
     const body: SignupDto = {
       name: "Nome do Usuário",
       email: "",
@@ -41,7 +41,7 @@ describe("POST /signup", () => {
     });
   });
 
-  it("Deve retornar 400 quando senha não for fornecida", async () => {
+  it("Deve retornar status 400 quando senha não for fornecida", async () => {
     const body: SignupDto = {
       name: "Nome do Usuário",
       email: "email@email.com",
@@ -57,7 +57,7 @@ describe("POST /signup", () => {
     });
   });
 
-  it("Deve retornar 400 quando nome de usuário não for fornecido", async () => {
+  it("Deve retornar status 400 quando nome de usuário não for fornecido", async () => {
     const body: SignupDto = {
       name: "Nome do Usuário",
       email: "email@email.com",
@@ -73,7 +73,7 @@ describe("POST /signup", () => {
     });
   });
   //Types
-  it("Deve retornar 400 quando campos obrigatórios não forem String", async () => {
+  it("Deve retornar status 400 quando campos obrigatórios não forem String", async () => {
     const body = {
       name: 1234,
       email: "email@email.com",
@@ -89,7 +89,7 @@ describe("POST /signup", () => {
     });
   });
   //Length
-  it("Deve retornar 400 quando nome tiver menos de 3 caracteres", async () => {
+  it("Deve retornar status 400 quando nome tiver menos de 3 caracteres", async () => {
     const body: SignupDto = {
       name: "No",
       email: "email@email.com",
@@ -105,7 +105,7 @@ describe("POST /signup", () => {
     });
   });
 
-  it("Deve retornar 400 quando nome de usuário tiver menos de 3 caracteres", async () => {
+  it("Deve retornar status 400 quando nome de usuário tiver menos de 3 caracteres", async () => {
     const body: SignupDto = {
       name: "Nome do Usuário",
       email: "email@email.com",
@@ -121,7 +121,7 @@ describe("POST /signup", () => {
     });
   });
 
-  it("Deve retornar 400 quando senha tiver menos de 4 caracteres", async () => {
+  it("Deve retornar status 400 quando senha tiver menos de 4 caracteres", async () => {
     const body: SignupDto = {
       name: "Nome do Usuário",
       email: "email@email.com",
@@ -137,7 +137,7 @@ describe("POST /signup", () => {
     });
   });
 
-  it("Deve retornar 400 quando email não passar na validação de formato", async () => {
+  it("Deve retornar status 400 quando email não passar na validação de formato", async () => {
     const body: SignupDto = {
       name: "Nome do Usuário",
       email: "email@email",
@@ -153,7 +153,7 @@ describe("POST /signup", () => {
     });
   });
 
-  it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const body: SignupDto = {
       name: "Nome do Usuário",
       email: "email@email.com",
@@ -175,7 +175,7 @@ describe("POST /signup", () => {
     });
   });
 
-  it("Deve retornar 201 quando cadastro for completado", async () => {
+  it("Deve retornar status 201 quando cadastro for completado", async () => {
     const body: SignupDto = {
       name: "Nome do Usuário",
       email: "email@email.com",

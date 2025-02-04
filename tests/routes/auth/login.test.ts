@@ -10,7 +10,7 @@ const endpoint = "/login";
 describe("POST /login", () => {
   //Required
 
-  it("Deve retornar 400 quando nem email nem username forem fornecidos", async () => {
+  it("Deve retornar status 400 quando nem email nem username forem fornecidos", async () => {
     const body: LoginDto = {
       email: "",
       username: "",
@@ -25,7 +25,7 @@ describe("POST /login", () => {
     });
   });
 
-  it("Deve retornar 400 quando senha não for fornecida", async () => {
+  it("Deve retornar status 400 quando senha não for fornecida", async () => {
     const body: LoginDto = {
       email: "",
       username: "username",
@@ -40,7 +40,7 @@ describe("POST /login", () => {
     });
   });
   //Types
-  it("Deve retornar 400 quando campos obrigatórios não forem String", async () => {
+  it("Deve retornar status 400 quando campos obrigatórios não forem String", async () => {
     const body = {
       email: "email@email.com",
       username: "",
@@ -55,7 +55,7 @@ describe("POST /login", () => {
     });
   });
   //Controller
-  it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const body: LoginDto = {
       email: "",
       username: "username",
@@ -76,7 +76,7 @@ describe("POST /login", () => {
     });
   });
   //Service
-  it("Deve retornar 200 quando autenticação for completada", async () => {
+  it("Deve retornar status 200 quando autenticação for completada", async () => {
     const body: LoginDto = {
       email: "",
       username: "username",

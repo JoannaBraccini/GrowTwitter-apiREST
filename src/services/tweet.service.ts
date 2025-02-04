@@ -1,4 +1,4 @@
-import { Tweet } from "@prisma/client";
+import { Prisma, Tweet } from "@prisma/client";
 import { prisma } from "../database/prisma.database";
 import {
   ActionsDto,
@@ -60,7 +60,7 @@ export class TweetService {
     take?: number;
     search?: string;
   }): Promise<ResponseApi> {
-    return this.getTweetsPaginated({}, query); // Busca todos os tweets sem filtro de usuário
+    return this.getTweetsPaginated({}, query); // Busca todos os tweets sem filtro de usuário logado
   }
 
   //FIND FEED - com paginação e search
@@ -326,7 +326,7 @@ export class TweetService {
 
   //FIND PAGINATED
   private async getTweetsPaginated(
-    where: any,
+    where: Prisma.TweetWhereInput,
     query?: { page?: number; take?: number; search?: string },
     useFullDto: boolean = false
   ): Promise<ResponseApi> {

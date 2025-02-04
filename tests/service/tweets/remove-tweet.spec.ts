@@ -6,7 +6,7 @@ import { TweetMock } from "../mock/tweet.mock";
 describe("Remove TweetService", () => {
   const createSut = () => new TweetService();
 
-  it("Deve retornar 404 quando ID fornecido não existir no sistema", async () => {
+  it("Deve retornar status 404 quando ID fornecido não existir no sistema", async () => {
     const sut = createSut();
     const body = { tweetId: "id-invalido", userId: "id-usuario" };
 
@@ -21,7 +21,7 @@ describe("Remove TweetService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 401 quando ID do usuário logado não for igual ao userId do Tweet", async () => {
+  it("Deve retornar status 401 quando ID do usuário logado não for igual ao userId do Tweet", async () => {
     const sut = createSut();
     const body = { tweetId: "id-tweet", userId: "id-usuario" };
     const tweetMock = TweetMock.build({ userId: "outro-usuario" });
@@ -35,7 +35,7 @@ describe("Remove TweetService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 500 quando ocorrer erro de Exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de Exceção", async () => {
     const sut = createSut();
     const body = { tweetId: "id-tweet", userId: "id-usuario" };
     prismaMock.tweet.findUnique.mockRejectedValueOnce(new Error("Exception"));
@@ -48,7 +48,7 @@ describe("Remove TweetService", () => {
     });
   });
 
-  it("Deve retornar 200 quando o tweet for removido do sistema", async () => {
+  it("Deve retornar status 200 quando o tweet for removido do sistema", async () => {
     const sut = createSut();
     const body = { tweetId: "id-tweet", userId: "id-usuario" };
     const tweetMock: Tweet = TweetMock.build({

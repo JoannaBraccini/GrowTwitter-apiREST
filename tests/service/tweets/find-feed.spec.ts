@@ -5,7 +5,7 @@ import { TweetMock } from "../mock/tweet.mock";
 describe("Find Feed TweetService", () => {
   const createSut = () => new TweetService();
 
-  it("Deve retornar 404 quando não houverem tweets no sistema", async () => {
+  it("Deve retornar status 404 quando não houverem tweets no sistema", async () => {
     const sut = createSut();
     const query = {};
 
@@ -23,7 +23,7 @@ describe("Find Feed TweetService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const sut = createSut();
     const userMock = Array.from({ length: 4 }, (_, index) => {
       return {
@@ -45,7 +45,7 @@ describe("Find Feed TweetService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 200 quando encontrar tweets no sistema", async () => {
+  it("Deve retornar status 200 quando encontrar tweets no sistema", async () => {
     const sut = createSut();
     const tweetMock = Array.from({ length: 4 }, (_, index) => {
       return TweetMock.build({

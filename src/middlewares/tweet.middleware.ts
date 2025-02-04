@@ -36,6 +36,7 @@ export class TweetMiddleware {
 
   public static validateTypes(req: Request, res: Response, next: NextFunction) {
     const { type, content } = req.body;
+    const { page, take, search } = req.query;
     const errors: string[] = [];
 
     if (type && type !== "TWEET" && type !== "REPLY" && type !== "RETWEET") {
@@ -43,6 +44,15 @@ export class TweetMiddleware {
     }
     if (typeof content !== "string") {
       errors.push("Content must be a string");
+    }
+    if (page && typeof page !== "number") {
+      errors.push("Page must be a number");
+    }
+    if (take && typeof take !== "number") {
+      errors.push("Take must be a number");
+    }
+    if (search && typeof search !== "string") {
+      errors.push("Search term must be a string");
     }
 
     if (errors.length > 0) {

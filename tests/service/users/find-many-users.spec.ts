@@ -6,7 +6,7 @@ import { UserMock } from "../mock/user.mock";
 describe("Find Many UserService", () => {
   const createSut = () => new UserService();
 
-  it("Deve retornar 404 quando não forem localizados usuários no sistema", async () => {
+  it("Deve retornar status 404 quando não forem localizados usuários no sistema", async () => {
     const sut = createSut();
     const query = {};
 
@@ -17,7 +17,7 @@ describe("Find Many UserService", () => {
     expect(result.data).toBeUndefined();
   });
 
-  it("Deve retornar 500 quando ocorrer erro de exceção", async () => {
+  it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const sut = createSut();
     const query = {};
 
@@ -31,7 +31,7 @@ describe("Find Many UserService", () => {
     });
   });
 
-  it("Deve retornar 200 quando usuários buscados por query existirem no sistema", async () => {
+  it("Deve retornar status 200 quando usuários buscados por query existirem no sistema", async () => {
     const sut = createSut();
     const query = { name: "Nome Buscado" };
     const usersMock = Array.from({ length: 5 }, (_, index) => {
@@ -56,7 +56,7 @@ describe("Find Many UserService", () => {
     });
   });
 
-  it("Deve retornar 200 quando usuários buscados existirem no sistema", async () => {
+  it("Deve retornar status 200 quando usuários buscados existirem no sistema", async () => {
     const sut = createSut();
     const query = {};
     const usersMock = Array.from({ length: 10 }, (_, index) => {
