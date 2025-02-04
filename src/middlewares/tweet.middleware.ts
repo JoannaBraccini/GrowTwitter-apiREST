@@ -18,10 +18,12 @@ export class TweetMiddleware {
     if (parentId && type !== "REPLY" && type !== "RETWEET") {
       errors.push("Parent Tweed ID is only valid for RETWEET or REPLY");
     }
-    if (!content || content.trim().length === 0) {
+    if (
+      !content ||
+      (typeof content === "string" && content.trim().length === 0)
+    ) {
       errors.push("Content is required");
     }
-
     if (errors.length > 0) {
       res.status(400).json({
         ok: false,

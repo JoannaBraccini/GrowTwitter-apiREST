@@ -27,7 +27,7 @@ export class ValidateUuidMiddleware {
     if (userId && !regexUuid.test(userId)) {
       res.status(400).json({
         ok: false,
-        message: "Parent-Tweet ID must be a UUID",
+        message: "Identifier must be a UUID",
       });
       return;
     }
