@@ -60,7 +60,10 @@ describe("PUT /tweets/{id}", () => {
   it("Deve retornar status 400 quando informado TweetType inválido", async () => {
     const token = makeToken();
     const id = "c8d1f1f5-3b37-45f4-bff7-7cf745a2f9b9";
-    const payload = { tweetType: "TWIT" };
+    const payload = {
+      tweetType: "TWIT",
+      content: "This is a test tweet!",
+    };
 
     const response = await supertest(server)
       .put(`${endpoint}${id}`)
@@ -70,14 +73,36 @@ describe("PUT /tweets/{id}", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Type must be TWEET, REPLY or RETWEET"],
+      message: ["Tweet type must be TWEET, REPLY or RETWEET"],
+    });
+  });
+  it("Deve retornar status 400 quando informado Content inválido", async () => {
+    const token = makeToken();
+    const id = "c8d1f1f5-3b37-45f4-bff7-7cf745a2f9b9";
+    const payload = {
+      tweetType: "TWEET",
+      content: 1234,
+    };
+
+    const response = await supertest(server)
+      .put(`${endpoint}${id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send(payload);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      ok: false,
+      message: ["Content must be a string"],
     });
   });
   //Controller
   it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const token = makeToken();
     const id = randomUUID();
-    const body = {};
+    const payload = {
+      tweetType: "TWEET",
+      content: "This is a test tweet!",
+    };
     // Simulando um erro no controller
     jest.spyOn(TweetService.prototype, "update").mockImplementationOnce(() => {
       throw new Error("Exception");
@@ -86,7 +111,7 @@ describe("PUT /tweets/{id}", () => {
     const response = await supertest(server)
       .put(`${endpoint}${id}`)
       .set("Authorization", `Bearer ${token}`)
-      .send(body);
+      .send(payload);
 
     expect(response.status).toBe(500);
     expect(response.body).toEqual({
@@ -95,33 +120,37 @@ describe("PUT /tweets/{id}", () => {
     });
   });
   //Service
-  it("Deve retornar status 200 e os detalhes de um tweet específico ao buscar o ID fornecido com sucesso", async () => {
-    const token = makeToken({ id: "id-user" });
+  it("Deve retornar status 200 ao atualizar um Tweet com sucesso", async () => {
+    const token = makeToken();
     const id = randomUUID();
+    const payload = {
+      tweetType: "TWEET",
+      content: "This is a test tweet!",
+    };
     const mockTweet = {
       id: id,
-      userId: "id-user",
+      userId: randomUUID(),
       tweetType: "TWEET",
-      content: "I'm writing a tweet to be searched!",
+      content: "This is a test tweet!",
       createdAt: new Date().toISOString(),
-      likesCount: 5,
+      retweetsCount: 5,
     };
     const mockService = {
       ok: true,
       code: 200,
-      message: "Tweet details retrieved successfully",
+      message: "Tweet content updated successfully",
       data: mockTweet,
     };
 
     const { code, ...responseBody } = mockService;
 
-    jest
-      .spyOn(TweetService.prototype, "findOne")
-      .mockResolvedValue(mockService);
+    jest.spyOn(TweetService.prototype, "update").mockResolvedValue(mockService);
     const response = await supertest(server)
       .put(`${endpoint}${id}`)
-      .set("Authorization", `Bearer ${token}`);
+      .set("Authorization", `Bearer ${token}`)
+      .send(payload);
 
+    expect(response.status).toBe(200);
     expect(response.body).toEqual(responseBody);
   });
 });

@@ -406,7 +406,7 @@ export class UserService {
           ? tweets.map((tweet) => ({
               id: tweet.id,
               userId: tweet.userId,
-              tweetType: tweet.type,
+              tweetType: tweet.tweetType,
               parentId: tweet.parentId ?? undefined,
               content: tweet.content,
               createdAt: tweet.createdAt,
