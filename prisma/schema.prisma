@@ -44,13 +44,13 @@ model Follower {
 }
 
 model Tweet {
-  id       String    @id @default(uuid()) @db.Uuid //id do tweet
-  userId   String    @map("user_id") @db.Uuid //id do usuário que criou o tweet
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type     TweetType @default(TWEET) //tipo (tweet ou reply)
-  parentId String?   @map("parent_id") @db.Uuid //tweet pai, em caso de retweet/reply
-  parent   Tweet?    @relation("tweet_replies", fields: [parentId], references: [id], onDelete: Cascade) //diferenciar pela relação
-  content  String
+  id        String    @id @default(uuid()) @db.Uuid //id do tweet
+  userId    String    @map("user_id") @db.Uuid //id do usuário que criou o tweet
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tweetType TweetType @default(TWEET) @map("type") //tipo (tweet ou reply)
+  parentId  String?   @map("parent_id") @db.Uuid //tweet pai, em caso de retweet/reply
+  parent    Tweet?    @relation("tweet_replies", fields: [parentId], references: [id], onDelete: Cascade) //diferenciar pela relação
+  content   String
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()

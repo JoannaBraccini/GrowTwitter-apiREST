@@ -2,7 +2,7 @@ import { TweetType } from "@prisma/client";
 
 export interface CreateTweetDto {
   userId: string;
-  type: TweetType;
+  tweetType: TweetType;
   parentId?: string;
   content: string;
 }
@@ -20,7 +20,7 @@ export interface TweetDto {
     name: string;
     username: string;
   };
-  type: TweetType;
+  tweetType: TweetType;
   parentId?: string;
   content: string;
   createdAt: Date;

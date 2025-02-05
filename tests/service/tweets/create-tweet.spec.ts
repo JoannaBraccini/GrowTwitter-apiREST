@@ -6,7 +6,7 @@ import { TweetMock } from "../mock/tweet.mock";
 
 describe("Create TweetService", () => {
   const makeCreate = (params?: Partial<CreateTweetDto>) => ({
-    type: params?.type || TweetType.TWEET,
+    tweetType: params?.type || TweetType.TWEET,
     parentId: params?.parentId || undefined,
     userId: params?.userId || "id-do-usuario",
     content: params?.content || "Texto do Tweet",

@@ -74,7 +74,7 @@ describe("Update TweetService", () => {
       data: expect.objectContaining({
         content: "Texto do Tweet",
         id: "id-tweet",
-        type: "TWEET",
+        tweetType: "TWEET",
         updatedAt: expect.any(Date),
       }),
     });

@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 import { TweetDto } from "./tweet.dto";
 //CreateUserDto->movido para auth.dto: signup
 export interface UserDto {

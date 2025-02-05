@@ -60,7 +60,7 @@ describe("PUT /tweets/{id}", () => {
   it("Deve retornar status 400 quando informado TweetType inválido", async () => {
     const token = makeToken();
     const id = "c8d1f1f5-3b37-45f4-bff7-7cf745a2f9b9";
-    const payload = { type: "TWIT" };
+    const payload = { tweetType: "TWIT" };
 
     const response = await supertest(server)
       .put(`${endpoint}${id}`)
@@ -101,7 +101,7 @@ describe("PUT /tweets/{id}", () => {
     const mockTweet = {
       id: id,
       userId: "id-user",
-      type: "TWEET",
+      tweetType: "TWEET",
       content: "I'm writing a tweet to be searched!",
       createdAt: new Date().toISOString(),
       likesCount: 5,

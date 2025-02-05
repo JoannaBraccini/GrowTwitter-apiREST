@@ -35,12 +35,17 @@ export class TweetMiddleware {
   }
 
   public static validateTypes(req: Request, res: Response, next: NextFunction) {
-    const { type, content } = req.body;
+    const { tweetType, content } = req.body;
     const { page, take, search } = req.query;
     const errors: string[] = [];
 
-    if (type && type !== "TWEET" && type !== "REPLY" && type !== "RETWEET") {
-      errors.push("Type must be TWEET, REPLY or RETWEET");
+    if (
+      tweetType &&
+      tweetType !== "TWEET" &&
+      tweetType !== "REPLY" &&
+      tweetType !== "RETWEET"
+    ) {
+      errors.push("Tweet type must be TWEET, REPLY or RETWEET");
     }
     if (typeof content !== "string") {
       errors.push("Content must be a string");

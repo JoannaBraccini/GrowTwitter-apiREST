@@ -50,7 +50,7 @@ describe("POST /tweets", () => {
     const response = await supertest(server)
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
-      .send({ type: null, parentId: null, content: "Texto" });
+      .send({ tweetType: null, parentId: null, content: "Texto" });
 
     expect(response.statusCode).toBe(400);
     expect(response).toHaveProperty("body", {
@@ -64,7 +64,7 @@ describe("POST /tweets", () => {
     const response = await supertest(server)
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
-      .send({ type: TweetType.REPLY, parentId: null, content: "Texto" });
+      .send({ tweetType: TweetType.REPLY, parentId: null, content: "Texto" });
 
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual({
@@ -78,7 +78,11 @@ describe("POST /tweets", () => {
     const response = await supertest(server)
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
-      .send({ type: TweetType.TWEET, parentId: "id-tweet", content: "Texto" });
+      .send({
+        tweetType: TweetType.TWEET,
+        parentId: "id-tweet",
+        content: "Texto",
+      });
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
@@ -93,7 +97,7 @@ describe("POST /tweets", () => {
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
       .send({
-        type: TweetType.TWEET,
+        tweetType: TweetType.TWEET,
         parentId: "3f1c0a4e-8d5b-4e2b-a4d1-2f3f9b6c8a7e",
         content: "Texto",
       });
@@ -110,7 +114,7 @@ describe("POST /tweets", () => {
     const response = await supertest(server)
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
-      .send({ type: TweetType.TWEET, parentId: null, content: "" });
+      .send({ tweetType: TweetType.TWEET, parentId: null, content: "" });
 
     expect(response.statusCode).toBe(400);
     expect(response).toHaveProperty("body", {
@@ -124,7 +128,7 @@ describe("POST /tweets", () => {
     const response = await supertest(server)
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
-      .send({ type: "Tipo", parentId: null, content: "Texto" });
+      .send({ tweetType: "Tipo", parentId: null, content: "Texto" });
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
@@ -138,7 +142,7 @@ describe("POST /tweets", () => {
     const response = await supertest(server)
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
-      .send({ type: TweetType.TWEET, parentId: null, content: 1234 });
+      .send({ tweetType: TweetType.TWEET, parentId: null, content: 1234 });
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
@@ -153,7 +157,7 @@ describe("POST /tweets", () => {
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
       .send({
-        type: TweetType.TWEET,
+        tweetType: TweetType.TWEET,
         parentId: null,
         content:
           "Este é um tweet de teste para verificar a validação de limite de caracteres no sistema. O Twitter permite até 280 caracteres, então este texto precisa ser mais longo para ultrapassar esse limite. Vamos adicionar mais algumas palavras para garantir que o total exceda a quantidade permitida. Continuando a digitar até que o texto fique realmente grande e ultrapasse o limite máximo definido na aplicação. Dessa forma, poderemos testar se a lógica de validação está funcionando corretamente e se o sistema retorna um erro adequado ao detectar que o tamanho do texto ultrapassou 280 caracteres",
@@ -177,7 +181,7 @@ describe("POST /tweets", () => {
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
       .send({
-        type: TweetType.TWEET,
+        tweetType: TweetType.TWEET,
         parentId: null,
         content: "Texto do Tweet",
       });
@@ -194,7 +198,7 @@ describe("POST /tweets", () => {
     const body: CreateTweetDto = {
       userId: randomUUID(),
       parentId: undefined,
-      type: TweetType.TWEET,
+      tweetType: TweetType.TWEET,
       content: "Um texto para o Tweet",
     };
     const mockAuth = {
@@ -219,7 +223,7 @@ describe("POST /tweets", () => {
       data: expect.objectContaining({
         id: mockAuth.data.id,
         // parentId: mockAuth.data.parentId,->Só vem se for REPLY/RETWEET
-        type: mockAuth.data.type,
+        tweetType: mockAuth.data.type,
         content: mockAuth.data.content,
         userId: mockAuth.data.userId,
         createdAt: mockAuth.data.createdAt,

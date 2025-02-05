@@ -26,7 +26,7 @@ describe("GET /tweets", () => {
     const mockTweets = Array.from({ length: 10 }, (_, i) => ({
       id: `id-${i}`,
       userId: `userid-${i}`,
-      type: "TWEET",
+      tweetType: "TWEET",
       createdAt: new Date().toISOString(),
       content: `Tweet ${i + 1} here.`,
     }));
@@ -51,7 +51,7 @@ describe("GET /tweets", () => {
     const mockTweets = Array.from({ length: 10 }, (_, i) => ({
       id: `id-${i}`,
       userId: `userid-${i}`,
-      type: "TWEET",
+      tweetType: "TWEET",
       createdAt: new Date().toISOString(),
       content: `Tweet ${i + 1} here.`,
     }));

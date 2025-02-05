@@ -82,7 +82,7 @@ describe("GET /tweets/{id}", () => {
     const mockTweet = {
       id: id,
       userId: "id-user",
-      type: "TWEET",
+      tweetType: "TWEET",
       content: "I'm writing a tweet to be searched!",
       createdAt: new Date().toISOString(),
       likesCount: 5,

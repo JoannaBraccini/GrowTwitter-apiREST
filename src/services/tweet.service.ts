@@ -12,7 +12,7 @@ import { ResponseApi } from "../types/response";
 export class TweetService {
   //CREATE
   public async create(createTweet: CreateTweetDto): Promise<ResponseApi> {
-    const { userId, parentId, type, content } = createTweet;
+    const { userId, parentId, tweetType, content } = createTweet;
 
     try {
       //Verificar se o tweet sendo respondido ou compartilhado existe no banco de dados
@@ -29,7 +29,7 @@ export class TweetService {
       }
 
       const tweetCreated = await prisma.tweet.create({
-        data: { userId, parentId, type, content },
+        data: { userId, parentId, tweetType, content },
       });
 
       return {
@@ -39,7 +39,7 @@ export class TweetService {
         data: {
           id: tweetCreated.id,
           parentId: tweetCreated.parentId,
-          type: tweetCreated.type,
+          tweetType: tweetCreated.tweetType,
           content: tweetCreated.content,
           userId: tweetCreated.userId,
           createdAt: tweetCreated.createdAt,
@@ -401,7 +401,7 @@ export class TweetService {
             username: tweet.user.username,
           }
         : undefined,
-      type: tweet.type,
+      tweetType: tweet.tweetType,
       parentId: tweet.parentId ? tweet.parentId : undefined,
       content: tweet.content,
       createdAt: tweet.createdAt,
@@ -417,7 +417,7 @@ export class TweetService {
     return {
       id: tweet.id,
       userId: tweet.userId,
-      type: tweet.type,
+      tweetType: tweet.tweetType,
       parentId: tweet.parentId,
       content: tweet.content,
       createdAt: tweet.createdAt,
@@ -452,7 +452,7 @@ export class TweetService {
           name: reply.user?.name ?? "",
           username: reply.user?.username ?? "",
         },
-        type: reply.type,
+        tweetType: reply.tweetType,
         content: reply.content,
         createdAt: reply.createdAt,
         updatedAt: reply.updatedAt,
@@ -482,7 +482,7 @@ export class TweetService {
             name: reply.user?.name ?? "",
             username: reply.user?.username ?? "",
           },
-          type: reply.type,
+          tweetType: reply.tweetType,
           content: reply.content,
           createdAt: reply.createdAt,
           updatedAt: reply.updatedAt,

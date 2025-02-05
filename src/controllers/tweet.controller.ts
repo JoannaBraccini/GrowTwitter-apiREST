@@ -5,13 +5,13 @@ import { TweetService } from "../services/tweet.service";
 export class TweetController {
   public static async create(req: Request, res: Response): Promise<void> {
     try {
-      const { parentId, type, content } = req.body;
+      const { parentId, tweetType, content } = req.body;
       const { id: userId } = req.AuthUser;
 
       const data: CreateTweetDto = {
         userId,
         parentId,
-        type,
+        tweetType,
         content,
       };
 

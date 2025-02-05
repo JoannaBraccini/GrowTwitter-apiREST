@@ -67,7 +67,7 @@ describe("Remove TweetService", () => {
       data: expect.objectContaining({
         content: "Texto do Tweet",
         id: "id-tweet",
-        type: "TWEET",
+        tweetType: "TWEET",
       }),
     });
   });

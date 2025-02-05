@@ -68,7 +68,7 @@ describe("Find Feed TweetService", () => {
       expect(tweet).toEqual({
         id: expect.any(String),
         userId: "id-usuario-logado",
-        type: "TWEET",
+        tweetType: "TWEET",
         parentId: null,
         content: expect.any(String),
         createdAt: expect.any(Date),

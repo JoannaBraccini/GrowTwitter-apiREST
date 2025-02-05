@@ -365,7 +365,7 @@ export class UserService {
       tweets: {
         id: string;
         userId: string;
-        type: TweetType;
+        tweetType: TweetType;
         parentId?: string | null;
         content: string;
         createdAt: Date;
@@ -406,7 +406,7 @@ export class UserService {
           ? tweets.map((tweet) => ({
               id: tweet.id,
               userId: tweet.userId,
-              type: tweet.type,
+              tweetType: tweet.type,
               parentId: tweet.parentId ?? undefined,
               content: tweet.content,
               createdAt: tweet.createdAt,
