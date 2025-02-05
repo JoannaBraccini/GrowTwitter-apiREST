@@ -24,7 +24,7 @@ export class TweetRoutes {
 
     //FEED (tweet do usuário e usuários seguidos)
     router.get(
-      "tweets/feed",
+      "/tweets/feed",
       AuthMiddleware.validate,
       TweetController.findFeed
     );

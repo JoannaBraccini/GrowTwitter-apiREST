@@ -52,10 +52,10 @@ export class TweetController {
   public static async findFeed(req: Request, res: Response): Promise<void> {
     try {
       const { page, take, search } = req.query;
-      const userLogged = req.AuthUser;
+      const { id: userId } = req.AuthUser;
 
       const service = new TweetService();
-      const result = await service.findFeed(userLogged.id, {
+      const result = await service.findFeed(userId, {
         page: page ? Number(page) - 1 : undefined,
         take: take ? Number(take) : undefined,
         search: search ? String(search) : undefined,

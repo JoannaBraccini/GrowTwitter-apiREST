@@ -1,12 +1,27 @@
 import { createServer } from "../../../src/express.server";
 import supertest from "supertest";
-import { TweetMock } from "../../service/mock/tweet.mock";
 import { TweetService } from "../../../src/services/tweet.service";
 
 const server = createServer();
 const endpoint = "/tweets";
 
 describe("GET /tweets", () => {
+  //Controller
+  it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
+    // Simulando um erro no controller
+    jest.spyOn(TweetService.prototype, "findAll").mockImplementationOnce(() => {
+      throw new Error("Exception");
+    });
+
+    const response = await supertest(server).get(endpoint);
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({
+      ok: false,
+      message: "An unexpected error occurred: Exception",
+    });
+  });
+
   it("Deve retornar status 200 e uma lista de tweets ao buscar sem filtros", async () => {
     const mockTweets = Array.from({ length: 10 }, (_, i) => ({
       id: `id-${i}`,
