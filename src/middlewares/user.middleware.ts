@@ -31,6 +31,8 @@ export class UserMiddleware {
     next: NextFunction
   ) {
     const { name, username, password } = req.body;
+    const { search } = req.query;
+
     const errors: string[] = [];
 
     if (name && name.length < 3) {
@@ -43,6 +45,10 @@ export class UserMiddleware {
 
     if (password && password.length < 4) {
       errors.push("Password must be at least 4 characters long");
+    }
+
+    if (search && typeof search === "string" && search.length > 40) {
+      errors.push("Search cannot be so long");
     }
 
     if (errors.length > 0) {

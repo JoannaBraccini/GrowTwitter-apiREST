@@ -17,13 +17,6 @@ export interface UserBaseDto {
   // followers?: number;
   // following?: number;
 }
-
-export interface QueryFilterDto {
-  name?: string;
-  username?: string;
-  email?: string;
-}
-
 export interface UserUpdateDto {
   id: string;
   userId: string;

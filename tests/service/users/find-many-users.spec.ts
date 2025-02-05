@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 import { UserService } from "../../../src/services/user.service";
 import { prismaMock } from "../../config/prisma.mock";
 import { UserMock } from "../mock/user.mock";
@@ -8,10 +7,9 @@ describe("Find Many UserService", () => {
 
   it("Deve retornar status 404 quando não forem localizados usuários no sistema", async () => {
     const sut = createSut();
-    const query = {};
 
     prismaMock.user.findMany.mockResolvedValueOnce([]);
-    const result = await sut.findMany(query);
+    const result = await sut.findMany();
 
     expect(result).toEqual({ ok: false, code: 404, message: "No users found" });
     expect(result.data).toBeUndefined();
@@ -19,10 +17,9 @@ describe("Find Many UserService", () => {
 
   it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const sut = createSut();
-    const query = {};
 
     prismaMock.user.findMany.mockRejectedValueOnce(new Error("Exception"));
-    const result = await sut.findMany(query);
+    const result = await sut.findMany();
 
     expect(result).toEqual({
       ok: false,
@@ -33,7 +30,6 @@ describe("Find Many UserService", () => {
 
   it("Deve retornar status 200 quando usuários buscados por query existirem no sistema", async () => {
     const sut = createSut();
-    const query = { name: "Nome Buscado" };
     const usersMock = Array.from({ length: 5 }, (_, index) => {
       return UserMock.build({
         name: "Nome Buscado",
@@ -41,7 +37,7 @@ describe("Find Many UserService", () => {
     });
 
     prismaMock.user.findMany.mockResolvedValueOnce(usersMock);
-    const result = await sut.findMany(query);
+    const result = await sut.findMany("Nome Buscado");
 
     expect(result.data).toHaveLength(5);
     expect(result).toEqual({
@@ -56,9 +52,8 @@ describe("Find Many UserService", () => {
     });
   });
 
-  it("Deve retornar status 200 quando usuários buscados existirem no sistema", async () => {
+  it("Deve retornar status 200 quando usuários existirem no sistema", async () => {
     const sut = createSut();
-    const query = {};
     const usersMock = Array.from({ length: 10 }, (_, index) => {
       return UserMock.build({
         name: `Nome ${index}User`,
@@ -68,7 +63,7 @@ describe("Find Many UserService", () => {
     });
 
     prismaMock.user.findMany.mockResolvedValueOnce(usersMock);
-    const result = await sut.findMany(query);
+    const result = await sut.findMany();
 
     expect(result.data).toHaveLength(10);
     expect(result).toEqual({

@@ -223,7 +223,7 @@ describe("POST /tweets", () => {
       data: expect.objectContaining({
         id: mockAuth.data.id,
         // parentId: mockAuth.data.parentId,->Só vem se for REPLY/RETWEET
-        tweetType: mockAuth.data.type,
+        tweetType: mockAuth.data.tweetType,
         content: mockAuth.data.content,
         userId: mockAuth.data.userId,
         createdAt: mockAuth.data.createdAt,

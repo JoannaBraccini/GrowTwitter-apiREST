@@ -2,21 +2,16 @@ import { Request, Response } from "express";
 import { UserService } from "../services/user.service";
 
 export class UserController {
-  //CREATE -> movido para authController: signup
-
   //READ (many by query)
   public static async findMany(req: Request, res: Response): Promise<void> {
     try {
       //recebe o query
-      const { name, username, email } = req.query;
+      const search =
+        typeof req.query.search === "string" ? req.query.search : undefined;
 
       //chama o service
       const service = new UserService();
-      const result = await service.findMany({
-        name: name as string,
-        username: username as string,
-        email: email as string,
-      });
+      const result = await service.findMany(search);
 
       //responder o cliente
       const { code, ...response } = result;
@@ -24,7 +19,7 @@ export class UserController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Error fetching users: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -45,7 +40,7 @@ export class UserController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Error fetching user: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -72,7 +67,7 @@ export class UserController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Error updating user: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -91,7 +86,7 @@ export class UserController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Error removing user: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }
@@ -110,7 +105,7 @@ export class UserController {
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        message: `Server error: ${error.message}`,
+        message: `An unexpected error occurred: ${error.message}`,
       });
     }
   }

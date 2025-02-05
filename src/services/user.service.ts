@@ -1,7 +1,6 @@
 import { prisma } from "../database/prisma.database";
 import {
   UserDto,
-  QueryFilterDto,
   UserBaseDto,
   UserUpdateDto,
   UserDeleteDto,
@@ -13,27 +12,19 @@ import { Bcrypt } from "../utils/bcrypt";
 
 export class UserService {
   //READ (optional search query)
-  public async findMany({
-    name,
-    username,
-    email,
-  }: QueryFilterDto): Promise<ResponseApi> {
+  public async findMany(search?: string): Promise<ResponseApi> {
     try {
-      const where: Prisma.UserWhereInput = {};
+      const where: Prisma.UserWhereInput = search
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { username: { contains: search, mode: "insensitive" } },
+              { email: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : {};
 
-      if (name) {
-        where.name = { contains: name, mode: "insensitive" };
-      }
-      if (username) {
-        where.username = { contains: username, mode: "insensitive" };
-      }
-      if (email) {
-        where.email = { contains: email, mode: "insensitive" };
-      }
-
-      const users = where
-        ? await prisma.user.findMany({ where })
-        : await prisma.user.findMany();
+      const users = await prisma.user.findMany({ where });
 
       if (users.length === 0) {
         return {

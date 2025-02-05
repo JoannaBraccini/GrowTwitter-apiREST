@@ -18,7 +18,7 @@ export class TweetMock {
     return {
       id: params?.id || randomUUID(),
       userId: params?.userId || randomUUID(),
-      tweetType: params?.type || TweetType.TWEET,
+      tweetType: params?.tweetType || TweetType.TWEET,
       parentId: params?.parentId || null,
       content: params?.content || "Texto do Tweet",
       user: params?.user || { name: "Nome", username: "username" },

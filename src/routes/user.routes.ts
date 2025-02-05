@@ -9,11 +9,7 @@ export class UserRoutes {
     const router = Router();
 
     //FIND ALL USERS (with optional query)
-    router.get(
-      "/users",
-      [UserMiddleware.validateTypes], //sem validação de token para visualizar
-      UserController.findMany
-    );
+    router.get("/users", UserController.findMany);
 
     //FIND ONE USER (by id)
     router.get(

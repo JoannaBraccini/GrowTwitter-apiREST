@@ -47,6 +47,33 @@ describe("GET /tweets", () => {
     expect(response.body).toEqual(responseBody);
   });
 
+  it("Deve retornar status 200 e uma lista de tweets específicos ao buscar por conteúdo", async () => {
+    const mockTweets = Array.from({ length: 5 }, (_, i) => ({
+      id: `id-${i}`,
+      userId: `userid-${i}`,
+      tweetType: "TWEET",
+      createdAt: new Date().toISOString(),
+      content: `Tweet ${i + 1} searched here.`,
+    }));
+    const mockService = {
+      ok: true,
+      code: 200,
+      message: "Tweets retrieved successfully",
+      data: mockTweets,
+    };
+
+    const { code, ...responseBody } = mockService;
+
+    jest
+      .spyOn(TweetService.prototype, "findAll")
+      .mockResolvedValue(mockService);
+    const response = await supertest(server).get(
+      `${endpoint}?search=searched here.`
+    );
+
+    expect(response.body).toEqual(responseBody);
+  });
+
   it("Deve retornar status 200 e uma lista com até 5 tweets da página 2 ao buscar com paginação", async () => {
     const mockTweets = Array.from({ length: 10 }, (_, i) => ({
       id: `id-${i}`,
@@ -69,7 +96,7 @@ describe("GET /tweets", () => {
     jest
       .spyOn(TweetService.prototype, "findAll")
       .mockResolvedValue(mockService);
-    const response = await supertest(server).get(`${endpoint}/?page=2&take=5`);
+    const response = await supertest(server).get(`${endpoint}?page=2&take=5`);
 
     expect(response.status).toBe(200);
     expect(response.body.message).toMatch("Tweets retrieved successfully");
