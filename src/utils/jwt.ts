@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import { AuthUser } from "../types/user";
+import "dotenv/config";
+import {StringValue} from 'ms'
 
 export class JWT {
   public generateToken(data: AuthUser): string {
@@ -7,9 +9,8 @@ export class JWT {
 
     const token = jwt.sign(data, process.env.JWT_SECRET, {
       algorithm: "HS256",
-      expiresIn: process.env.JWT_EXPIRES_IN,
+      expiresIn: process.env.JWT_EXPIRES_IN as StringValue
     });
-
     return token;
   }
   public verifyToken(token: string): AuthUser | null {
