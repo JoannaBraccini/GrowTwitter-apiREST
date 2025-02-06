@@ -26,5 +26,4 @@ export interface UserUpdateDto {
   newPassword?: string;
 }
 
-export type UserDeleteDto = Pick<UserUpdateDto, "id" | "userId">;
-export type UserFollowDto = Pick<UserUpdateDto, "id" | "userId">;
+export type ActionUserDto = Pick<UserUpdateDto, "id" | "userId">;

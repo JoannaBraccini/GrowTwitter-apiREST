@@ -1,11 +1,5 @@
 import { prisma } from "../database/prisma.database";
-import {
-  UserDto,
-  UserBaseDto,
-  UserUpdateDto,
-  UserDeleteDto,
-  UserFollowDto,
-} from "../dtos";
+import { UserDto, UserBaseDto, UserUpdateDto, ActionUserDto } from "../dtos";
 import { ResponseApi } from "../types/response";
 import { Prisma, TweetType, User } from "@prisma/client";
 import { Bcrypt } from "../utils/bcrypt";
@@ -179,7 +173,7 @@ export class UserService {
   }
 
   //DELETE (id)
-  public async remove({ id, userId }: UserDeleteDto): Promise<ResponseApi> {
+  public async remove({ id, userId }: ActionUserDto): Promise<ResponseApi> {
     try {
       const user = await this.getUserById(id);
 
@@ -223,7 +217,7 @@ export class UserService {
   public async follow({
     userId: followerId,
     id: followedId,
-  }: UserFollowDto): Promise<ResponseApi> {
+  }: ActionUserDto): Promise<ResponseApi> {
     try {
       // Verificar se os usuários existem
       const follower = await this.getUserById(followerId);
