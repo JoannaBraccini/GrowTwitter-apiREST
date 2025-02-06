@@ -2,11 +2,17 @@ import { NextFunction, Request, Response } from "express";
 
 export class UserMiddleware {
   static validateTypes(req: Request, res: Response, next: NextFunction) {
-    const { name, username, password } = req.query;
+    const { name, username, password } = req.body;
     const errors: string[] = [];
 
     if (name && typeof name !== "string") {
       errors.push("Name must be a string");
+    }
+    if (name && typeof name === "string") {
+      const isValidName = /^[a-zA-Z\s]+$/.test(name);
+      if (!isValidName) {
+        errors.push("Name cannot contain numbers");
+      }
     }
     if (username && typeof username !== "string") {
       errors.push("Username must be a string");
@@ -20,6 +26,7 @@ export class UserMiddleware {
         ok: false,
         message: errors,
       });
+      return;
     }
 
     next();
@@ -56,6 +63,7 @@ export class UserMiddleware {
         ok: false,
         message: errors,
       });
+      return;
     }
 
     next();

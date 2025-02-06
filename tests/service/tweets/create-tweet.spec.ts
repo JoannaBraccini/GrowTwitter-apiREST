@@ -54,7 +54,14 @@ describe("Create TweetService", () => {
       ok: true,
       code: 201,
       message: "Tweet created successfully",
-      data: tweetMock,
+      data: {
+        id: tweetMock.id,
+        userId: tweetMock.userId,
+        parentId: tweetMock.parentId,
+        tweetType: tweetMock.tweetType,
+        content: tweetMock.content,
+        createdAt: tweetMock.createdAt,
+      },
     });
   });
 });

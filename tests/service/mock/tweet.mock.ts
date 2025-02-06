@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 interface TweetMockParams {
   id?: string;
   userId?: string;
-  type?: TweetType;
+  tweetType?: TweetType;
   parentId?: string | undefined;
   content?: string;
   user?: {
