@@ -69,8 +69,6 @@ describe("Remove UserService", () => {
         id: "id-usuario",
         name: expect.any(String),
         username: expect.any(String),
-        email: expect.any(String),
-        password: expect.any(String),
       }),
     });
   });

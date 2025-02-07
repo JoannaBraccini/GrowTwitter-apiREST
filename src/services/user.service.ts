@@ -202,7 +202,7 @@ export class UserService {
         ok: true,
         code: 200,
         message: "User removed successfully",
-        data: userDeleted,
+        data: await this.mapToDto(userDeleted),
       };
     } catch (error: any) {
       return {

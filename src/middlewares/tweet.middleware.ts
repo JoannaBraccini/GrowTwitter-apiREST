@@ -6,16 +6,24 @@ export class TweetMiddleware {
     res: Response,
     next: NextFunction
   ) {
-    const { type, parentId, content } = req.body;
+    const { tweetType, parentId, content } = req.body;
     const errors: string[] = [];
 
-    if (!type) {
+    if (!tweetType) {
       errors.push("Tweet type is required");
     }
-    if ((type === "REPLY" || type === "RETWEET") && !parentId) {
+    if (
+      (tweetType && tweetType === "REPLY") ||
+      (tweetType && tweetType === "RETWEET" && !parentId)
+    ) {
       errors.push("Parent Tweet ID is required for REPLY or RETWEET");
     }
-    if (parentId && type !== "REPLY" && type !== "RETWEET") {
+    if (
+      parentId &&
+      tweetType &&
+      tweetType !== "REPLY" &&
+      tweetType !== "RETWEET"
+    ) {
       errors.push("Parent Tweed ID is only valid for RETWEET or REPLY");
     }
     if (

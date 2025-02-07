@@ -64,7 +64,7 @@ describe("POST /tweets", () => {
     const response = await supertest(server)
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
-      .send({ tweetType: TweetType.REPLY, parentId: null, content: "Texto" });
+      .send({ tweetType: "REPLY", parentId: null, content: "Texto" });
 
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual({
@@ -79,7 +79,7 @@ describe("POST /tweets", () => {
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
       .send({
-        tweetType: TweetType.TWEET,
+        tweetType: "TWEET",
         parentId: "id-tweet",
         content: "Texto",
       });
@@ -97,7 +97,7 @@ describe("POST /tweets", () => {
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
       .send({
-        tweetType: TweetType.TWEET,
+        tweetType: "TWEET",
         parentId: "3f1c0a4e-8d5b-4e2b-a4d1-2f3f9b6c8a7e",
         content: "Texto",
       });
@@ -114,7 +114,7 @@ describe("POST /tweets", () => {
     const response = await supertest(server)
       .post(endpoint)
       .set("Authorization", `Bearer ${token}`)
-      .send({ tweetType: TweetType.TWEET, parentId: null, content: "" });
+      .send({ tweetType: "TWEET", parentId: null, content: "" });
 
     expect(response.statusCode).toBe(400);
     expect(response).toHaveProperty("body", {
@@ -133,7 +133,7 @@ describe("POST /tweets", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Type must be TWEET, REPLY or RETWEET"],
+      message: ["Tweet type must be TWEET, REPLY or RETWEET"],
     });
   });
 
