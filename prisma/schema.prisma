@@ -48,7 +48,7 @@ model Tweet {
   userId    String    @map("user_id") @db.Uuid //id do usuário que criou o tweet
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   tweetType TweetType @default(TWEET) @map("type") //tipo (tweet ou reply)
-  parentId  String?   @map("parent_id") @db.Uuid //tweet pai, em caso de retweet/reply
+  parentId  String?   @map("parent_id") @db.Uuid //tweet pai, em caso de reply
   parent    Tweet?    @relation("tweet_replies", fields: [parentId], references: [id], onDelete: Cascade) //diferenciar pela relação
   content   String
 
@@ -76,11 +76,12 @@ model Like {
 }
 
 model Retweet {
-  id      String @id @default(uuid()) @db.Uuid //id do retweet
-  userId  String @map("user_id") @db.Uuid //id do usuário que retweetou
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tweetId String @map("tweet_id") @db.Uuid //id do tweet pai
-  tweet   Tweet  @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  id      String  @id @default(uuid()) @db.Uuid //id do retweet
+  userId  String  @map("user_id") @db.Uuid //id do usuário que retweetou
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tweetId String  @map("tweet_id") @db.Uuid //id do tweet pai
+  tweet   Tweet   @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  comment String?
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
@@ -91,5 +92,4 @@ model Retweet {
 enum TweetType {
   TWEET
   REPLY
-  RETWEET
 }

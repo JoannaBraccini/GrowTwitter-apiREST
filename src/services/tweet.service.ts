@@ -3,9 +3,10 @@ import { prisma } from "../database/prisma.database";
 import {
   ActionsDto,
   CreateTweetDto,
-  ActionTweetDto,
   TweetDto,
   UpdateTweetDto,
+  RetweetDto,
+  ActionsTweetDto,
 } from "../dtos";
 import { ResponseApi } from "../types/response";
 
@@ -169,7 +170,7 @@ export class TweetService {
   public async remove({
     tweetId,
     userId,
-  }: ActionTweetDto): Promise<ResponseApi> {
+  }: ActionsTweetDto): Promise<ResponseApi> {
     try {
       const tweet = await prisma.tweet.findUnique({
         where: { id: tweetId },
@@ -218,7 +219,10 @@ export class TweetService {
   }
 
   //LIKE/UNLIKE
-  public async like({ tweetId, userId }: ActionTweetDto): Promise<ResponseApi> {
+  public async like({
+    tweetId,
+    userId,
+  }: ActionsTweetDto): Promise<ResponseApi> {
     try {
       const tweet = await this.getTweetById(tweetId);
 
@@ -265,8 +269,9 @@ export class TweetService {
   //RETWEET/CANCEL RETWEET
   public async retweet({
     tweetId,
+    comment,
     userId,
-  }: ActionTweetDto): Promise<ResponseApi> {
+  }: RetweetDto): Promise<ResponseApi> {
     try {
       const tweet = await this.getTweetById(tweetId);
 
@@ -431,7 +436,6 @@ export class TweetService {
       repliesCount: tweet.replies?.length || 0,
       likes: tweet.likes?.map((like: ActionsDto) => ({
         id: like.id,
-        userId: like.userId,
         user: {
           name: like.user.name,
           username: like.user.username,
@@ -439,7 +443,6 @@ export class TweetService {
       })),
       retweets: tweet.retweets?.map((retweet: ActionsDto) => ({
         id: retweet.id,
-        userId: retweet.userId,
         user: {
           name: retweet.user.name,
           username: retweet.user.username,
@@ -461,7 +464,6 @@ export class TweetService {
         repliesCount: reply.replies?.length || 0,
         likes: reply.likes?.map((like: ActionsDto) => ({
           id: like.id,
-          userId: like.userId,
           user: {
             name: like.user.name,
             username: like.user.username,
@@ -469,7 +471,6 @@ export class TweetService {
         })),
         retweets: reply.retweets?.map((retweet: ActionsDto) => ({
           id: retweet.id,
-          userId: retweet.userId,
           user: {
             name: retweet.user.name,
             username: retweet.user.username,

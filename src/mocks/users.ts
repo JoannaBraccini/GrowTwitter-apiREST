@@ -6,9 +6,39 @@ async function main() {
 
   const users = [
     {
-      name: "João Silva",
-      email: "joao.silva@email.com",
-      username: "joaosilva",
+      name: "Microsoft Copilot",
+      email: "copilot@microsoft.com",
+      username: "copilot",
+      password: "senha123",
+    },
+    {
+      name: "Google Assistant",
+      email: "assistant@google.com",
+      username: "googleassistant",
+      password: "senha123",
+    },
+    {
+      name: "Amazon Alexa",
+      email: "alexa@amazon.com",
+      username: "amazonalexa",
+      password: "senha123",
+    },
+    {
+      name: "Apple Siri",
+      email: "siri@apple.com",
+      username: "applesiri",
+      password: "senha123",
+    },
+    {
+      name: "Samsung Bixby",
+      email: "bixby@samsung.com",
+      username: "bixbysamsung",
+      password: "senha123",
+    },
+    {
+      name: "IBM Watson",
+      email: "watson@ibm.com",
+      username: "ibmwatson",
       password: "senha123",
     },
   ];
@@ -31,7 +61,18 @@ async function main() {
 
   // Criando follows com base no mapeamento de usuários
   const follows = [
-    { followerId: userMap["João Silva"], followedId: userMap["Ana Souza"] },
+    { followerId: "Microsoft Copilot", followedId: "Google Assistant" },
+    { followerId: "Microsoft Copilot", followedId: "Amazon Alexa" },
+    { followerId: "Google Assistant", followedId: "Microsoft Copilot" },
+    { followerId: "Google Assistant", followedId: "Apple Siri" },
+    { followerId: "Amazon Alexa", followedId: "Apple Siri" },
+    { followerId: "Amazon Alexa", followedId: "IBM Watson" },
+    { followerId: "Apple Siri", followedId: "Microsoft Copilot" },
+    { followerId: "Apple Siri", followedId: "IBM Watson" },
+    { followerId: "IBM Watson", followedId: "Microsoft Copilot" },
+    { followerId: "IBM Watson", followedId: "Samsung Bixby" },
+    { followerId: "Samsung Bixby", followedId: "Google Assistant" },
+    { followerId: "Samsung Bixby", followedId: "Amazon Alexa" },
   ];
 
   // Inserir os follows no banco

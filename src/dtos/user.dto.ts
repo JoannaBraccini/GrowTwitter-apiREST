@@ -1,5 +1,4 @@
 import { TweetDto } from "./tweet.dto";
-//CreateUserDto->movido para auth.dto: signup
 export interface UserDto {
   id: string;
   name: string;
@@ -10,13 +9,6 @@ export interface UserDto {
   tweets?: TweetDto[];
 }
 
-export interface UserBaseDto {
-  id: string;
-  name: string;
-  username: string;
-  // followers?: number;
-  // following?: number;
-}
 export interface UserUpdateDto {
   id: string;
   userId: string;
@@ -26,4 +18,5 @@ export interface UserUpdateDto {
   newPassword?: string;
 }
 
+export type UserBaseDto = Pick<UserDto, "id" | "name" | "username">;
 export type ActionUserDto = Pick<UserUpdateDto, "id" | "userId">;

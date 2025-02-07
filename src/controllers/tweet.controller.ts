@@ -146,10 +146,10 @@ export class TweetController {
   public static async retweet(req: Request, res: Response): Promise<void> {
     try {
       const { id: userId } = req.AuthUser;
-      const tweetId = req.params.id;
+      const { tweetId, comment } = req.params;
 
       const service = new TweetService();
-      const result = await service.retweet({ tweetId, userId });
+      const result = await service.retweet({ tweetId, comment, userId });
 
       const { code, ...response } = result;
       res.status(code).json(response);
