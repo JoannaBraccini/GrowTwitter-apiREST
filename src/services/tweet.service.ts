@@ -18,7 +18,9 @@ export class TweetService {
     try {
       //Verificar se o tweet sendo respondido ou compartilhado existe no banco de dados
       if (parentId) {
-        const parentTweet = await this.getTweetById(parentId);
+        const parentTweet = await prisma.tweet.findUnique({
+          where: { id: parentId },
+        });
 
         if (!parentTweet) {
           return {
@@ -128,7 +130,7 @@ export class TweetService {
     content,
   }: UpdateTweetDto): Promise<ResponseApi> {
     try {
-      const tweet = await this.getTweetById(tweetId);
+      const tweet = await prisma.tweet.findUnique({ where: { id: tweetId } });
 
       if (!tweet) {
         return {
@@ -224,7 +226,7 @@ export class TweetService {
     userId,
   }: ActionsTweetDto): Promise<ResponseApi> {
     try {
-      const tweet = await this.getTweetById(tweetId);
+      const tweet = await prisma.tweet.findUnique({ where: { id: tweetId } });
 
       if (!tweet) {
         return {
@@ -273,7 +275,7 @@ export class TweetService {
     userId,
   }: RetweetDto): Promise<ResponseApi> {
     try {
-      const tweet = await this.getTweetById(tweetId);
+      const tweet = await prisma.tweet.findUnique({ where: { id: tweetId } });
 
       if (!tweet) {
         return {
@@ -304,7 +306,7 @@ export class TweetService {
       } else {
         // Cria o retweet caso não exista
         const retweet = await prisma.retweet.create({
-          data: { userId, tweetId },
+          data: { userId, tweetId, comment },
         });
 
         return {
@@ -324,11 +326,6 @@ export class TweetService {
   }
 
   //Métodos Privados
-  //FIND UNIQUE
-  private async getTweetById(tweetId: string) {
-    return await prisma.tweet.findUnique({ where: { id: tweetId } });
-  }
-
   //FIND PAGINATED
   private async getTweetsPaginated(
     where: Prisma.TweetWhereInput,

@@ -82,7 +82,7 @@ export class UserService {
     const { id, userId, name, username, oldPassword, newPassword } = updateUser;
 
     try {
-      const user = await this.getUserById(id);
+      const user = await prisma.user.findUnique({ where: { id } });
       if (!user) {
         return {
           code: 404,
@@ -175,7 +175,7 @@ export class UserService {
   //DELETE (id)
   public async remove({ id, userId }: ActionUserDto): Promise<ResponseApi> {
     try {
-      const user = await this.getUserById(id);
+      const user = await prisma.user.findUnique({ where: { id } });
 
       if (!user) {
         return {
@@ -220,9 +220,13 @@ export class UserService {
   }: ActionUserDto): Promise<ResponseApi> {
     try {
       // Verificar se os usuários existem
-      const follower = await this.getUserById(followerId);
+      const follower = await prisma.user.findUnique({
+        where: { id: followerId },
+      });
 
-      const followed = await this.getUserById(followedId);
+      const followed = await prisma.user.findUnique({
+        where: { id: followedId },
+      });
 
       if (!follower || !followed) {
         return {
@@ -287,11 +291,6 @@ export class UserService {
   }
 
   //Métodos Privados
-  //FIND UNIQUE
-  private async getUserById(id: string) {
-    return await prisma.user.findUnique({ where: { id } });
-  }
-
   //FIND RELATED
   private includeUserRelations() {
     return {

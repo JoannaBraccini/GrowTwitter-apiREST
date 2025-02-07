@@ -8,6 +8,7 @@ describe("Retweet TweetService", () => {
     id: params?.id || "id-retweet",
     tweetId: params?.tweetId || "id-tweet",
     userId: params?.userId || "id-usuario",
+    comment: params?.comment || null,
     createdAt: new Date(),
   });
   const createSut = () => new TweetService();
