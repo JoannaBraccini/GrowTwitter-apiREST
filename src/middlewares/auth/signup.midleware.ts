@@ -33,18 +33,32 @@ export class SignupMiddleware {
   }
 
   public static validateTypes(req: Request, res: Response, next: NextFunction) {
-    const { name, email, username, password } = req.body;
+    const { name, email, username, password, bio, avatarUrl } = req.body;
 
     //valida se os tipos são string
     if (
       typeof name !== "string" ||
       typeof email !== "string" ||
       typeof username !== "string" ||
-      typeof password !== "string"
+      typeof password !== "string" ||
+      typeof bio !== "string" ||
+      typeof avatarUrl !== "string"
     ) {
       res.status(400).json({
         ok: false,
         message: "All fields must be strings",
+      });
+      return;
+    }
+
+    // Regex para validar se termina com uma extensão de imagem válida
+    const imageRegex = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+    if (!imageRegex.test(avatarUrl)) {
+      res.status(400).json({
+        ok: false,
+        message: [
+          "Avatar URL must be an image link (.jpg, .png, .gif, .webp, .svg)",
+        ],
       });
       return;
     }
@@ -56,7 +70,7 @@ export class SignupMiddleware {
     res: Response,
     next: NextFunction
   ) {
-    const { name, email, username, password } = req.body;
+    const { name, email, username, password, bio, avatarUrl } = req.body;
     const errors: string[] = [];
 
     if (name.length < 3) {
@@ -75,6 +89,14 @@ export class SignupMiddleware {
 
     if (password.length < 4) {
       errors.push("Password must be at least 4 characters long");
+    }
+
+    if (bio.length > 100) {
+      errors.push("Bio cannot be so long");
+    }
+
+    if (bio.avatarUrl > 200) {
+      errors.push("Link cannot be so long");
     }
 
     if (errors.length > 0) {

@@ -50,7 +50,8 @@ export class UserController {
     try {
       const { id } = req.params;
       const { id: userId } = req.AuthUser; //criado no index.d.ts
-      const { name, username, oldPassword, newPassword } = req.body;
+      const { name, username, oldPassword, newPassword, bio, avatarUrl } =
+        req.body;
 
       const service = new UserService();
       const result = await service.update({
@@ -60,6 +61,8 @@ export class UserController {
         username,
         oldPassword,
         newPassword,
+        bio,
+        avatarUrl,
       });
 
       const { code, ...response } = result;

@@ -4,6 +4,8 @@ export interface UserDto {
   name: string;
   email?: string;
   username: string;
+  bio?: string;
+  avatarUrl: string;
   followers?: UserBaseDto[];
   following?: UserBaseDto[];
   tweets?: TweetDto[];
@@ -16,7 +18,12 @@ export interface UserUpdateDto {
   username?: string;
   oldPassword?: string;
   newPassword?: string;
+  bio?: string;
+  avatarUrl?: string;
 }
 
-export type UserBaseDto = Pick<UserDto, "id" | "name" | "username">;
+export type UserBaseDto = Pick<
+  UserDto,
+  "id" | "name" | "username" | "avatarUrl"
+>;
 export type ActionUserDto = Pick<UserUpdateDto, "id" | "userId">;

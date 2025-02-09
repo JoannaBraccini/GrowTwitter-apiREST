@@ -10,6 +10,8 @@ describe("Signup AuthService", () => {
     email: params?.email || "novo@email.com",
     username: params?.username || "novousuario",
     password: params?.password || "umaSenha",
+    bio: params?.bio || "Uma biografia",
+    avatarUrl: params?.avatarUrl || "http://urldeumaimagem.com",
   });
   const createSut = () => new AuthService();
 

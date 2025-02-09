@@ -47,6 +47,8 @@ describe("Find One UsertService", () => {
       id: "id-valido",
       name: "Usuario Teste",
       username: "usertest",
+      avatarUrl: "http://imagem.svg",
+      bio: "Uma biografia",
       followers: [],
       following: [],
       tweets: [],

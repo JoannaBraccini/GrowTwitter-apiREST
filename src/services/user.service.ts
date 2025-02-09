@@ -79,7 +79,16 @@ export class UserService {
 
   //UPDATE (id)
   public async update(updateUser: UserUpdateDto): Promise<ResponseApi> {
-    const { id, userId, name, username, oldPassword, newPassword } = updateUser;
+    const {
+      id,
+      userId,
+      name,
+      username,
+      oldPassword,
+      newPassword,
+      bio,
+      avatarUrl,
+    } = updateUser;
 
     try {
       const user = await prisma.user.findUnique({ where: { id } });
@@ -144,6 +153,8 @@ export class UserService {
       const dataToUpdate: Partial<User> = {};
       if (name) dataToUpdate.name = name;
       if (username) dataToUpdate.username = username;
+      if (bio) dataToUpdate.bio = bio;
+      if (avatarUrl) dataToUpdate.avatarUrl = avatarUrl;
       if (hashedPassword) dataToUpdate.password = hashedPassword;
 
       //salva os dados novos
@@ -335,6 +346,7 @@ export class UserService {
       id: user.id,
       name: user.name,
       username: user.username,
+      avatarUrl: user.avatarUrl ?? undefined,
       ...(followersCount > 0 && { followers: followersCount }), // Inclui contagem de seguidores apenas se maior que 0
       ...(followingCount > 0 && { following: followingCount }), // Inclui contagem de seguidos apenas se maior que 0
       ...(tweetsCount > 0 && { tweets: tweetsCount }), // Inclui contagem de tweets apenas se maior que 0
@@ -344,8 +356,22 @@ export class UserService {
   // Mapeamento para UserDto completo
   private mapToFullDto(
     user: User & {
-      followers: { follower: { id: string; name: string; username: string } }[];
-      following: { followed: { id: string; name: string; username: string } }[];
+      followers: {
+        follower: {
+          id: string;
+          name: string;
+          username: string;
+          avatarUrl: string;
+        };
+      }[];
+      following: {
+        followed: {
+          id: string;
+          name: string;
+          username: string;
+          avatarUrl: string;
+        };
+      }[];
       tweets: {
         id: string;
         userId: string;
@@ -363,18 +389,21 @@ export class UserService {
       }[];
     }
   ): UserDto {
-    const { id, name, username, followers, following, tweets } = user; //desestrutura
+    const { id, name, username, followers, following, tweets, bio, avatarUrl } =
+      user; //desestrutura
     return {
       id,
       name,
       username,
-      // Se a lista estiver vazia retorna []
+      bio: user.bio ?? undefined,
+      avatarUrl: user.avatarUrl ?? undefined,
       followers:
         followers.length > 0
           ? followers.map(({ follower }) => ({
               id: follower.id,
               name: follower.name,
               username: follower.username,
+              avatarUrl: follower.avatarUrl,
             }))
           : [],
       following:
@@ -383,6 +412,7 @@ export class UserService {
               id: followed.id,
               name: followed.name,
               username: followed.username,
+              avatarUrl: followed.avatarUrl,
             }))
           : [],
       tweets:

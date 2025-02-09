@@ -1,4 +1,4 @@
-import { Follower, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { TweetDto, UserBaseDto, UserDto } from "../../../src/dtos";
 
@@ -8,6 +8,8 @@ interface UserMockParams {
   username?: string;
   email?: string;
   password?: string;
+  bio?: string;
+  avatarUrl?: string;
   followers?: UserBaseDto[];
   following?: UserBaseDto[];
   tweets?: TweetDto[];
@@ -15,12 +17,14 @@ interface UserMockParams {
 
 export class UserMock {
   public static build(params?: UserMockParams): User & Partial<UserDto> {
-    const user: User = {
+    const user = {
       id: params?.id || randomUUID(),
       name: params?.name || "Usuario Teste",
       username: params?.username || "usertest",
       email: params?.email || "teste@email.com",
       password: params?.password || "umaSenha",
+      bio: params?.bio || "Uma biografia",
+      avatarUrl: params?.avatarUrl || "http://imagem.svg",
       createdAt: new Date(),
       updatedAt: new Date(),
     };

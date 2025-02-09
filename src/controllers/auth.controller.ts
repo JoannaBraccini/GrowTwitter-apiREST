@@ -6,13 +6,15 @@ export class AuthController {
   public static async signup(req: Request, res: Response): Promise<void> {
     try {
       //busca os dados na requisição
-      const { name, email, password, username } = req.body;
+      const { name, email, password, username, bio, avatarUrl } = req.body;
       //cria o objeto que vai armazenar os dados
       const data: SignupDto = {
         name,
         email,
         password,
         username,
+        bio,
+        avatarUrl,
       };
       //chama o service
       const service = new AuthService();

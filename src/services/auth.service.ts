@@ -2,13 +2,13 @@ import { prisma } from "../database/prisma.database";
 import { CreatedUserDto, LoginDto, SignupDto } from "../dtos";
 import { ResponseApi } from "../types/response";
 import { Bcrypt } from "../utils/bcrypt";
-import { User } from "@prisma/client";
 import { JWT } from "../utils/jwt";
 import { AuthUser } from "../types/user";
+import { User } from "@prisma/client";
 
 export class AuthService {
   public async signup(createUser: SignupDto): Promise<ResponseApi> {
-    const { name, email, password, username } = createUser;
+    const { name, email, password, username, bio, avatarUrl } = createUser;
 
     try {
       const user = await prisma.user.findFirst({
@@ -32,7 +32,7 @@ export class AuthService {
       const passwordHash = await bcrypt.generateHash(password);
       //criar novo user
       const userCreated = await prisma.user.create({
-        data: { name, email, password: passwordHash, username },
+        data: { name, email, password: passwordHash, username, bio, avatarUrl },
       });
 
       return {
@@ -115,6 +115,8 @@ export class AuthService {
       name: user.name,
       email: user.email,
       username: user.username,
+      avatarUrl: user.avatarUrl,
+      ...(user.bio && { bio: user.bio }),
       createdAt: user.createdAt,
     };
   }
