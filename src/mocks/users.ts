@@ -87,8 +87,14 @@ async function main() {
     { followerId: "Samsung Bixby", followedId: "Amazon Alexa" },
   ];
 
+  // Substituir os nomes pelos IDs correspondentes
+  const followsWithIds = follows.map((follow) => ({
+    followerId: userMap[follow.followerId], // Substitui pelo ID real
+    followedId: userMap[follow.followedId], // Substitui pelo ID real
+  }));
+
   // Inserir os follows no banco
-  await prisma.follower.createMany({ data: follows });
+  await prisma.follower.createMany({ data: followsWithIds });
   console.log("Follows inseridos com sucesso.");
 }
 
@@ -97,5 +103,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-
-// Comando para inserção: npx ts-node src/mock/users.ts
+// Comando para inserção: npx ts-node src/mocks/users.ts

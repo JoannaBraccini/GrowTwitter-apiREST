@@ -536,4 +536,4 @@ main()
     await prisma.$disconnect();
   });
 
-// Comando para inserção: npx ts-node src/mock/tweets.ts
+// Comando para inserção: npx ts-node src/mocks/tweets.ts
