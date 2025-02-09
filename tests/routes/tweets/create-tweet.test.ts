@@ -69,7 +69,7 @@ describe("POST /tweets", () => {
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Parent Tweet ID is required for REPLY or RETWEET"],
+      message: ["Parent Tweet ID is required for REPLY"],
     });
   });
 
@@ -133,7 +133,7 @@ describe("POST /tweets", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Tweet type must be TWEET, REPLY or RETWEET"],
+      message: ["Tweet type must be TWEET, REPLY"],
     });
   });
 

@@ -73,7 +73,7 @@ describe("PUT /tweets/{id}", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Tweet type must be TWEET, REPLY or RETWEET"],
+      message: ["Tweet type must be TWEET, REPLY"],
     });
   });
   it("Deve retornar status 400 quando informado Content inválido", async () => {

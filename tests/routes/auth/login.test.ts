@@ -43,7 +43,7 @@ describe("POST /login", () => {
   it("Deve retornar status 400 quando campos obrigatórios não forem String", async () => {
     const body = {
       email: "email@email.com",
-      username: "",
+      username: "username",
       password: 1234,
     };
     const response = await supertest(server).post(endpoint).send(body);
@@ -51,7 +51,7 @@ describe("POST /login", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: "All fields must be strings",
+      message: ["Password must be a string"],
     });
   });
   //Controller

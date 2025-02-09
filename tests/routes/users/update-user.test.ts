@@ -85,7 +85,7 @@ describe("PUT /users/{id}", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Name cannot contain numbers"],
+      message: ["Name can only contain letters and spaces"],
     });
   });
 

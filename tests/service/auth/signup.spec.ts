@@ -88,6 +88,8 @@ describe("Signup AuthService", () => {
         name: body.name,
         email: body.email,
         username: body.username,
+        bio: body.bio,
+        avatarUrl: body.avatarUrl,
         createdAt: expect.any(Date),
       },
     });

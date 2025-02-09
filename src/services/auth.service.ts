@@ -1,10 +1,9 @@
 import { prisma } from "../database/prisma.database";
-import { CreatedUserDto, LoginDto, SignupDto } from "../dtos";
+import { LoginDto, SignupDto } from "../dtos";
 import { ResponseApi } from "../types/response";
 import { Bcrypt } from "../utils/bcrypt";
 import { JWT } from "../utils/jwt";
 import { AuthUser } from "../types/user";
-import { User } from "@prisma/client";
 
 export class AuthService {
   public async signup(createUser: SignupDto): Promise<ResponseApi> {
@@ -39,7 +38,14 @@ export class AuthService {
         ok: true,
         code: 201,
         message: "User created successfully",
-        data: this.mapToDto(userCreated), //retornar somente dados básicos
+        data: {
+          id: userCreated.id,
+          name: userCreated.name,
+          email: userCreated.email,
+          username: userCreated.username,
+          avatarUrl: userCreated.avatarUrl,
+          ...(userCreated.bio && { bio: userCreated.bio }),
+        },
       };
     } catch (error: any) {
       return {
@@ -106,18 +112,5 @@ export class AuthService {
         message: `Internal server error: ${error.message}`,
       };
     }
-  }
-
-  //mapeamento para userDto básico
-  private mapToDto(user: User): CreatedUserDto {
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      username: user.username,
-      avatarUrl: user.avatarUrl,
-      ...(user.bio && { bio: user.bio }),
-      createdAt: user.createdAt,
-    };
   }
 }
