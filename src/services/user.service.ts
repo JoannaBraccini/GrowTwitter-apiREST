@@ -172,6 +172,8 @@ export class UserService {
           name: userUpdated.name,
           username: userUpdated.username,
           email: userUpdated.email,
+          bio: userUpdated.bio,
+          avatarUrl: userUpdated.avatarUrl,
         },
       };
     } catch (error: any) {
