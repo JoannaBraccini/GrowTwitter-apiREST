@@ -16,7 +16,7 @@ model User {
   username  String  @unique @db.VarChar(30)
   password  String
   bio       String? @db.VarChar(100)
-  avatarUrl String  @map("avatar_url") @db.VarChar(200)
+  avatarUrl String? @map("avatar_url") @db.VarChar(200)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()

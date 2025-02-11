@@ -5,7 +5,7 @@ export interface UserDto {
   email?: string;
   username: string;
   bio?: string;
-  avatarUrl: string;
+  avatarUrl?: string;
   followers?: UserBaseDto[];
   following?: UserBaseDto[];
   tweets?: TweetDto[];

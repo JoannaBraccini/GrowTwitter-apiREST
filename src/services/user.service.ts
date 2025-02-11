@@ -348,7 +348,8 @@ export class UserService {
       id: user.id,
       name: user.name,
       username: user.username,
-      avatarUrl: user.avatarUrl ?? undefined,
+      ...(user.avatarUrl && { avatarUrl: user.avatarUrl }),
+      ...(user.bio && { bio: user.bio }),
       ...(followersCount > 0 && { followers: followersCount }), // Inclui contagem de seguidores apenas se maior que 0
       ...(followingCount > 0 && { following: followingCount }), // Inclui contagem de seguidos apenas se maior que 0
       ...(tweetsCount > 0 && { tweets: tweetsCount }), // Inclui contagem de tweets apenas se maior que 0
@@ -363,7 +364,7 @@ export class UserService {
           id: string;
           name: string;
           username: string;
-          avatarUrl: string;
+          avatarUrl?: string | null;
         };
       }[];
       following: {
@@ -371,7 +372,7 @@ export class UserService {
           id: string;
           name: string;
           username: string;
-          avatarUrl: string;
+          avatarUrl?: string | null;
         };
       }[];
       tweets: {
@@ -397,15 +398,15 @@ export class UserService {
       id,
       name,
       username,
-      bio: user.bio ?? undefined,
-      avatarUrl: user.avatarUrl ?? undefined,
+      bio: bio ?? undefined,
+      avatarUrl: avatarUrl ?? undefined,
       followers:
         followers.length > 0
           ? followers.map(({ follower }) => ({
               id: follower.id,
               name: follower.name,
               username: follower.username,
-              avatarUrl: follower.avatarUrl,
+              avatarUrl: follower.avatarUrl ?? undefined,
             }))
           : [],
       following:
@@ -414,7 +415,7 @@ export class UserService {
               id: followed.id,
               name: followed.name,
               username: followed.username,
-              avatarUrl: followed.avatarUrl,
+              avatarUrl: followed.avatarUrl ?? undefined,
             }))
           : [],
       tweets:

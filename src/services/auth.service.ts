@@ -7,7 +7,7 @@ import { AuthUser } from "../types/user";
 
 export class AuthService {
   public async signup(createUser: SignupDto): Promise<ResponseApi> {
-    const { name, email, password, username, bio, avatarUrl } = createUser;
+    const { name, email, password, username } = createUser;
 
     try {
       const user = await prisma.user.findFirst({
@@ -31,7 +31,7 @@ export class AuthService {
       const passwordHash = await bcrypt.generateHash(password);
       //criar novo user
       const userCreated = await prisma.user.create({
-        data: { name, email, password: passwordHash, username, bio, avatarUrl },
+        data: { name, email, password: passwordHash, username },
       });
 
       return {
@@ -43,8 +43,6 @@ export class AuthService {
           name: userCreated.name,
           email: userCreated.email,
           username: userCreated.username,
-          avatarUrl: userCreated.avatarUrl,
-          ...(userCreated.bio && { bio: userCreated.bio }),
         },
       };
     } catch (error: any) {

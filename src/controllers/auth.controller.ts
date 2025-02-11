@@ -13,8 +13,6 @@ export class AuthController {
         email,
         password,
         username,
-        bio,
-        avatarUrl,
       };
       //chama o service
       const service = new AuthService();
