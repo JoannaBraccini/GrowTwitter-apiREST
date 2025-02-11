@@ -29,9 +29,16 @@ export class AuthService {
       //gerar hash da senha
       const bcrypt = new Bcrypt();
       const passwordHash = await bcrypt.generateHash(password);
+
       //criar novo user
       const userCreated = await prisma.user.create({
-        data: { name, email, password: passwordHash, username },
+        data: {
+          name,
+          email,
+          password: passwordHash,
+          username,
+          avatarUrl: process.env.AVATAR,
+        },
       });
 
       return {
@@ -43,6 +50,8 @@ export class AuthService {
           name: userCreated.name,
           email: userCreated.email,
           username: userCreated.username,
+          avatarUrl: userCreated.avatarUrl,
+          createdAt: userCreated.createdAt,
         },
       };
     } catch (error: any) {

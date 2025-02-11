@@ -10,8 +10,6 @@ describe("Signup AuthService", () => {
     email: params?.email || "novo@email.com",
     username: params?.username || "novousuario",
     password: params?.password || "umaSenha",
-    bio: params?.bio || "Uma biografia",
-    avatarUrl: params?.avatarUrl || "http://urldeumaimagem.com",
   });
   const createSut = () => new AuthService();
 
@@ -75,6 +73,8 @@ describe("Signup AuthService", () => {
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       password: "senha_criptografada",
+      avatarUrl: expect.any(String),
+      bio: null,
     });
     const result = await sut.signup(body);
 
@@ -88,8 +88,7 @@ describe("Signup AuthService", () => {
         name: body.name,
         email: body.email,
         username: body.username,
-        bio: body.bio,
-        avatarUrl: body.avatarUrl,
+        avatarUrl: expect.any(String),
         createdAt: expect.any(Date),
       },
     });
