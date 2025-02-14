@@ -55,13 +55,19 @@ describe("Retweet TweetService", () => {
     prismaMock.retweet.findUnique.mockResolvedValueOnce(null);
     //Cria o retweet
     prismaMock.retweet.create.mockResolvedValueOnce(retweet);
+    // Mock para contar os retweets após a ação
+    prismaMock.retweet.count.mockResolvedValueOnce(1);
     const result = await sut.retweet(body);
 
     expect(result).toEqual({
       ok: true,
       code: 201,
       message: "Retweeted successfully",
-      data: retweet,
+      data: {
+        tweetId: "id-tweet",
+        retweetCount: 1,
+        retweet,
+      },
     });
   });
 
@@ -79,13 +85,19 @@ describe("Retweet TweetService", () => {
     prismaMock.retweet.findUnique.mockResolvedValueOnce(retweetMock);
     //Remove o retweet
     prismaMock.retweet.delete.mockResolvedValueOnce(retweetMock);
+    // Mock para contar os retweets após a ação
+    prismaMock.retweet.count.mockResolvedValueOnce(0);
     const result = await sut.retweet(body);
 
     expect(result).toEqual({
       ok: true,
       code: 200,
       message: "Retweet removed successfully",
+      data: {
+        tweetId: "id-tweet",
+        retweetCount: 0,
+        retweet: null,
+      },
     });
-    expect(result.data).toBeUndefined();
   });
 });

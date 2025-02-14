@@ -245,20 +245,25 @@ export class TweetService {
       });
       //se já tiver curtido, deleta o like
       if (alreadyLiked) {
+        // Se já curtiu, remove o like
         await prisma.like.delete({ where: { id: alreadyLiked.id } });
-        return { ok: true, code: 200, message: "Like removed successfully" };
       } else {
-        // Criar o like caso não exista
-        const like = await prisma.like.create({
-          data: { tweetId, userId },
-        });
-        return {
-          ok: true,
-          code: 201,
-          message: "Tweet liked successfully",
-          data: like,
-        };
+        // Se ainda não curtiu, adiciona o like
+        await prisma.like.create({ data: { tweetId, userId } });
       }
+
+      // Conta os likes atuais após a ação
+      const likeCount = await prisma.like.count({
+        where: { tweetId },
+      });
+      return {
+        ok: true,
+        code: alreadyLiked ? 200 : 201,
+        message: alreadyLiked
+          ? "Like removed successfully"
+          : "Tweet liked successfully",
+        data: { tweetId, likeCount }, // Retorna o número atualizado de likes
+      };
     } catch (error: any) {
       return {
         ok: false,
@@ -293,29 +298,31 @@ export class TweetService {
         },
       });
 
+      let retweeted = null;
       //se já tiver retweetado, deleta o retweet
       if (alreadyRetweeted) {
-        await prisma.retweet.delete({
-          where: { id: alreadyRetweeted.id },
-        });
-        return {
-          ok: true,
-          code: 200,
-          message: "Retweet removed successfully",
-        };
+        // Se já retweetou, remove o retweet
+        await prisma.retweet.delete({ where: { id: alreadyRetweeted.id } });
       } else {
-        // Cria o retweet caso não exista
-        const retweet = await prisma.retweet.create({
+        // Se ainda não retweetou, cria o retweet
+        retweeted = await prisma.retweet.create({
           data: { userId, tweetId, comment },
         });
-
-        return {
-          ok: true,
-          code: 201,
-          message: "Retweeted successfully",
-          data: retweet,
-        };
       }
+
+      // Conta os retweets atuais após a ação
+      const retweetCount = await prisma.retweet.count({
+        where: { tweetId },
+      });
+
+      return {
+        ok: true,
+        code: alreadyRetweeted ? 200 : 201,
+        message: alreadyRetweeted
+          ? "Retweet removed successfully"
+          : "Retweeted successfully",
+        data: { tweetId, retweetCount, retweet: retweeted }, // Retorna a contagem atualizada junto com o retweet
+      };
     } catch (error: any) {
       return {
         ok: false,

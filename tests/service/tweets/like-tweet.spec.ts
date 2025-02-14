@@ -54,13 +54,19 @@ describe("Like TweetService", () => {
     prismaMock.like.findUnique.mockResolvedValueOnce(null);
     //Cria o like
     prismaMock.like.create.mockResolvedValueOnce(like);
+    // Mock da contagem de likes após a ação
+    prismaMock.like.count.mockResolvedValueOnce(1);
+
     const result = await sut.like(body);
 
     expect(result).toEqual({
       ok: true,
       code: 201,
       message: "Tweet liked successfully",
-      data: like,
+      data: {
+        tweetId: "id-tweet",
+        likeCount: 1,
+      },
     });
   });
 
@@ -78,13 +84,18 @@ describe("Like TweetService", () => {
     prismaMock.like.findUnique.mockResolvedValueOnce(likeMock);
     //Remove o like
     prismaMock.like.delete.mockResolvedValueOnce(likeMock);
+    // Mock para contar os likes após a ação
+    prismaMock.like.count.mockResolvedValueOnce(0);
     const result = await sut.like(body);
 
     expect(result).toEqual({
       ok: true,
       code: 200,
       message: "Like removed successfully",
+      data: {
+        tweetId: "id-tweet",
+        likeCount: 0,
+      },
     });
-    expect(result.data).toBeUndefined();
   });
 });
