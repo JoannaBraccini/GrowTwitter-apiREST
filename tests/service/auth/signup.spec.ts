@@ -73,7 +73,7 @@ describe("Signup AuthService", () => {
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       password: "senha_criptografada",
-      avatarUrl: expect.any(String),
+      avatarUrl: null,
       bio: null,
     });
     const result = await sut.signup(body);
@@ -88,7 +88,6 @@ describe("Signup AuthService", () => {
         name: body.name,
         email: body.email,
         username: body.username,
-        avatarUrl: expect.any(String),
         createdAt: expect.any(Date),
       },
     });

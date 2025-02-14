@@ -190,8 +190,6 @@ describe("POST /signup", () => {
         name: "Novo Usuário",
         email: "novo@email.com",
         username: "novousuario",
-        bio: "Uma biografia",
-        avatarUrl: "http://urldeumaimagem.svg",
         createdAt: new Date(),
       },
     };
@@ -208,8 +206,6 @@ describe("POST /signup", () => {
         name: expect.any(String),
         email: expect.any(String),
         username: expect.any(String),
-        avatarUrl: expect.any(String),
-        bio: expect.any(String),
         createdAt: expect.any(String),
       },
     });

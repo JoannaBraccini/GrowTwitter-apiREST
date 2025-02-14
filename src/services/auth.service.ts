@@ -37,7 +37,6 @@ export class AuthService {
           email,
           password: passwordHash,
           username,
-          avatarUrl: process.env.AVATAR,
         },
       });
 
@@ -50,7 +49,6 @@ export class AuthService {
           name: userCreated.name,
           email: userCreated.email,
           username: userCreated.username,
-          avatarUrl: userCreated.avatarUrl,
           createdAt: userCreated.createdAt,
         },
       };
