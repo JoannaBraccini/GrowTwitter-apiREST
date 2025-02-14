@@ -254,10 +254,10 @@ export class UserService {
         return {
           ok: false,
           code: 409, //conflict
-          message: "Follower ID and Followed ID can't be the same",
+          message: "You cannot follow yourself",
         };
       }
-
+      let follow = null;
       // Verificar se usuário já segue
       const alreadyFollows = await prisma.follower.findUnique({
         where: {
@@ -268,32 +268,30 @@ export class UserService {
         },
       });
 
-      //se já estiver seguindo, remove o follow
+      // Ternário para follow/unfollow
       if (alreadyFollows) {
-        await prisma.follower.delete({
+        follow = await prisma.follower.delete({
           where: { id: alreadyFollows.id },
-        });
-        return {
-          ok: true,
-          code: 200,
-          message: "Follow removed successfully",
-        };
+        }); // Unfollow
       } else {
-        // Seguir caso ainda não seja seguidor
-        const follow = await prisma.follower.create({
-          data: {
-            followerId: followerId,
-            followedId: followedId,
-          },
-        });
-
-        return {
-          ok: true,
-          code: 201,
-          message: "User followed successfully",
-          data: follow,
-        };
+        follow = await prisma.follower.create({
+          data: { followerId, followedId },
+        }); // Follow
       }
+
+      // Calcular a contagem de seguidores
+      const followersCount = await prisma.follower.count({
+        where: { followedId: followedId },
+      });
+
+      return {
+        ok: true,
+        code: alreadyFollows ? 200 : 201,
+        message: alreadyFollows
+          ? "Successfully unfollowed the user"
+          : "Successfully followed the user",
+        data: { follow, followersCount }, // Retorna a contagem de seguidores atualizada
+      };
     } catch (error: any) {
       return {
         ok: false,

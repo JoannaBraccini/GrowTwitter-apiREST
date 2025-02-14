@@ -55,7 +55,7 @@ describe("Follow UserService", () => {
     expect(result).toEqual({
       ok: false,
       code: 409,
-      message: "Follower ID and Followed ID can't be the same",
+      message: "You cannot follow yourself",
     });
     expect(result.data).toBeUndefined();
   });
@@ -90,13 +90,15 @@ describe("Follow UserService", () => {
     prismaMock.follower.findUnique.mockResolvedValueOnce(null);
     //Cria o Follower
     prismaMock.follower.create.mockResolvedValueOnce(followMock);
+    // Simula a contagem de seguidores
+    prismaMock.follower.count.mockResolvedValueOnce(1);
     const result = await sut.follow(body);
 
     expect(result).toEqual({
       ok: true,
       code: 201,
-      message: "User followed successfully",
-      data: followMock,
+      message: "Successfully followed the user",
+      data: { follow: followMock, followersCount: 1 },
     });
   });
 
@@ -117,13 +119,15 @@ describe("Follow UserService", () => {
     prismaMock.follower.findUnique.mockResolvedValueOnce(followMock);
     //Remove o Follow
     prismaMock.follower.delete.mockResolvedValueOnce(followMock);
+    // Simula a contagem de seguidores
+    prismaMock.follower.count.mockResolvedValueOnce(0);
     const result = await sut.follow(body);
 
     expect(result).toEqual({
       ok: true,
       code: 200,
-      message: "Follow removed successfully",
+      message: "Successfully unfollowed the user",
+      data: { follow: followMock, followersCount: 0 },
     });
-    expect(result.data).toBeUndefined();
   });
 });

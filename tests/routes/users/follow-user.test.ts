@@ -84,7 +84,7 @@ describe("POST /users/follow/{id}", () => {
     const mockService = {
       ok: true,
       code: 201,
-      message: "User followed successfully",
+      message: "Successfully followed the user",
       data: {
         id: randomUUID(),
         followerId,
