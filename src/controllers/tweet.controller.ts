@@ -5,7 +5,7 @@ import { TweetService } from "../services/tweet.service";
 export class TweetController {
   public static async create(req: Request, res: Response): Promise<void> {
     try {
-      const { parentId, tweetType, content } = req.body;
+      const { parentId, tweetType, content, imageUrl } = req.body;
       const { id: userId } = req.AuthUser;
 
       const data: CreateTweetDto = {
@@ -13,6 +13,7 @@ export class TweetController {
         parentId,
         tweetType,
         content,
+        imageUrl,
       };
 
       const service = new TweetService();
@@ -92,10 +93,15 @@ export class TweetController {
     try {
       const { tweetId } = req.params;
       const { id: userId } = req.AuthUser;
-      const { content } = req.body;
+      const { content, imageUrl } = req.body;
 
       const service = new TweetService();
-      const result = await service.update({ tweetId, userId, content });
+      const result = await service.update({
+        tweetId,
+        userId,
+        content,
+        imageUrl,
+      });
 
       const { code, ...response } = result;
       res.status(code).json(response);

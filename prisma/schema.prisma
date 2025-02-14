@@ -52,7 +52,8 @@ model Tweet {
   tweetType TweetType @default(TWEET) @map("type") //tipo (tweet ou reply)
   parentId  String?   @map("parent_id") @db.Uuid //tweet pai, em caso de reply
   parent    Tweet?    @relation("tweet_replies", fields: [parentId], references: [id], onDelete: Cascade) //diferenciar pela relação
-  content   String
+  content   String?   @db.VarChar(280)
+  imageUrl  String?   @map("image-url")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()

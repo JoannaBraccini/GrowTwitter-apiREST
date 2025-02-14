@@ -7,6 +7,7 @@ interface TweetMockParams {
   tweetType?: TweetType;
   parentId?: string | undefined;
   content?: string;
+  imageUrl?: string;
   user?: {
     name?: string;
     username?: string;
@@ -21,6 +22,7 @@ export class TweetMock {
       tweetType: params?.tweetType || TweetType.TWEET,
       parentId: params?.parentId || null,
       content: params?.content || "Texto do Tweet",
+      imageUrl: params?.imageUrl || "http://image.svg",
       user: params?.user || { name: "Nome", username: "username" },
       likesCount: undefined,
       repliesCount: undefined,

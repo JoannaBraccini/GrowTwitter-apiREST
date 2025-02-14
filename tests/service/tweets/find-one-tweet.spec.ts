@@ -47,6 +47,7 @@ describe("Find One TweetService", () => {
       id: "id-valido",
       userId: expect.any(String),
       content: expect.any(String),
+      imageUrl: expect.any(String),
       user: expect.objectContaining({
         name: expect.any(String),
         username: expect.any(String),

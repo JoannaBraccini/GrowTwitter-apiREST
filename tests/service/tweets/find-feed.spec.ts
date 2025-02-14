@@ -35,7 +35,7 @@ describe("Find Feed TweetService", () => {
     });
     const query = {};
 
-    const prisma = prismaMock.follower.findMany.mockResolvedValueOnce(userMock);
+    prismaMock.follower.findMany.mockResolvedValueOnce(userMock);
     prismaMock.tweet.findMany.mockRejectedValueOnce(new Error("Exception"));
     const result = await sut.findFeed("id-usuario-logado", query);
 
@@ -71,6 +71,7 @@ describe("Find Feed TweetService", () => {
         tweetType: "TWEET",
         parentId: null,
         content: expect.any(String),
+        imageUrl: expect.any(String),
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
         user: expect.any(Object),

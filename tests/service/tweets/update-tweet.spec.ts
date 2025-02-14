@@ -9,6 +9,7 @@ describe("Update TweetService", () => {
     tweetId: params?.tweetId || "id-tweet",
     userId: params?.userId || "id-usuario",
     content: params?.content || "Tweet alterado",
+    imageUrl: params?.content || "Imagem substituída",
   });
   const createSut = () => new TweetService();
 
@@ -73,6 +74,7 @@ describe("Update TweetService", () => {
       message: "Tweet content updated successfully",
       data: expect.objectContaining({
         content: "Texto do Tweet",
+        imageUrl: expect.any(String),
         id: "id-tweet",
         tweetType: "TWEET",
         updatedAt: expect.any(Date),

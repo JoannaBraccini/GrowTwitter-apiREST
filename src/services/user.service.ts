@@ -378,7 +378,8 @@ export class UserService {
         userId: string;
         tweetType: TweetType;
         parentId?: string | null;
-        content: string;
+        content?: string | null;
+        imageUrl?: string | null;
         createdAt: Date;
         updatedAt?: Date;
         //contagem
@@ -423,7 +424,8 @@ export class UserService {
               userId: tweet.userId,
               tweetType: tweet.tweetType,
               parentId: tweet.parentId ?? undefined,
-              content: tweet.content,
+              content: tweet.content ?? undefined,
+              imageUrl: tweet.imageUrl ?? undefined,
               createdAt: tweet.createdAt,
               updatedAt: tweet.updatedAt,
               likeCount: tweet._count.likes,

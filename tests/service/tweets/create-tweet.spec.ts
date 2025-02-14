@@ -10,6 +10,7 @@ describe("Create TweetService", () => {
     parentId: params?.parentId || undefined,
     userId: params?.userId || "id-do-usuario",
     content: params?.content || "Texto do Tweet",
+    imageUrl: params?.imageUrl || "http://image.jpg",
   });
   const createSut = () => new TweetService();
 
@@ -60,6 +61,7 @@ describe("Create TweetService", () => {
         parentId: tweetMock.parentId,
         tweetType: tweetMock.tweetType,
         content: tweetMock.content,
+        imageUrl: tweetMock.imageUrl,
         createdAt: tweetMock.createdAt,
       },
     });

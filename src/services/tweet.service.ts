@@ -13,7 +13,7 @@ import { ResponseApi } from "../types/response";
 export class TweetService {
   //CREATE
   public async create(createTweet: CreateTweetDto): Promise<ResponseApi> {
-    const { userId, parentId, tweetType, content } = createTweet;
+    const { userId, parentId, tweetType, content, imageUrl } = createTweet;
 
     try {
       //Verificar se o tweet sendo respondido ou compartilhado existe no banco de dados
@@ -32,7 +32,7 @@ export class TweetService {
       }
 
       const tweetCreated = await prisma.tweet.create({
-        data: { userId, parentId, tweetType, content },
+        data: { userId, parentId, tweetType, content, imageUrl },
       });
 
       return {
@@ -41,10 +41,11 @@ export class TweetService {
         message: "Tweet created successfully",
         data: {
           id: tweetCreated.id,
+          userId: tweetCreated.userId,
           parentId: tweetCreated.parentId,
           tweetType: tweetCreated.tweetType,
           content: tweetCreated.content,
-          userId: tweetCreated.userId,
+          imageUrl: tweetCreated.imageUrl,
           createdAt: tweetCreated.createdAt,
         },
       };
@@ -128,6 +129,7 @@ export class TweetService {
     tweetId,
     userId,
     content,
+    imageUrl,
   }: UpdateTweetDto): Promise<ResponseApi> {
     try {
       const tweet = await prisma.tweet.findUnique({ where: { id: tweetId } });
@@ -148,9 +150,12 @@ export class TweetService {
           message: "Not authorized to modify this tweet",
         };
       }
+      let tweetToUpdate = { content, imageUrl };
+      if (content) tweetToUpdate.content = content;
+      if (imageUrl) tweetToUpdate.imageUrl = imageUrl;
       const tweetUpdated = await prisma.tweet.update({
         where: { id: tweetId },
-        data: { content: content },
+        data: tweetToUpdate,
       });
 
       return {
@@ -411,8 +416,9 @@ export class TweetService {
           }
         : undefined,
       tweetType: tweet.tweetType,
-      parentId: tweet.parentId ? tweet.parentId : undefined,
-      content: tweet.content,
+      parentId: tweet.parentId ?? undefined,
+      content: tweet.content ?? undefined,
+      imageUrl: tweet.imageUrl ?? undefined,
       createdAt: tweet.createdAt,
       updatedAt: tweet.updatedAt,
       likesCount: likesCount > 0 ? likesCount : undefined,
@@ -429,6 +435,7 @@ export class TweetService {
       tweetType: tweet.tweetType,
       parentId: tweet.parentId,
       content: tweet.content,
+      imageUrl: tweet.imageUrl,
       createdAt: tweet.createdAt,
       updatedAt: tweet.updatedAt,
       user: {
@@ -461,6 +468,7 @@ export class TweetService {
         },
         tweetType: reply.tweetType,
         content: reply.content,
+        imageUrl: reply.imageUrl,
         createdAt: reply.createdAt,
         updatedAt: reply.updatedAt,
         likesCount: reply.likes?.length || 0,
@@ -489,6 +497,7 @@ export class TweetService {
           },
           tweetType: reply.tweetType,
           content: reply.content,
+          imageUrl: reply.imageUrl,
           createdAt: reply.createdAt,
           updatedAt: reply.updatedAt,
         })),

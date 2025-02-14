@@ -8,7 +8,8 @@ export interface TweetDto {
   };
   tweetType: TweetType;
   parentId?: string;
-  content: string;
+  content?: string;
+  imageUrl?: string;
   createdAt: Date;
   updatedAt?: Date;
 
@@ -21,12 +22,10 @@ export interface TweetDto {
   replies?: TweetDto[];
 }
 
-export interface CreateTweetDto {
-  userId: string;
-  tweetType: TweetType;
-  parentId?: string;
-  content: string;
-}
+export type CreateTweetDto = Pick<
+  TweetDto,
+  "userId" | "tweetType" | "parentId" | "content" | "imageUrl"
+>;
 
 export interface ActionsDto {
   id: string;
@@ -36,7 +35,10 @@ export interface ActionsDto {
   };
 }
 
-export type UpdateTweetDto = Pick<TweetDto, "userId" | "content"> & {
+export type UpdateTweetDto = Pick<
+  TweetDto,
+  "userId" | "content" | "imageUrl"
+> & {
   tweetId: string;
 };
 

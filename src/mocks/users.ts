@@ -65,6 +65,51 @@ async function main() {
     return acc;
   }, {} as Record<string, string>);
 
+  const bios = [
+    {
+      name: "Microsoft Copilot",
+      bio: "Seu assistente de produtividade com IA.",
+    },
+    {
+      name: "Google Assistant",
+      bio: "Sempre pronto para ajudar.",
+    },
+    {
+      name: "Amazon Alexa",
+      bio: "Facilitando sua vida com comandos de voz.",
+    },
+    {
+      name: "Apple Siri",
+      bio: "Seu assistente pessoal inteligente da Apple.",
+    },
+    {
+      name: "Samsung Bixby",
+      bio: "Um novo jeito de interagir com seu dispositivo Samsung.",
+    },
+    {
+      name: "IBM Watson",
+      bio: "Líder em inteligência artificial e computação cognitiva.",
+    },
+  ];
+
+  // Atualizar todos os usuários com a bio
+  const updatePromises = bios.map(async (user) => {
+    const userId = userMap[user.name]; // Usando o mapa para buscar o ID
+
+    if (userId) {
+      return prisma.user.update({
+        where: { id: userId },
+        data: {
+          bio: user.bio,
+        },
+      });
+    }
+  });
+
+  // Executar todas as atualizações
+  await Promise.all(updatePromises);
+  console.log("Usuários atualizados com sucesso.");
+
   // Criando follows com base no mapeamento de usuários
   const follows = [
     { followerId: "Microsoft Copilot", followedId: "Google Assistant" },
