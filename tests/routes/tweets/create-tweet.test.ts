@@ -119,7 +119,7 @@ describe("POST /tweets", () => {
     expect(response.statusCode).toBe(400);
     expect(response).toHaveProperty("body", {
       ok: false,
-      message: ["Content is required"],
+      message: ["Text or image is required for content"],
     });
   });
   //Types
@@ -147,7 +147,7 @@ describe("POST /tweets", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Content must be a string"],
+      message: ["Text must be a string"],
     });
   });
   //Length
@@ -166,7 +166,8 @@ describe("POST /tweets", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: "Content exceeds the maximum allowed length of 280 characters",
+      message:
+        "Text content exceeds the maximum allowed length of 280 characters",
     });
   });
   //Controller

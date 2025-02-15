@@ -69,6 +69,7 @@ describe("PUT /tweets/{id}", () => {
       .put(`${endpoint}${id}`)
       .set("Authorization", `Bearer ${token}`)
       .send(payload);
+    console.log(response.body);
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
@@ -82,6 +83,7 @@ describe("PUT /tweets/{id}", () => {
     const payload = {
       tweetType: "TWEET",
       content: 1234,
+      imageUrl: "http://image.com.jpg",
     };
 
     const response = await supertest(server)
@@ -92,7 +94,7 @@ describe("PUT /tweets/{id}", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       ok: false,
-      message: ["Content must be a string"],
+      message: ["Text must be a string"],
     });
   });
   //Controller

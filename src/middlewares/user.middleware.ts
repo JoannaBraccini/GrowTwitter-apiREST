@@ -37,11 +37,10 @@ export class UserMiddleware {
       errors.push("Avatar link must be a string");
     }
     if (avatarUrl && typeof avatarUrl === "string") {
-      const imageRegex = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
-      if (!imageRegex.test(avatarUrl)) {
-        errors.push(
-          "Avatar URL must be an image link (.jpg, .png, .gif, .webp, .svg)"
-        );
+      const imageUrlRegex =
+        /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}(\/[^\s]*)?\.(jpg|jpeg|png|gif|webp|svg)$/i;
+      if (!imageUrlRegex.test(avatarUrl)) {
+        errors.push("Avatar URL must be a valid image link");
       }
     }
 

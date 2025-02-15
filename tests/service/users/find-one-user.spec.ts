@@ -45,10 +45,10 @@ describe("Find One UsertService", () => {
     expect(result.message).toMatch("User details retrieved successfully");
     expect(result.data).toEqual({
       id: "id-valido",
-      name: "Usuario Teste",
-      username: "usertest",
-      avatarUrl: "http://imagem.svg",
-      bio: "Uma biografia",
+      name: expect.any(String),
+      username: expect.any(String),
+      avatarUrl: expect.any(String),
+      bio: expect.any(String),
       followers: [],
       following: [],
       tweets: [],

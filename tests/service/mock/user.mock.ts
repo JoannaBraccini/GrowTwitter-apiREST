@@ -24,7 +24,7 @@ export class UserMock {
       email: params?.email || "teste@email.com",
       password: params?.password || "umaSenha",
       bio: params?.bio || "Uma biografia",
-      avatarUrl: params?.avatarUrl || "http://imagem.svg",
+      avatarUrl: params?.avatarUrl || "http://image.com/ex.svg",
       createdAt: new Date(),
       updatedAt: new Date(),
     };

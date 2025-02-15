@@ -13,6 +13,8 @@ describe("Update UserService", () => {
     username: params?.username || undefined,
     oldPassword: params?.oldPassword || undefined,
     newPassword: params?.newPassword || undefined,
+    avatarUrl: params?.avatarUrl || undefined,
+    bio: params?.bio || undefined,
   });
   const createSut = () => new UserService();
 

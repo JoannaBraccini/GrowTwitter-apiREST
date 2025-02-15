@@ -6,7 +6,7 @@ export class TweetMiddleware {
     res: Response,
     next: NextFunction
   ) {
-    const { tweetType, parentId, content } = req.body;
+    const { tweetType, parentId, content, imageUrl } = req.body;
     const errors: string[] = [];
 
     if (tweetType === "REPLY" && !parentId) {
@@ -18,11 +18,14 @@ export class TweetMiddleware {
     if (!tweetType) {
       errors.push("Tweet type is required");
     }
+    if (!content && !imageUrl) {
+      errors.push("Text or image is required for content");
+    }
     if (
-      !content ||
-      (typeof content === "string" && content.trim().length === 0)
+      (content && typeof content === "string" && content.trim().length === 0) ||
+      (imageUrl && typeof content === "string" && content.trim().length === 0)
     ) {
-      errors.push("Content is required");
+      errors.push("Text or image is required for content");
     }
     if (errors.length > 0) {
       res.status(400).json({
@@ -35,15 +38,25 @@ export class TweetMiddleware {
   }
 
   public static validateTypes(req: Request, res: Response, next: NextFunction) {
-    const { tweetType, content, comment } = req.body;
+    const { tweetType, content, imageUrl, comment } = req.body;
     const { page, take, search } = req.query;
     const errors: string[] = [];
 
     if (tweetType && tweetType !== "TWEET" && tweetType !== "REPLY") {
       errors.push("Tweet type must be TWEET, REPLY");
     }
-    if (typeof content !== "string") {
-      errors.push("Content must be a string");
+    if (content && typeof content !== "string") {
+      errors.push("Text must be a string");
+    }
+    if (imageUrl && typeof imageUrl !== "string") {
+      errors.push("Image link must be a string");
+    }
+    if (imageUrl && typeof imageUrl === "string") {
+      const imageUrlRegex =
+        /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}(\/[^\s]*)?\.(jpg|jpeg|png|gif|webp|svg)$/i;
+      if (imageUrl && !imageUrlRegex.test(imageUrl)) {
+        errors.push("Image URL must be a valid image link");
+      }
     }
     if (comment && typeof comment !== "string") {
       errors.push("Comment must be a string");
@@ -78,7 +91,8 @@ export class TweetMiddleware {
     if (content.length > 280) {
       res.status(400).json({
         ok: false,
-        message: "Content exceeds the maximum allowed length of 280 characters",
+        message:
+          "Text content exceeds the maximum allowed length of 280 characters",
       });
       return;
     }

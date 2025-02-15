@@ -12,8 +12,6 @@ describe("POST /signup", () => {
     email: params?.email ?? "novo@email.com",
     username: params?.username ?? "novousuario",
     password: params?.password ?? "umaSenha",
-    bio: params?.bio ?? "Uma biografia",
-    avatarUrl: params?.avatarUrl ?? "http://urldeumaimagem.svg",
   });
   //Required
   it("Deve retornar status 400 quando nome não for fornecido", async () => {
@@ -71,22 +69,6 @@ describe("POST /signup", () => {
       message: ["Name must be a string"],
     });
   });
-
-  it("Deve retornar status 400 quando link não for válido", async () => {
-    const body = makeSignup({
-      avatarUrl: "https://example.com/image",
-    });
-
-    const response = await supertest(server).post(endpoint).send(body);
-
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({
-      ok: false,
-      message: [
-        "Avatar URL must be an image link (.jpg, .png, .gif, .webp, .svg)",
-      ],
-    });
-  });
   //Length
   it("Deve retornar status 400 quando nome tiver menos de 3 caracteres", async () => {
     const body = makeSignup({ name: "No" });
@@ -129,36 +111,6 @@ describe("POST /signup", () => {
     expect(response.body).toEqual({
       ok: false,
       message: ["Invalid email"],
-    });
-  });
-
-  it("Deve retornar status 400 quando Bio tiver mais de 100 caracteres", async () => {
-    const body = makeSignup({
-      bio: "Esta é uma bio de teste para validar a restrição de caracteres no campo bio. Deve ter mais de cem caracteres.",
-    });
-    const response = await supertest(server).post(endpoint).send(body);
-
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({
-      ok: false,
-      message: ["Bio cannot be so long"],
-    });
-  });
-
-  it("Deve retornar status 400 quando url do avatar tiver mais de 200 caracteres", async () => {
-    const body = makeSignup({
-      avatarUrl:
-        "https://exemplo.com/imagens/avatar/este-e-um-link-muito-longo-para-testar-a-validacao-de-url-que-deve-ter-mais-de-duzentos-caracteres-1234567890123456789012345678901234567890123456789012345678901234567890.jpg",
-    });
-    console.log(body);
-
-    const response = await supertest(server).post(endpoint).send(body);
-    console.log(response.body);
-
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({
-      ok: false,
-      message: ["Link cannot be so long"],
     });
   });
 

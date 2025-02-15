@@ -108,6 +108,46 @@ describe("PUT /users/{id}", () => {
       message: ["Name must be at least 3 characters long"],
     });
   });
+  it("Deve retornar status 400 quando Bio tiver mais de 100 caracteres", async () => {
+    const token = makeToken();
+    const id = randomUUID();
+    const payload = {
+      id: id,
+      bio: "Esta é uma bio de teste para validar a restrição de caracteres no campo bio. Deve ter mais de cem caracteres.",
+    };
+    const response = await supertest(server)
+      .put(`${endpoint}${id}`)
+      .send(payload)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      ok: false,
+      message: ["Bio cannot be so long"],
+    });
+  });
+
+  it("Deve retornar status 400 quando url do avatar tiver mais de 200 caracteres", async () => {
+    const token = makeToken();
+    const id = randomUUID();
+    const payload = {
+      id: id,
+      avatarUrl:
+        "https://exemplo.com/imagens/avatar/este-e-um-link-muito-longo-para-testar-a-validacao-de-url-que-deve-ter-mais-de-duzentos-caracteres-1234567890123456789012345678901234567890123456789012345678901234567890.jpg",
+    };
+
+    const response = await supertest(server)
+      .put(`${endpoint}${id}`)
+      .send(payload)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      ok: false,
+      message: ["Link cannot be so long"],
+    });
+  });
+
   //Controller
   it("Deve retornar status 500 quando ocorrer erro de exceção", async () => {
     const token = makeToken();

@@ -22,7 +22,7 @@ export class TweetMock {
       tweetType: params?.tweetType || TweetType.TWEET,
       parentId: params?.parentId || null,
       content: params?.content || "Texto do Tweet",
-      imageUrl: params?.imageUrl || "http://image.svg",
+      imageUrl: params?.imageUrl || "http://image.com/ex.svg",
       user: params?.user || { name: "Nome", username: "username" },
       likesCount: undefined,
       repliesCount: undefined,
