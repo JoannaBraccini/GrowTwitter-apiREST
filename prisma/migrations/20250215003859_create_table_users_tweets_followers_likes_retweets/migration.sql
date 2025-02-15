@@ -35,7 +35,8 @@ CREATE TABLE "tweets" (
     "user_id" UUID NOT NULL,
     "type" "TweetType" NOT NULL DEFAULT 'TWEET',
     "parent_id" UUID,
-    "content" TEXT NOT NULL,
+    "content" VARCHAR(280),
+    "image-url" TEXT,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 

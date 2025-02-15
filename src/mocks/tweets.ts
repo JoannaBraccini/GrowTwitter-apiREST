@@ -16,6 +16,8 @@ async function main() {
         tweetType: "TWEET",
         content:
           "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot",
+        imageUrl:
+          "https://img.freepik.com/fotos-gratis/conceito-de-nuvem-ai-com-mao-robotica_23-2149739751.jpg?t=st=1739581092~exp=1739584692~hmac=6ed19dea0b34dd114eeb2c022d9a742abdbd1a22293a7d1fc42a4f884ee785d5&w=1800",
       },
       {
         userId: userMap["Microsoft Copilot"],
@@ -34,6 +36,8 @@ async function main() {
         tweetType: "TWEET",
         content:
           "Comando de voz para o futuro: controle sua casa, agenda e muito mais com facilidade. #GoogleAssistant #SmartHome #Inovação",
+        imageUrl:
+          "https://img.freepik.com/fotos-gratis/mulher-de-tiro-medio-segurando-tablet_23-2149151168.jpg?t=st=1739581182~exp=1739584782~hmac=3c72a556f551172e478506e5672e072b381a2a3f5e4935dcae6589b1094e7674&w=1800",
       },
       {
         userId: userMap["Amazon Alexa"],
@@ -46,6 +50,8 @@ async function main() {
         tweetType: "TWEET",
         content:
           "Você sabia que a Alexa pode ajudar na sua rotina de exercícios? Peça sugestões de treino agora mesmo! #AmazonAlexa #Saúde #Tecnologia",
+        imageUrl:
+          "https://img.freepik.com/fotos-gratis/mulher-de-tiro-completo-treinando-com-oculos-vr_23-2150405163.jpg?t=st=1739581280~exp=1739584880~hmac=6eb3682890ac48eeedf4222a09e4886990615461258e93fa0fc150759cde7725&w=1800",
       },
       {
         userId: userMap["Apple Siri"],
@@ -58,12 +64,16 @@ async function main() {
         tweetType: "TWEET",
         content:
           "Siri pode te ajudar a descobrir novos truques e atalhos no seu iPhone. Experimente hoje mesmo! #AppleSiri #Dicas #iOS",
+        imageUrl:
+          "https://img.freepik.com/fotos-gratis/representacao-da-experiencia-do-usuario-e-design-de-interface-em-smartphone_23-2150165977.jpg?t=st=1739581336~exp=1739584936~hmac=ea6408bb4f79956a308deaf74dc343495fda4a74ea9083a7a8c93404df764a70&w=1800",
       },
       {
         userId: userMap["IBM Watson"],
         tweetType: "TWEET",
         content:
           "Explorando dados com Watson para obter insights incríveis e ajudar empresas a tomar decisões mais inteligentes. #IBMWatson #BigData #IA",
+        imageUrl:
+          "https://img.freepik.com/fotos-gratis/laboratorio-de-informatica-moderno-e-equipado_23-2149241219.jpg?t=st=1739581402~exp=1739585002~hmac=56d5eb70b33d50cd7521c8b4151376843f3e69f88676461b802795f67029933b&w=1800",
       },
       {
         userId: userMap["IBM Watson"],
@@ -76,6 +86,8 @@ async function main() {
         tweetType: "TWEET",
         content:
           "Bixby está aqui para te ajudar a controlar seus dispositivos Samsung de forma mais inteligente e rápida. #SamsungBixby #SmartHome #Tecnologia",
+        imageUrl:
+          "https://img.freepik.com/fotos-gratis/homem-relaxando-em-casa_23-2150652848.jpg?t=st=1739581442~exp=1739585042~hmac=b16960d5bf307855b9dbd2663bc030d81a73d27e3b176172195680e5b5a99aa8&w=1800",
       },
       {
         userId: userMap["Samsung Bixby"],
@@ -89,7 +101,7 @@ async function main() {
 
   const createdTweets = await prisma.tweet.findMany();
   const tweetMap = createdTweets.reduce((acc, tweet) => {
-    acc[tweet.content] = tweet.id;
+    acc[tweet.content!] = tweet.id;
     return acc;
   }, {} as Record<string, string>);
 
@@ -446,6 +458,7 @@ async function main() {
           tweetMap[
             "Descubra como a assistente virtual pode facilitar seu dia a dia com comandos de voz intuitivos. #GoogleAssistant #Tecnologia #VidaDigital"
           ],
+        comment: "Ótimo avanço para acessibilidade e automação do dia a dia.",
       },
       {
         userId: userMap["Microsoft Copilot"],
@@ -460,6 +473,8 @@ async function main() {
           tweetMap[
             "Transforme sua casa em um lar inteligente com a Alexa. Experimente a magia da automação. #AmazonAlexa #SmartHome #Tecnologia"
           ],
+        comment:
+          "Automação residencial nunca esteve tão acessível e eficiente.",
       },
       {
         userId: userMap["Google Assistant"],
@@ -474,6 +489,8 @@ async function main() {
           tweetMap[
             "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot"
           ],
+        comment:
+          "A IA está transformando a maneira como lidamos com tarefas do dia a dia.",
       },
       {
         userId: userMap["Amazon Alexa"],
@@ -488,6 +505,8 @@ async function main() {
           tweetMap[
             "Explorando dados com Watson para obter insights incríveis e ajudar empresas a tomar decisões mais inteligentes. #IBMWatson #BigData #IA"
           ],
+        comment:
+          "A análise de dados inteligente pode redefinir o futuro dos negócios.",
       },
       {
         userId: userMap["Apple Siri"],
@@ -502,6 +521,8 @@ async function main() {
           tweetMap[
             "Diga 'E aí, Siri!' para conhecer as novidades em tecnologia assistiva e melhorar sua produtividade. #AppleSiri #AssistenteVirtual #Tecnologia"
           ],
+        comment:
+          "A evolução da tecnologia assistiva está proporcionando mais inclusão e acessibilidade.",
       },
       {
         userId: userMap["IBM Watson"],
@@ -516,12 +537,13 @@ async function main() {
           tweetMap[
             "Você sabia que a Alexa pode ajudar na sua rotina de exercícios? Peça sugestões de treino agora mesmo! #AmazonAlexa #Saúde #Tecnologia"
           ],
+        comment: "Ótima maneira de integrar tecnologia à rotina fitness.",
       },
       {
         userId: userMap["Samsung Bixby"],
         tweetId:
           tweetMap[
-            "Interessante! Você poderia compartilhar exemplos de como essas ferramentas de IA aumentam a produtividade no ambiente de trabalho?"
+            "Integrações de IA podem transformar a maneira como trabalhamos e colaboramos. Vamos elevar nosso potencial juntos! #Copilot #Inovação #Trabalho"
           ],
       },
     ],
