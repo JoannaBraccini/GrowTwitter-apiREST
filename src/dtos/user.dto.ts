@@ -4,8 +4,8 @@ export interface UserDto {
   name: string;
   email?: string;
   username: string;
-  bio?: string;
-  avatarUrl?: string;
+  bio?: string | null;
+  avatarUrl?: string | null;
   followers?: UserBaseDto[];
   following?: UserBaseDto[];
   tweets?: TweetDto[];

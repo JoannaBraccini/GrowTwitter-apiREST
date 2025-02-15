@@ -8,8 +8,8 @@ export interface TweetDto {
   };
   tweetType: TweetType;
   parentId?: string;
-  content?: string;
-  imageUrl?: string;
+  content?: string | null;
+  imageUrl?: string | null;
   createdAt: Date;
   updatedAt?: Date;
 
