@@ -44,8 +44,8 @@ export class TweetService {
           userId: tweetCreated.userId,
           parentId: tweetCreated.parentId,
           tweetType: tweetCreated.tweetType,
-          content: tweetCreated.content ?? null,
-          imageUrl: tweetCreated.imageUrl ?? null,
+          content: tweetCreated.content,
+          imageUrl: tweetCreated.imageUrl,
           createdAt: tweetCreated.createdAt,
         },
       };

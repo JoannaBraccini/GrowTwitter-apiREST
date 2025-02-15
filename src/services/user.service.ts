@@ -402,35 +402,24 @@ export class UserService {
       followers:
         followers.length > 0
           ? followers.map(({ follower }) => ({
-              id: follower.id,
-              name: follower.name,
-              username: follower.username,
+              ...follower,
               avatarUrl: follower.avatarUrl ?? undefined,
             }))
           : [],
       following:
         following.length > 0
           ? following.map(({ followed }) => ({
-              id: followed.id,
-              name: followed.name,
-              username: followed.username,
+              ...followed,
               avatarUrl: followed.avatarUrl ?? undefined,
             }))
           : [],
       tweets:
         tweets.length > 0
           ? tweets.map((tweet) => ({
-              id: tweet.id,
-              userId: tweet.userId,
-              tweetType: tweet.tweetType,
+              ...tweet,
               parentId: tweet.parentId ?? undefined,
               content: tweet.content ?? undefined,
               imageUrl: tweet.imageUrl ?? undefined,
-              createdAt: tweet.createdAt,
-              updatedAt: tweet.updatedAt,
-              likeCount: tweet._count.likes,
-              replyCount: tweet._count.replies,
-              retweetCount: tweet._count.retweets,
             }))
           : [],
     };
