@@ -10,13 +10,14 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(uuid()) @db.Uuid
-  name      String  @db.VarChar(100)
-  email     String  @unique @db.VarChar(50)
-  username  String  @unique @db.VarChar(30)
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(50)
+  username  String   @unique @db.VarChar(30)
   password  String
-  bio       String? @db.VarChar(100)
-  avatarUrl String? @map("avatar_url") @db.VarChar(200)
+  bio       String?  @db.VarChar(100)
+  avatarUrl String?  @map("avatar_url") @db.VarChar(200)
+  verified  Verified @default(NONE)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
@@ -90,6 +91,12 @@ model Retweet {
 
   @@unique([tweetId, userId]) // não permitir duplicidade de retweet
   @@map("retweets")
+}
+
+enum Verified {
+  NONE
+  BLUE
+  GOLD
 }
 
 enum TweetType {
