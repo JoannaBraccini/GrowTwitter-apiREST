@@ -102,6 +102,7 @@ describe("Login AuthService", () => {
           name: userMock.name,
           username: userMock.username,
           email: userMock.email,
+          avatarUrl: userMock.avatarUrl,
         },
       },
     });
