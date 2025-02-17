@@ -5,6 +5,7 @@ import { AuthRoutes } from "./auth.routes";
 import { UserRoutes } from "./user.routes";
 import { TweetRoutes } from "./tweet.routes";
 import { Request, Response } from "express";
+import { TrendsRoutes } from "./trends.routes";
 
 export const makeRoutes = (app: Express) => {
   app.get("/", (req: Request, res: Response) => {
@@ -20,4 +21,5 @@ export const makeRoutes = (app: Express) => {
   app.use(AuthRoutes.execute());
   app.use(UserRoutes.execute());
   app.use(TweetRoutes.execute());
+  app.use(TrendsRoutes.execute());
 };
