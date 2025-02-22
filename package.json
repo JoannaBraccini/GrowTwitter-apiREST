@@ -13,6 +13,9 @@
     "start": "node ./dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts"
   },
+  "prisma": {
+    "seed": "ts-node ./prisma/seed.ts"
+  },
   "keywords": [],
   "author": "Joanna Braccini",
   "license": "ISC",

@@ -2,6 +2,9 @@
 CREATE EXTENSION IF NOT EXISTS "hstore";
 
 -- CreateEnum
+CREATE TYPE "Verified" AS ENUM ('NONE', 'BLUE', 'GOLD');
+
+-- CreateEnum
 CREATE TYPE "TweetType" AS ENUM ('TWEET', 'REPLY');
 
 -- CreateTable
@@ -13,6 +16,7 @@ CREATE TABLE "users" (
     "password" TEXT NOT NULL,
     "bio" VARCHAR(100),
     "avatar_url" VARCHAR(200),
+    "verified" "Verified" NOT NULL DEFAULT 'NONE',
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 
@@ -36,7 +40,7 @@ CREATE TABLE "tweets" (
     "type" "TweetType" NOT NULL DEFAULT 'TWEET',
     "parent_id" UUID,
     "content" VARCHAR(280),
-    "image-url" TEXT,
+    "image_url" TEXT,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 
@@ -58,7 +62,7 @@ CREATE TABLE "retweets" (
     "id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
     "tweet_id" UUID NOT NULL,
-    "comment" TEXT,
+    "comment" VARCHAR(280),
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "retweets_pkey" PRIMARY KEY ("id")
