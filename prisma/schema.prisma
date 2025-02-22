@@ -54,7 +54,7 @@ model Tweet {
   parentId  String?   @map("parent_id") @db.Uuid //tweet pai, em caso de reply
   parent    Tweet?    @relation("tweet_replies", fields: [parentId], references: [id], onDelete: Cascade) //diferenciar pela relação
   content   String?   @db.VarChar(280)
-  imageUrl  String?   @map("image-url")
+  imageUrl  String?   @map("image_url")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
@@ -85,7 +85,7 @@ model Retweet {
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   tweetId String  @map("tweet_id") @db.Uuid //id do tweet pai
   tweet   Tweet   @relation(fields: [tweetId], references: [id], onDelete: Cascade)
-  comment String?
+  comment String? @db.VarChar(280)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
