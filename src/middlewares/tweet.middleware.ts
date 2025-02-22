@@ -100,7 +100,7 @@ export class TweetMiddleware {
     if (comment && comment.length > 140) {
       res.status(400).json({
         ok: false,
-        message: "Comment exceeds the maximum allowed length of 140 characters",
+        message: "Comment exceeds the maximum allowed length of 280 characters",
       });
       return;
     }
