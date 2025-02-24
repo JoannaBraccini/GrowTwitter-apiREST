@@ -4,147 +4,150 @@ import { CreateTweetDto } from "../src/dtos";
 
 async function seedUsers() {
   const bcrypt = new Bcrypt();
-  await prisma.$transaction(async (tx: any) => {
-    await tx.user.deleteMany();
+  await prisma.$transaction(
+    async (tx: any) => {
+      await tx.user.deleteMany();
 
-    const users = [
-      {
-        name: "Microsoft Copilot",
-        email: "copilot@microsoft.com",
-        username: "copilot",
-        password: "senha123",
-      },
-      {
-        name: "Google Assistant",
-        email: "assistant@google.com",
-        username: "googleassistant",
-        password: "senha123",
-      },
-      {
-        name: "Amazon Alexa",
-        email: "alexa@amazon.com",
-        username: "amazonalexa",
-        password: "senha123",
-      },
-      {
-        name: "Apple Siri",
-        email: "siri@apple.com",
-        username: "applesiri",
-        password: "senha123",
-      },
-      {
-        name: "Samsung Bixby",
-        email: "bixby@samsung.com",
-        username: "bixbysamsung",
-        password: "senha123",
-      },
-      {
-        name: "IBM Watson",
-        email: "watson@ibm.com",
-        username: "ibmwatson",
-        password: "senha123",
-      },
-    ];
+      const users = [
+        {
+          name: "Microsoft Copilot",
+          email: "copilot@microsoft.com",
+          username: "copilot",
+          password: "senha123",
+        },
+        {
+          name: "Google Assistant",
+          email: "assistant@google.com",
+          username: "googleassistant",
+          password: "senha123",
+        },
+        {
+          name: "Amazon Alexa",
+          email: "alexa@amazon.com",
+          username: "amazonalexa",
+          password: "senha123",
+        },
+        {
+          name: "Apple Siri",
+          email: "siri@apple.com",
+          username: "applesiri",
+          password: "senha123",
+        },
+        {
+          name: "Samsung Bixby",
+          email: "bixby@samsung.com",
+          username: "bixbysamsung",
+          password: "senha123",
+        },
+        {
+          name: "IBM Watson",
+          email: "watson@ibm.com",
+          username: "ibmwatson",
+          password: "senha123",
+        },
+      ];
 
-    // Gerar hash para as senhas
-    for (let user of users) {
-      user.password = await bcrypt.generateHash(user.password);
-    }
-
-    // Inserir usuários no banco
-    await prisma.user.createMany({ data: users });
-
-    // Buscar os usuários inseridos para mapear os IDs
-    const usersFromDb = await prisma.user.findMany();
-    // Mapeamento para buscar os users
-    const userMap = usersFromDb.reduce((acc, user) => {
-      acc[user.name] = user.id;
-      return acc;
-    }, {} as Record<string, string>);
-
-    // Biografias
-    const bios = [
-      {
-        name: "Microsoft Copilot",
-        avatarUrl:
-          "https://image.lexica.art/full_webp/8416c796-f5c4-4fe6-bd18-03d85048321a",
-        bio: "Seu assistente de produtividade com IA.",
-      },
-      {
-        name: "Google Assistant",
-        avatarUrl:
-          "https://image.lexica.art/full_webp/8c2181dd-f367-4956-a199-2a21ea126556",
-        bio: "Sempre pronto para ajudar.",
-      },
-      {
-        name: "Amazon Alexa",
-        avatarUrl:
-          "https://image.lexica.art/full_webp/297b72f6-0f4b-4f75-8abc-cf321e4c32a6",
-        bio: "Facilitando sua vida com comandos de voz.",
-      },
-      {
-        name: "Apple Siri",
-        avatarUrl:
-          "https://image.lexica.art/full_webp/0e54c404-3bc2-4475-bd98-edd21e35ce6c",
-        bio: "Seu assistente pessoal inteligente da Apple.",
-      },
-      {
-        name: "Samsung Bixby",
-        avatarUrl:
-          "https://image.lexica.art/full_webp/c5bad7b4-eee7-40b7-8f93-b783f59104fa",
-        bio: "Um novo jeito de interagir com seu dispositivo Samsung.",
-      },
-      {
-        name: "IBM Watson",
-        avatarUrl:
-          "https://image.lexica.art/full_webp/1ca84c39-548f-400f-aefb-683ecaa7c731",
-        bio: "Líder em inteligência artificial e computação cognitiva.",
-      },
-    ];
-
-    // Atualizar todos os usuários com a bio
-    const updatePromises = bios.map(async (user) => {
-      // Usando o mapa para buscar o ID
-      const userId = userMap[user.name];
-
-      if (userId) {
-        return prisma.user.update({
-          where: { id: userId },
-          data: {
-            avatarUrl: user.avatarUrl,
-            bio: user.bio,
-          },
-        });
+      // Gerar hash para as senhas
+      for (let user of users) {
+        user.password = await bcrypt.generateHash(user.password);
       }
-    });
-    // Executar todas as atualizações
-    await Promise.all(updatePromises);
 
-    // Criando follows com base no mapeamento de usuários
-    const follows = [
-      { followerId: "Microsoft Copilot", followedId: "Google Assistant" },
-      { followerId: "Microsoft Copilot", followedId: "Amazon Alexa" },
-      { followerId: "Google Assistant", followedId: "Microsoft Copilot" },
-      { followerId: "Google Assistant", followedId: "Apple Siri" },
-      { followerId: "Amazon Alexa", followedId: "Apple Siri" },
-      { followerId: "Amazon Alexa", followedId: "IBM Watson" },
-      { followerId: "Apple Siri", followedId: "Microsoft Copilot" },
-      { followerId: "Apple Siri", followedId: "IBM Watson" },
-      { followerId: "IBM Watson", followedId: "Microsoft Copilot" },
-      { followerId: "IBM Watson", followedId: "Samsung Bixby" },
-      { followerId: "Samsung Bixby", followedId: "Google Assistant" },
-      { followerId: "Samsung Bixby", followedId: "Amazon Alexa" },
-    ];
+      // Inserir usuários no banco
+      await prisma.user.createMany({ data: users });
 
-    // Substituir os nomes pelos IDs correspondentes
-    const followsWithIds = follows.map((follow) => ({
-      followerId: userMap[follow.followerId], // Substitui pelo ID real
-      followedId: userMap[follow.followedId], // Substitui pelo ID real
-    }));
+      // Buscar os usuários inseridos para mapear os IDs
+      const usersFromDb = await prisma.user.findMany();
+      // Mapeamento para buscar os users
+      const userMap = usersFromDb.reduce((acc, user) => {
+        acc[user.name] = user.id;
+        return acc;
+      }, {} as Record<string, string>);
 
-    // Inserir os follows no banco
-    await prisma.follower.createMany({ data: followsWithIds });
-  });
+      // Biografias
+      const bios = [
+        {
+          name: "Microsoft Copilot",
+          avatarUrl:
+            "https://image.lexica.art/full_webp/8416c796-f5c4-4fe6-bd18-03d85048321a",
+          bio: "Seu assistente de produtividade com IA.",
+        },
+        {
+          name: "Google Assistant",
+          avatarUrl:
+            "https://image.lexica.art/full_webp/8c2181dd-f367-4956-a199-2a21ea126556",
+          bio: "Sempre pronto para ajudar.",
+        },
+        {
+          name: "Amazon Alexa",
+          avatarUrl:
+            "https://image.lexica.art/full_webp/297b72f6-0f4b-4f75-8abc-cf321e4c32a6",
+          bio: "Facilitando sua vida com comandos de voz.",
+        },
+        {
+          name: "Apple Siri",
+          avatarUrl:
+            "https://image.lexica.art/full_webp/0e54c404-3bc2-4475-bd98-edd21e35ce6c",
+          bio: "Seu assistente pessoal inteligente da Apple.",
+        },
+        {
+          name: "Samsung Bixby",
+          avatarUrl:
+            "https://image.lexica.art/full_webp/c5bad7b4-eee7-40b7-8f93-b783f59104fa",
+          bio: "Um novo jeito de interagir com seu dispositivo Samsung.",
+        },
+        {
+          name: "IBM Watson",
+          avatarUrl:
+            "https://image.lexica.art/full_webp/1ca84c39-548f-400f-aefb-683ecaa7c731",
+          bio: "Líder em inteligência artificial e computação cognitiva.",
+        },
+      ];
+
+      // Atualizar todos os usuários com a bio
+      const updatePromises = bios.map(async (user) => {
+        // Usando o mapa para buscar o ID
+        const userId = userMap[user.name];
+
+        if (userId) {
+          return prisma.user.update({
+            where: { id: userId },
+            data: {
+              avatarUrl: user.avatarUrl,
+              bio: user.bio,
+            },
+          });
+        }
+      });
+      // Executar todas as atualizações
+      await Promise.all(updatePromises);
+
+      // Criando follows com base no mapeamento de usuários
+      const follows = [
+        { followerId: "Microsoft Copilot", followedId: "Google Assistant" },
+        { followerId: "Microsoft Copilot", followedId: "Amazon Alexa" },
+        { followerId: "Google Assistant", followedId: "Microsoft Copilot" },
+        { followerId: "Google Assistant", followedId: "Apple Siri" },
+        { followerId: "Amazon Alexa", followedId: "Apple Siri" },
+        { followerId: "Amazon Alexa", followedId: "IBM Watson" },
+        { followerId: "Apple Siri", followedId: "Microsoft Copilot" },
+        { followerId: "Apple Siri", followedId: "IBM Watson" },
+        { followerId: "IBM Watson", followedId: "Microsoft Copilot" },
+        { followerId: "IBM Watson", followedId: "Samsung Bixby" },
+        { followerId: "Samsung Bixby", followedId: "Google Assistant" },
+        { followerId: "Samsung Bixby", followedId: "Amazon Alexa" },
+      ];
+
+      // Substituir os nomes pelos IDs correspondentes
+      const followsWithIds = follows.map((follow) => ({
+        followerId: userMap[follow.followerId], // Substitui pelo ID real
+        followedId: userMap[follow.followedId], // Substitui pelo ID real
+      }));
+
+      // Inserir os follows no banco
+      await prisma.follower.createMany({ data: followsWithIds });
+    },
+    { timeout: 6000 }
+  );
 }
 
 async function seedTweets() {
