@@ -151,8 +151,9 @@ export class TweetController {
 
   public static async retweet(req: Request, res: Response): Promise<void> {
     try {
+      const { tweetId } = req.params;
       const { id: userId } = req.AuthUser;
-      const { tweetId, comment } = req.params;
+      const { comment } = req.body;
 
       const service = new TweetService();
       const result = await service.retweet({ tweetId, comment, userId });
