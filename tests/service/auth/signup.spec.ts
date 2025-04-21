@@ -1,8 +1,8 @@
-import { SignupDto } from "../../../src/dtos";
 import { AuthService } from "../../../src/services/auth.service";
 import { Bcrypt } from "../../../src/utils/bcrypt";
-import { prismaMock } from "../../config/prisma.mock";
+import { SignupDto } from "../../../src/dtos";
 import { UserMock } from "../mock/user.mock";
+import { prismaMock } from "../../config/prisma.mock";
 
 describe("Signup AuthService", () => {
   const makeSignup = (params?: Partial<SignupDto>) => ({
@@ -75,6 +75,7 @@ describe("Signup AuthService", () => {
       password: "senha_criptografada",
       avatarUrl: null,
       bio: null,
+      verified: "NONE",
     });
     const result = await sut.signup(body);
 

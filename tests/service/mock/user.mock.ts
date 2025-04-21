@@ -1,6 +1,7 @@
-import { User } from "@prisma/client";
-import { randomUUID } from "crypto";
 import { TweetDto, UserBaseDto, UserDto } from "../../../src/dtos";
+import { User, Verified } from "@prisma/client";
+
+import { randomUUID } from "crypto";
 
 interface UserMockParams {
   id?: string;
@@ -13,6 +14,7 @@ interface UserMockParams {
   followers?: UserBaseDto[];
   following?: UserBaseDto[];
   tweets?: TweetDto[];
+  verified?: Verified;
 }
 
 export class UserMock {
@@ -27,6 +29,7 @@ export class UserMock {
       avatarUrl: params?.avatarUrl || "http://image.com/ex.svg",
       createdAt: new Date(),
       updatedAt: new Date(),
+      verified: params?.verified || ("UNVERIFIED" as Verified),
     };
 
     const followers = params?.followers || [];
