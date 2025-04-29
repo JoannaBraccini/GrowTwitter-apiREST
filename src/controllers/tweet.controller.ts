@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import { CreateTweetDto } from "../dtos";
 import { TweetService } from "../services/tweet.service";
 
@@ -74,7 +75,7 @@ export class TweetController {
 
   public static async findOne(req: Request, res: Response): Promise<void> {
     try {
-      const { tweetId } = req.params;
+      const tweetId = req.params.id;
       const service = new TweetService();
 
       const result = await service.findOne(tweetId);

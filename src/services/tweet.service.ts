@@ -1,14 +1,14 @@
-import { Prisma, Tweet } from "@prisma/client";
-import { prisma } from "../database/prisma.database";
 import {
-  ActionsDto,
-  CreateTweetDto,
-  TweetDto,
-  UpdateTweetDto,
-  RetweetDto,
   ActionsTweetDto,
+  CreateTweetDto,
+  RetweetDto,
+  UpdateTweetDto,
 } from "../dtos";
+import { Prisma, Tweet } from "@prisma/client";
+
 import { ResponseApi } from "../types/response";
+import { log } from "console";
+import { prisma } from "../database/prisma.database";
 
 export class TweetService {
   //CREATE
@@ -64,7 +64,9 @@ export class TweetService {
     take?: number;
     search?: string;
   }): Promise<ResponseApi> {
-    return this.getTweetsPaginated({}, query); // Busca todos os tweets sem filtro de usuário logado
+    const tweets = await this.getTweetsPaginated({}, query); // Busca todos os tweets sem filtro de usuário logado
+
+    return tweets;
   }
 
   //FIND FEED - com paginação e search
@@ -84,13 +86,8 @@ export class TweetService {
     // Se o usuário não segue ninguém, garante que ele veja seus próprios tweets
     const idsToSearch =
       followingIds.length > 0 ? [...followingIds, userId] : [userId];
-
     // Busca os tweets onde o userId seja do usuário logado ou do usuário seguido
-    return this.getTweetsPaginated(
-      { userId: { in: idsToSearch } },
-      query,
-      true // Para Map Full
-    );
+    return this.getTweetsPaginated({ userId: { in: idsToSearch } }, query);
   }
 
   //FIND ONE
@@ -98,7 +95,7 @@ export class TweetService {
     try {
       const tweet = await prisma.tweet.findUnique({
         where: { id },
-        include: this.includeTweetRelations(),
+        include: this.includeTweetRelations(), // Inclui todas as relações necessárias
       });
 
       if (!tweet) {
@@ -113,7 +110,7 @@ export class TweetService {
         ok: true,
         code: 200,
         message: "Tweet details retrieved successfully",
-        data: this.mapToFullDto(tweet), // Mapeia detalhes
+        data: tweet, // Retorna o tweet diretamente
       };
     } catch (error: any) {
       return {
@@ -162,7 +159,7 @@ export class TweetService {
         ok: true,
         code: 200,
         message: "Tweet content updated successfully",
-        data: await this.mapToDto(tweetUpdated),
+        data: tweetUpdated,
       };
     } catch (error: any) {
       return {
@@ -202,7 +199,7 @@ export class TweetService {
       }
 
       // Mapeia os dados do tweet antes da exclusão
-      const tweetToDelete = await this.mapToDto(tweet);
+      const tweetToDelete = tweet;
       //Exclui os dependentes (like, retweet e reply)
       await prisma.like.deleteMany({ where: { tweetId: tweetId } });
       await prisma.retweet.deleteMany({ where: { tweetId: tweetId } });
@@ -341,8 +338,7 @@ export class TweetService {
   //FIND PAGINATED
   private async getTweetsPaginated(
     where: Prisma.TweetWhereInput,
-    query?: { page?: number; take?: number; search?: string },
-    useFullDto: boolean = false
+    query?: { page?: number; take?: number; search?: string }
   ): Promise<ResponseApi> {
     const skip =
       query?.page && query?.take ? query.page * query.take : undefined;
@@ -356,25 +352,19 @@ export class TweetService {
         skip,
         take: query?.take,
         where,
-        orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }], // Mostrar os mais recentes primeiro
-        include: this.includeTweetRelations(),
+        orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+        include: this.includeTweetRelations(), // Inclui todas as relações necessárias
       });
 
       if (!tweets || tweets.length < 1) {
         return { ok: false, code: 404, message: "No tweets found" };
       }
 
-      const tweetDtos = await Promise.all(
-        tweets.map((tweet) =>
-          useFullDto ? this.mapToFullDto(tweet) : this.mapToDto(tweet)
-        )
-      );
-
       return {
         ok: true,
         code: 200,
         message: "Tweets retrieved successfully",
-        data: tweetDtos,
+        data: tweets, // Retorna os tweets diretamente
       };
     } catch (error: any) {
       return {
@@ -393,115 +383,21 @@ export class TweetService {
       retweets: {
         select: { user: { select: { name: true, username: true } } },
       },
-      replies: { select: { user: { select: { name: true, username: true } } } },
-    };
-  }
-
-  //MAP To DTO
-  private async mapToDto(
-    tweet: Tweet & { user?: { name: string; username: string } }
-  ): Promise<TweetDto> {
-    const [likesCount, retweetsCount, repliesCount] = await Promise.all([
-      prisma.like.count({ where: { tweetId: tweet.id } }),
-      prisma.retweet.count({ where: { tweetId: tweet.id } }),
-      prisma.tweet.count({ where: { parentId: tweet.id } }),
-    ]);
-    return {
-      id: tweet.id,
-      userId: tweet.userId,
-      user: tweet.user
-        ? {
-            name: tweet.user.name,
-            username: tweet.user.username,
-          }
-        : undefined,
-      tweetType: tweet.tweetType,
-      parentId: tweet.parentId ?? undefined,
-      content: tweet.content ?? undefined,
-      imageUrl: tweet.imageUrl ?? undefined,
-      createdAt: tweet.createdAt,
-      updatedAt: tweet.updatedAt,
-      likesCount: likesCount > 0 ? likesCount : undefined,
-      retweetsCount: retweetsCount > 0 ? retweetsCount : undefined,
-      repliesCount: repliesCount > 0 ? repliesCount : undefined,
-    };
-  }
-
-  // Mapeamento para TweetDto completo
-  private mapToFullDto(tweet: any): TweetDto {
-    return {
-      id: tweet.id,
-      userId: tweet.userId,
-      tweetType: tweet.tweetType,
-      parentId: tweet.parentId,
-      content: tweet.content,
-      imageUrl: tweet.imageUrl,
-      createdAt: tweet.createdAt,
-      updatedAt: tweet.updatedAt,
-      user: {
-        name: tweet.user.name,
-        username: tweet.user.username,
+      replies: {
+        select: {
+          id: true,
+          userId: true,
+          tweetType: true,
+          content: true,
+          imageUrl: true,
+          createdAt: true,
+          updatedAt: true,
+          user: { select: { name: true, username: true } },
+          likes: true,
+          retweets: true,
+          replies: true, // Inclui nested replies
+        },
       },
-      likesCount: tweet.likes?.length || 0,
-      retweetsCount: tweet.retweets?.length || 0,
-      repliesCount: tweet.replies?.length || 0,
-      likes: tweet.likes?.map((like: ActionsDto) => ({
-        id: like.id,
-        user: {
-          name: like.user.name,
-          username: like.user.username,
-        },
-      })),
-      retweets: tweet.retweets?.map((retweet: ActionsDto) => ({
-        id: retweet.id,
-        user: {
-          name: retweet.user.name,
-          username: retweet.user.username,
-        },
-      })),
-      replies: tweet.replies?.map((reply: TweetDto) => ({
-        id: reply.id,
-        userId: reply.userId,
-        user: {
-          name: reply.user?.name ?? "",
-          username: reply.user?.username ?? "",
-        },
-        tweetType: reply.tweetType,
-        content: reply.content,
-        imageUrl: reply.imageUrl,
-        createdAt: reply.createdAt,
-        updatedAt: reply.updatedAt,
-        likesCount: reply.likes?.length || 0,
-        retweetsCount: reply.retweets?.length || 0,
-        repliesCount: reply.replies?.length || 0,
-        likes: reply.likes?.map((like: ActionsDto) => ({
-          id: like.id,
-          user: {
-            name: like.user.name,
-            username: like.user.username,
-          },
-        })),
-        retweets: reply.retweets?.map((retweet: ActionsDto) => ({
-          id: retweet.id,
-          user: {
-            name: retweet.user.name,
-            username: retweet.user.username,
-          },
-        })),
-        replies: reply.replies?.map((reply: TweetDto) => ({
-          id: reply.id,
-          userId: reply.userId,
-          user: {
-            name: reply.user?.name ?? "",
-            username: reply.user?.username ?? "",
-          },
-          tweetType: reply.tweetType,
-          content: reply.content,
-          imageUrl: reply.imageUrl,
-          createdAt: reply.createdAt,
-          updatedAt: reply.updatedAt,
-        })),
-      })),
     };
   }
 }
