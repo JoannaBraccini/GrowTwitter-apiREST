@@ -1,4 +1,5 @@
 import { TweetType } from "@prisma/client";
+
 export interface TweetDto {
   id: string;
   userId: string;
@@ -13,12 +14,8 @@ export interface TweetDto {
   createdAt: Date;
   updatedAt?: Date;
 
-  likesCount?: number;
-  retweetsCount?: number;
-  repliesCount?: number;
-
-  likes?: ActionsDto[];
-  retweets?: ActionsDto[];
+  likes?: ActionsTweetDto[];
+  retweets?: RetweetDto[];
   replies?: TweetDto[];
 }
 
@@ -27,14 +24,6 @@ export type CreateTweetDto = Pick<
   "userId" | "tweetType" | "parentId" | "content" | "imageUrl"
 >;
 
-export interface ActionsDto {
-  id: string;
-  user: {
-    name: string;
-    username: string;
-  };
-}
-
 export type UpdateTweetDto = Pick<
   TweetDto,
   "userId" | "content" | "imageUrl"
@@ -42,7 +31,7 @@ export type UpdateTweetDto = Pick<
   tweetId: string;
 };
 
-export type ActionsTweetDto = Pick<UpdateTweetDto, "userId" | "tweetId">;
+export type ActionsTweetDto = Pick<UpdateTweetDto, "userId" | "tweetId">; //Remove and Like
 
 export type RetweetDto = Pick<UpdateTweetDto, "userId" | "tweetId"> & {
   comment?: string;
