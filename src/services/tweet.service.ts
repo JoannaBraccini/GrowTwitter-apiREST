@@ -4,8 +4,8 @@ import {
   RetweetDto,
   UpdateTweetDto,
 } from "../dtos";
+import { Like, Prisma, Retweet } from "@prisma/client";
 
-import { Prisma } from "@prisma/client";
 import { ResponseApi } from "../types/response";
 import { prisma } from "../database/prisma.database";
 
@@ -238,7 +238,7 @@ export class TweetService {
       }
 
       // Verificar se o usuário já curtiu
-      const alreadyLiked = await prisma.like.findUnique({
+      const alreadyLiked: Like | null = await prisma.like.findUnique({
         where: {
           //constraint de chave composta
           tweetId_userId: { tweetId, userId },
@@ -250,20 +250,22 @@ export class TweetService {
         await prisma.like.delete({ where: { id: alreadyLiked.id } });
       } else {
         // Se ainda não curtiu, adiciona o like
-        await prisma.like.create({ data: { tweetId, userId } });
+        const newLike: Like = await prisma.like.create({
+          data: { tweetId, userId },
+        });
+        return {
+          ok: true,
+          code: 201,
+          message: "Tweet liked successfully",
+          data: newLike, // Retorna o like adicionado
+        };
       }
 
       return {
         ok: true,
-        code: alreadyLiked ? 200 : 201,
-        message: alreadyLiked
-          ? "Like removed successfully"
-          : "Tweet liked successfully",
-        data: alreadyLiked
-          ? alreadyLiked
-          : await prisma.like.findFirst({
-              where: { tweetId, userId },
-            }), // Retorna o like adicionado
+        code: 200,
+        message: "Like removed successfully",
+        data: alreadyLiked, // Retorna o like removido
       };
     } catch (error: any) {
       return {
@@ -299,7 +301,7 @@ export class TweetService {
         },
       });
 
-      let retweeted = null;
+      let retweeted: Retweet | null = null; // Inicializa a variável retweeted como nula
       if (alreadyRetweeted) {
         // Se já retweetou, remove o retweet
         await prisma.retweet.delete({ where: { id: alreadyRetweeted.id } });
@@ -316,7 +318,7 @@ export class TweetService {
         message: alreadyRetweeted
           ? "Retweet removed successfully"
           : "Retweeted successfully",
-        data: { tweetId, retweet: retweeted },
+        data: { retweet: retweeted },
       };
     } catch (error: any) {
       return {

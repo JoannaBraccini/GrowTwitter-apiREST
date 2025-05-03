@@ -92,7 +92,7 @@ export class TweetController {
 
   public static async update(req: Request, res: Response): Promise<void> {
     try {
-      const { tweetId } = req.params;
+      const tweetId = req.params.id;
       const { id: userId } = req.AuthUser;
       const { content, imageUrl } = req.body;
 
@@ -116,7 +116,7 @@ export class TweetController {
 
   public static async remove(req: Request, res: Response): Promise<void> {
     try {
-      const { tweetId } = req.params;
+      const tweetId = req.params.id;
       const { id: userId } = req.AuthUser;
 
       const service = new TweetService();
@@ -152,8 +152,8 @@ export class TweetController {
 
   public static async retweet(req: Request, res: Response): Promise<void> {
     try {
-      const { tweetId } = req.params;
       const { id: userId } = req.AuthUser;
+      const tweetId = req.params.id;
       const { comment } = req.body;
 
       const service = new TweetService();
