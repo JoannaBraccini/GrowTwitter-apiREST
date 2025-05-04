@@ -1,4 +1,5 @@
 import "dotenv/config";
+
 import { createServer } from "./express.server";
 
 const app = createServer();
