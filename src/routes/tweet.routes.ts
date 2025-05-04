@@ -1,6 +1,6 @@
+import { AuthMiddleware } from "../middlewares/auth/auth.middleware";
 import { Router } from "express";
 import { TweetController } from "../controllers/tweet.controller";
-import { AuthMiddleware } from "../middlewares/auth/auth.middleware";
 import { TweetMiddleware } from "../middlewares/tweet.middleware";
 import { ValidateUuidMiddleware } from "../middlewares/validate-uuid.middleware";
 
@@ -56,14 +56,14 @@ export class TweetRoutes {
     );
 
     //LIKE ACTIONS TWEET (by id)
-    router.post(
+    router.patch(
       "/tweets/like/:id",
       [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
       TweetController.like
     );
 
     //RETWEET ACTIONS (by id)
-    router.post(
+    router.patch(
       "/tweets/retweet/:id",
       [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
       TweetController.retweet

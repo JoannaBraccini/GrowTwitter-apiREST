@@ -1,8 +1,9 @@
-import { prisma } from "../database/prisma.database";
-import { UserDto, UserBaseDto, UserUpdateDto, ActionUserDto } from "../dtos";
-import { ResponseApi } from "../types/response";
+import { ActionUserDto, UserBaseDto, UserDto, UserUpdateDto } from "../dtos";
 import { Prisma, TweetType, User } from "@prisma/client";
+
 import { Bcrypt } from "../utils/bcrypt";
+import { ResponseApi } from "../types/response";
+import { prisma } from "../database/prisma.database";
 
 export class UserService {
   //READ (optional search query)
@@ -257,7 +258,6 @@ export class UserService {
           message: "You cannot follow yourself",
         };
       }
-      let follow = null;
       // Verificar se usuário já segue
       const alreadyFollows = await prisma.follower.findUnique({
         where: {
@@ -268,9 +268,9 @@ export class UserService {
         },
       });
 
-      // Ternário para follow/unfollow
+      let follow = alreadyFollows;
       if (alreadyFollows) {
-        follow = await prisma.follower.delete({
+        await prisma.follower.delete({
           where: { id: alreadyFollows.id },
         }); // Unfollow
       } else {
@@ -279,18 +279,13 @@ export class UserService {
         }); // Follow
       }
 
-      // Calcular a contagem de seguidores
-      const followersCount = await prisma.follower.count({
-        where: { followedId: followedId },
-      });
-
       return {
         ok: true,
         code: alreadyFollows ? 200 : 201,
         message: alreadyFollows
           ? "Successfully unfollowed the user"
           : "Successfully followed the user",
-        data: { follow, followersCount }, // Retorna a contagem de seguidores atualizada
+        data: follow,
       };
     } catch (error: any) {
       return {

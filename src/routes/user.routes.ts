@@ -1,7 +1,7 @@
+import { AuthMiddleware } from "../middlewares/auth/auth.middleware";
 import { Router } from "express";
 import { UserController } from "../controllers/user.controller";
 import { UserMiddleware } from "../middlewares/user.middleware";
-import { AuthMiddleware } from "../middlewares/auth/auth.middleware";
 import { ValidateUuidMiddleware } from "../middlewares/validate-uuid.middleware";
 
 export class UserRoutes {
@@ -38,7 +38,7 @@ export class UserRoutes {
     );
 
     //FOLLOW ACTIONS (by id)
-    router.post(
+    router.patch(
       "/users/follow/:id",
       [AuthMiddleware.validate, ValidateUuidMiddleware.validate],
       UserController.follow

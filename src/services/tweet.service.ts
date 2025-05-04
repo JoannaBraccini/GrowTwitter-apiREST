@@ -188,6 +188,15 @@ export class TweetService {
         };
       }
 
+      // Verifica se o tipo do tweet é válido
+      if (tweet.tweetType !== "TWEET" && tweet.tweetType !== "REPLY") {
+        return {
+          ok: false,
+          code: 400,
+          message: "Invalid tweet type for this operation",
+        };
+      }
+
       // Verifica se o tweet pertence ao usuário
       if (tweet.userId !== userId) {
         return {
@@ -199,11 +208,11 @@ export class TweetService {
 
       // Mapeia os dados do tweet antes da exclusão
       const tweetToDelete = tweet;
-      //Exclui os dependentes (like, retweet e reply)
+      // Exclui os dependentes (like, retweet e reply)
       await prisma.like.deleteMany({ where: { tweetId: tweetId } });
       await prisma.retweet.deleteMany({ where: { tweetId: tweetId } });
       await prisma.tweet.deleteMany({ where: { parentId: tweetId } });
-      //Exclui o tweet
+      // Exclui o tweet
       await prisma.tweet.delete({ where: { id: tweetId } });
 
       return {
@@ -301,13 +310,13 @@ export class TweetService {
         },
       });
 
-      let retweeted: Retweet | null = null; // Inicializa a variável retweeted como nula
+      let retweet = alreadyRetweeted;
+      // Se já retweetou, remove o retweet
       if (alreadyRetweeted) {
-        // Se já retweetou, remove o retweet
         await prisma.retweet.delete({ where: { id: alreadyRetweeted.id } });
       } else {
         // Se ainda não retweetou, cria o retweet
-        retweeted = await prisma.retweet.create({
+        retweet = await prisma.retweet.create({
           data: { userId, tweetId, comment },
         });
       }
@@ -318,7 +327,7 @@ export class TweetService {
         message: alreadyRetweeted
           ? "Retweet removed successfully"
           : "Retweeted successfully",
-        data: { retweet: retweeted },
+        data: retweet, // Retorna o retweet adicionado ou removido
       };
     } catch (error: any) {
       return {

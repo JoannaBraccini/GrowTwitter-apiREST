@@ -1,16 +1,16 @@
-import supertest from "supertest";
-import { createServer } from "../../../src/express.server";
 import { UserService } from "../../../src/services/user.service";
+import { createServer } from "../../../src/express.server";
 import { makeToken } from "../make-token";
 import { randomUUID } from "crypto";
+import supertest from "supertest";
 
 const server = createServer();
 const endpoint = "/users/follow/";
 
-describe("POST /users/follow/{id}", () => {
+describe("PATCH /users/follow/{id}", () => {
   //Auth
   it("Deve retornar status 401 quando token não for informado", async () => {
-    const response = await supertest(server).post(`${endpoint}userID`);
+    const response = await supertest(server).patch(`${endpoint}userID`);
 
     expect(response.status).toBe(401);
     expect(response.body).toEqual({
@@ -21,7 +21,7 @@ describe("POST /users/follow/{id}", () => {
 
   it("Deve retornar status 401 quando for informado token de formato inválido", async () => {
     const response = await supertest(server)
-      .post(`${endpoint}userID`)
+      .patch(`${endpoint}userID`)
       .set("Authorization", "invalid_token");
 
     expect(response.status).toBe(401);
@@ -33,7 +33,7 @@ describe("POST /users/follow/{id}", () => {
 
   it("Deve retornar status 401 quando for informado token inválido ou expirado", async () => {
     const response = await supertest(server)
-      .post(`${endpoint}userID`)
+      .patch(`${endpoint}userID`)
       .set("Authorization", "Bearer invalidToken");
 
     expect(response.status).toBe(401);
@@ -47,7 +47,7 @@ describe("POST /users/follow/{id}", () => {
     const token = makeToken();
 
     const response = await supertest(server)
-      .post(`${endpoint}invalid-uuid`)
+      .patch(`${endpoint}invalid-uuid`)
       .set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(400);
@@ -66,7 +66,7 @@ describe("POST /users/follow/{id}", () => {
     });
 
     const response = await supertest(server)
-      .post(`${endpoint}${id}`)
+      .patch(`${endpoint}${id}`)
       .set("Authorization", `Bearer ${token}`)
       .send(randomUUID());
 
@@ -97,7 +97,7 @@ describe("POST /users/follow/{id}", () => {
 
     jest.spyOn(UserService.prototype, "follow").mockResolvedValue(mockService);
     const response = await supertest(server)
-      .post(`${endpoint}${followedId}`)
+      .patch(`${endpoint}${followedId}`)
       .set("Authorization", `Bearer ${token}`)
       .send(followerId);
 
@@ -119,7 +119,7 @@ describe("POST /users/follow/{id}", () => {
 
     jest.spyOn(UserService.prototype, "follow").mockResolvedValue(mockService);
     const response = await supertest(server)
-      .post(`${endpoint}${followedId}`)
+      .patch(`${endpoint}${followedId}`)
       .set("Authorization", `Bearer ${token}`)
       .send(followerId);
 

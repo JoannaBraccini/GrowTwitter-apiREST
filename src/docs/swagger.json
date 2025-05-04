@@ -18,8 +18,8 @@
       "description": "Servidor local"
     },
     {
-      "url": "https://growtwitter-api-er4d.onrender.com",
-      "description": "Servidor Render"
+      "url": "https://growtwitter-api-test.onrender.com",
+      "description": "Servidor de Teste"
     }
   ],
   "tags": [
@@ -417,7 +417,7 @@
       }
     },
     "/users/follow/{id}": {
-      "post": {
+      "patch": {
         "summary": "Seguir ou deixar de seguir um usuário pelo ID",
         "tags": ["Users"],
         "parameters": [
@@ -830,8 +830,8 @@
       }
     },
     "/tweets/like/{id}": {
-      "post": {
-        "summary": "Dá or remove o like em um tweet pelo ID",
+      "patch": {
+        "summary": "Dá ou remove o like em um tweet pelo ID",
         "tags": ["Tweets"],
         "parameters": [
           {
@@ -889,8 +889,8 @@
       }
     },
     "/tweets/retweet/{id}": {
-      "post": {
-        "summary": "Compartilha/remove compartilhamento de um tweet pelo ID",
+      "patch": {
+        "summary": "Compartilha ou remove o compartilhamento de um tweet pelo ID",
         "tags": ["Tweets"],
         "parameters": [
           {
