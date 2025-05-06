@@ -1,10 +1,10 @@
-import supertest from "supertest";
-import { createServer } from "../../../src/express.server";
-import { makeToken } from "../make-token";
-import { TweetType } from "@prisma/client";
 import { CreateTweetDto } from "../../../src/dtos";
 import { TweetService } from "../../../src/services/tweet.service";
+import { TweetType } from "@prisma/client";
+import { createServer } from "../../../src/express.server";
+import { makeToken } from "../make-token";
 import { randomUUID } from "crypto";
+import supertest from "supertest";
 
 const server = createServer();
 const endpoint = "/tweets";

@@ -1,7 +1,7 @@
 import { Follower } from "@prisma/client";
+import { UserMock } from "../mock/user.mock";
 import { UserService } from "../../../src/services/user.service";
 import { prismaMock } from "../../config/prisma.mock";
-import { UserMock } from "../mock/user.mock";
 import { randomUUID } from "crypto";
 
 describe("Follow UserService", () => {
@@ -84,21 +84,18 @@ describe("Follow UserService", () => {
       followerId: "id-seguidor",
     });
 
-    prismaMock.user.findUnique.mockResolvedValueOnce(userMock); //Follower
-    prismaMock.user.findUnique.mockResolvedValueOnce(userMock); //Followed
-    //Não existe Follow deste usuário para o outro
-    prismaMock.follower.findUnique.mockResolvedValueOnce(null);
-    //Cria o Follower
-    prismaMock.follower.create.mockResolvedValueOnce(followMock);
-    // Simula a contagem de seguidores
-    prismaMock.follower.count.mockResolvedValueOnce(1);
+    prismaMock.user.findUnique.mockResolvedValueOnce(userMock); // Follower
+    prismaMock.user.findUnique.mockResolvedValueOnce(userMock); // Followed
+    prismaMock.follower.findUnique.mockResolvedValueOnce(null); // Não existe Follow
+    prismaMock.follower.create.mockResolvedValueOnce(followMock); // Cria o Follow
+
     const result = await sut.follow(body);
 
     expect(result).toEqual({
       ok: true,
       code: 201,
       message: "Successfully followed the user",
-      data: { follow: followMock, followersCount: 1 },
+      data: followMock,
     });
   });
 
@@ -119,15 +116,13 @@ describe("Follow UserService", () => {
     prismaMock.follower.findUnique.mockResolvedValueOnce(followMock);
     //Remove o Follow
     prismaMock.follower.delete.mockResolvedValueOnce(followMock);
-    // Simula a contagem de seguidores
-    prismaMock.follower.count.mockResolvedValueOnce(0);
     const result = await sut.follow(body);
 
     expect(result).toEqual({
       ok: true,
       code: 200,
       message: "Successfully unfollowed the user",
-      data: { follow: followMock, followersCount: 0 },
+      data: followMock,
     });
   });
 });

@@ -1,8 +1,8 @@
-import supertest from "supertest";
-import { createServer } from "../../../src/express.server";
 import { TweetService } from "../../../src/services/tweet.service";
+import { createServer } from "../../../src/express.server";
 import { makeToken } from "../make-token";
 import { randomUUID } from "crypto";
+import supertest from "supertest";
 
 const server = createServer();
 const endpoint = "/tweets/";
@@ -69,7 +69,6 @@ describe("PUT /tweets/{id}", () => {
       .put(`${endpoint}${id}`)
       .set("Authorization", `Bearer ${token}`)
       .send(payload);
-    console.log(response.body);
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({

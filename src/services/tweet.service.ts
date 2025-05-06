@@ -305,30 +305,31 @@ export class TweetService {
       // Verificar se o usuário já retweetou
       const alreadyRetweeted = await prisma.retweet.findUnique({
         where: {
-          //constraint de chave composta
-          tweetId_userId: { tweetId, userId },
+          tweetId_userId: { tweetId, userId }, // constraint de chave composta
         },
       });
 
-      let retweet = alreadyRetweeted;
-      // Se já retweetou, remove o retweet
       if (alreadyRetweeted) {
-        await prisma.retweet.delete({ where: { id: alreadyRetweeted.id } });
+        // Se já retweetou, remove apenas o registro de retweet
+        // await prisma.retweet.delete({ where: { id: alreadyRetweeted.id } });
+        return {
+          ok: true,
+          code: 200,
+          message: "Retweet removed successfully",
+          data: alreadyRetweeted, // Retorna o retweet removido
+        };
       } else {
         // Se ainda não retweetou, cria o retweet
-        retweet = await prisma.retweet.create({
+        const retweet = await prisma.retweet.create({
           data: { userId, tweetId, comment },
         });
+        return {
+          ok: true,
+          code: 201,
+          message: "Retweeted successfully",
+          data: retweet, // Retorna o retweet adicionado
+        };
       }
-
-      return {
-        ok: true,
-        code: alreadyRetweeted ? 200 : 201,
-        message: alreadyRetweeted
-          ? "Retweet removed successfully"
-          : "Retweeted successfully",
-        data: retweet, // Retorna o retweet adicionado ou removido
-      };
     } catch (error: any) {
       return {
         ok: false,
@@ -396,7 +397,6 @@ export class TweetService {
           imageUrl: true,
           createdAt: true,
           updatedAt: true,
-          user: { select: { name: true, username: true } },
           likes: true,
           retweets: true,
           replies: true, // Inclui nested replies

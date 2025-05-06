@@ -1,5 +1,5 @@
-import { TweetDto, UserBaseDto, UserDto } from "../../../src/dtos";
 import { User, Verified } from "@prisma/client";
+import { UserBaseDto, UserDto } from "../../../src/dtos";
 
 import { randomUUID } from "crypto";
 
@@ -13,7 +13,6 @@ interface UserMockParams {
   avatarUrl?: string;
   followers?: UserBaseDto[];
   following?: UserBaseDto[];
-  tweets?: TweetDto[];
   verified?: Verified;
 }
 
@@ -29,18 +28,16 @@ export class UserMock {
       avatarUrl: params?.avatarUrl || "http://image.com/ex.svg",
       createdAt: new Date(),
       updatedAt: new Date(),
-      verified: params?.verified || ("UNVERIFIED" as Verified),
+      verified: params?.verified || ("NONE" as Verified),
     };
 
     const followers = params?.followers || [];
     const following = params?.following || [];
-    const tweets = params?.tweets || [];
 
     return {
       ...user,
       followers,
       following,
-      tweets,
     };
   }
 }

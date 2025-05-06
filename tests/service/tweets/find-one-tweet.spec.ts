@@ -1,6 +1,6 @@
+import { TweetMock } from "../mock/tweet.mock";
 import { TweetService } from "../../../src/services/tweet.service";
 import { prismaMock } from "../../config/prisma.mock";
-import { TweetMock } from "../mock/tweet.mock";
 
 describe("Find One TweetService", () => {
   const createSut = () => new TweetService();
@@ -48,10 +48,6 @@ describe("Find One TweetService", () => {
       userId: expect.any(String),
       content: expect.any(String),
       imageUrl: expect.any(String),
-      user: expect.objectContaining({
-        name: expect.any(String),
-        username: expect.any(String),
-      }),
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
     });

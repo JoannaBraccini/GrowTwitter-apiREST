@@ -5,7 +5,8 @@ export function restrictActionsMiddleware(
   res: Response,
   next: NextFunction
 ): void {
-  if (process.env.NODE_ENV === "test") {
+  const test = process.env.NODE_ENV === "test";
+  if (test) {
     if (req.method !== "GET" && !req.path.includes("/login")) {
       res.status(403).json({
         ok: false,

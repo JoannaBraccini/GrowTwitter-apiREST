@@ -1,4 +1,3 @@
-import { TweetDto } from "./tweet.dto";
 export interface UserDto {
   id: string;
   name: string;
@@ -8,19 +7,16 @@ export interface UserDto {
   avatarUrl?: string | null;
   followers?: UserBaseDto[];
   following?: UserBaseDto[];
-  tweets?: TweetDto[];
 }
 
-export interface UserUpdateDto {
+export type UserUpdateDto = Partial<
+  Pick<UserDto, "name" | "username" | "bio" | "avatarUrl">
+> & {
   id: string;
   userId: string;
-  name?: string;
-  username?: string;
   oldPassword?: string;
   newPassword?: string;
-  bio?: string;
-  avatarUrl?: string;
-}
+};
 
 export type UserBaseDto = Pick<
   UserDto,

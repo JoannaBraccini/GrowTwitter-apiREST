@@ -1,6 +1,6 @@
+import { UserMock } from "../mock/user.mock";
 import { UserService } from "../../../src/services/user.service";
 import { prismaMock } from "../../config/prisma.mock";
-import { UserMock } from "../mock/user.mock";
 
 describe("Find One UsertService", () => {
   const createSut = () => new UserService();
@@ -49,9 +49,11 @@ describe("Find One UsertService", () => {
       username: expect.any(String),
       avatarUrl: expect.any(String),
       bio: expect.any(String),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+      verified: expect.any(String),
       followers: [],
       following: [],
-      tweets: [],
     });
   });
 });

@@ -28,9 +28,7 @@ export class UserService {
           message: "No users found",
         };
       }
-      const userDtos = await Promise.all(
-        users.map((user) => this.mapToDto(user))
-      );
+      const userDtos = await Promise.all(users.map((user) => user));
 
       return {
         ok: true,
@@ -63,11 +61,14 @@ export class UserService {
         };
       }
 
+      // Filtrar propriedades indesejadas
+      const filteredUser = (({ email, password, ...rest }) => rest)(user);
+
       return {
         ok: true,
         code: 200,
         message: "User details retrieved successfully",
-        data: this.mapToFullDto(user), // Mapeia detalhes
+        data: filteredUser,
       };
     } catch (error: any) {
       return {
@@ -216,7 +217,7 @@ export class UserService {
         ok: true,
         code: 200,
         message: "User removed successfully",
-        data: await this.mapToDto(userDeleted),
+        data: userDeleted,
       };
     } catch (error: any) {
       return {
@@ -250,20 +251,21 @@ export class UserService {
         };
       }
 
-      //Verificar se usuário tenta seguir a si mesmo
+      // Verificar se usuário tenta seguir a si mesmo
       if (followerId === followedId) {
         return {
           ok: false,
-          code: 409, //conflict
+          code: 409, // Conflict
           message: "You cannot follow yourself",
         };
       }
+
       // Verificar se usuário já segue
       const alreadyFollows = await prisma.follower.findUnique({
         where: {
           followerId_followedId: {
-            followerId: followerId,
-            followedId: followedId,
+            followerId,
+            followedId,
           },
         },
       });
@@ -312,111 +314,6 @@ export class UserService {
           followed: true, //dados do usuário seguido
         },
       },
-      //lista de tweets deste usuário
-      tweets: {
-        include: {
-          //incluir a contagem de:
-          _count: {
-            select: {
-              //likes, replies e retweets
-              likes: true,
-              replies: true,
-              retweets: true,
-            },
-          },
-        },
-      },
-    };
-  }
-
-  //mapeamento para userDto básico
-  private async mapToDto(user: User): Promise<UserBaseDto> {
-    const [followersCount, followingCount, tweetsCount] = await Promise.all([
-      prisma.follower.count({ where: { followerId: user.id } }),
-      prisma.follower.count({ where: { followedId: user.id } }),
-      prisma.tweet.count({ where: { userId: user.id } }),
-    ]);
-
-    return {
-      id: user.id,
-      name: user.name,
-      username: user.username,
-      ...(user.avatarUrl && { avatarUrl: user.avatarUrl }),
-      ...(user.bio && { bio: user.bio }),
-      ...(followersCount > 0 && { followers: followersCount }), // Inclui contagem de seguidores apenas se maior que 0
-      ...(followingCount > 0 && { following: followingCount }), // Inclui contagem de seguidos apenas se maior que 0
-      ...(tweetsCount > 0 && { tweets: tweetsCount }), // Inclui contagem de tweets apenas se maior que 0
-    };
-  }
-
-  // Mapeamento para UserDto completo
-  private mapToFullDto(
-    user: User & {
-      followers: {
-        follower: {
-          id: string;
-          name: string;
-          username: string;
-          avatarUrl?: string | null;
-        };
-      }[];
-      following: {
-        followed: {
-          id: string;
-          name: string;
-          username: string;
-          avatarUrl?: string | null;
-        };
-      }[];
-      tweets: {
-        id: string;
-        userId: string;
-        tweetType: TweetType;
-        parentId?: string | null;
-        content?: string | null;
-        imageUrl?: string | null;
-        createdAt: Date;
-        updatedAt?: Date;
-        //contagem
-        _count: {
-          likes: number;
-          replies: number;
-          retweets: number;
-        };
-      }[];
-    }
-  ): UserDto {
-    const { id, name, username, followers, following, tweets, bio, avatarUrl } =
-      user; //desestrutura
-    return {
-      id,
-      name,
-      username,
-      bio: bio ?? undefined,
-      avatarUrl: avatarUrl ?? undefined,
-      followers:
-        followers.length > 0
-          ? followers.map(({ follower }) => ({
-              ...follower,
-              avatarUrl: follower.avatarUrl ?? undefined,
-            }))
-          : [],
-      following:
-        following.length > 0
-          ? following.map(({ followed }) => ({
-              ...followed,
-              avatarUrl: followed.avatarUrl ?? undefined,
-            }))
-          : [],
-      tweets:
-        tweets.length > 0
-          ? tweets.map((tweet) => ({
-              ...tweet,
-              parentId: tweet.parentId ?? undefined,
-              content: tweet.content ?? undefined,
-              imageUrl: tweet.imageUrl ?? undefined,
-            }))
-          : [],
     };
   }
 }

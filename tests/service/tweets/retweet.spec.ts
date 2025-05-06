@@ -1,7 +1,7 @@
 import { Retweet } from "@prisma/client";
+import { TweetMock } from "../mock/tweet.mock";
 import { TweetService } from "../../../src/services/tweet.service";
 import { prismaMock } from "../../config/prisma.mock";
-import { TweetMock } from "../mock/tweet.mock";
 
 describe("Retweet TweetService", () => {
   const makeRetweet = (params?: Partial<Retweet>) => ({
@@ -55,8 +55,6 @@ describe("Retweet TweetService", () => {
     prismaMock.retweet.findUnique.mockResolvedValueOnce(null);
     //Cria o retweet
     prismaMock.retweet.create.mockResolvedValueOnce(retweet);
-    // Mock para contar os retweets após a ação
-    prismaMock.retweet.count.mockResolvedValueOnce(1);
     const result = await sut.retweet(body);
 
     expect(result).toEqual({
@@ -64,9 +62,11 @@ describe("Retweet TweetService", () => {
       code: 201,
       message: "Retweeted successfully",
       data: {
-        tweetId: "id-tweet",
-        retweetCount: 1,
-        retweet,
+        id: retweet.id,
+        tweetId: retweet.tweetId,
+        userId: retweet.userId,
+        comment: retweet.comment,
+        createdAt: retweet.createdAt,
       },
     });
   });
@@ -85,8 +85,6 @@ describe("Retweet TweetService", () => {
     prismaMock.retweet.findUnique.mockResolvedValueOnce(retweetMock);
     //Remove o retweet
     prismaMock.retweet.delete.mockResolvedValueOnce(retweetMock);
-    // Mock para contar os retweets após a ação
-    prismaMock.retweet.count.mockResolvedValueOnce(0);
     const result = await sut.retweet(body);
 
     expect(result).toEqual({
@@ -94,9 +92,11 @@ describe("Retweet TweetService", () => {
       code: 200,
       message: "Retweet removed successfully",
       data: {
-        tweetId: "id-tweet",
-        retweetCount: 0,
-        retweet: null,
+        id: retweetMock.id,
+        tweetId: retweetMock.tweetId,
+        userId: retweetMock.userId,
+        comment: retweetMock.comment,
+        createdAt: retweetMock.createdAt,
       },
     });
   });

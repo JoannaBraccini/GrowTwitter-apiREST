@@ -1,6 +1,6 @@
+import { TweetMock } from "../mock/tweet.mock";
 import { TweetService } from "../../../src/services/tweet.service";
 import { prismaMock } from "../../config/prisma.mock";
-import { TweetMock } from "../mock/tweet.mock";
 
 describe("Find Feed TweetService", () => {
   const createSut = () => new TweetService();
@@ -74,10 +74,6 @@ describe("Find Feed TweetService", () => {
         imageUrl: expect.any(String),
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
-        user: expect.any(Object),
-        likesCount: expect.any(Number),
-        retweetsCount: expect.any(Number),
-        repliesCount: expect.any(Number),
         likes: undefined,
         retweets: undefined,
         replies: undefined,

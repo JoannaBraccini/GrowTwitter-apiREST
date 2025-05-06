@@ -3,10 +3,6 @@ import { TweetType } from "@prisma/client";
 export interface TweetDto {
   id: string;
   userId: string;
-  user?: {
-    name: string;
-    username: string;
-  };
   tweetType: TweetType;
   parentId?: string;
   content?: string | null;

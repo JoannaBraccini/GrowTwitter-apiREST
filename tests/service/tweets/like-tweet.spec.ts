@@ -1,7 +1,7 @@
 import { Like } from "@prisma/client";
+import { TweetMock } from "../mock/tweet.mock";
 import { TweetService } from "../../../src/services/tweet.service";
 import { prismaMock } from "../../config/prisma.mock";
-import { TweetMock } from "../mock/tweet.mock";
 
 describe("Like TweetService", () => {
   const makeLike = (params?: Partial<Like>) => ({
@@ -54,8 +54,6 @@ describe("Like TweetService", () => {
     prismaMock.like.findUnique.mockResolvedValueOnce(null);
     //Cria o like
     prismaMock.like.create.mockResolvedValueOnce(like);
-    // Mock da contagem de likes após a ação
-    prismaMock.like.count.mockResolvedValueOnce(1);
 
     const result = await sut.like(body);
 
@@ -64,8 +62,10 @@ describe("Like TweetService", () => {
       code: 201,
       message: "Tweet liked successfully",
       data: {
+        id: "id-like",
+        userId: "id-usuario",
         tweetId: "id-tweet",
-        likeCount: 1,
+        createdAt: expect.any(Date),
       },
     });
   });
@@ -84,8 +84,6 @@ describe("Like TweetService", () => {
     prismaMock.like.findUnique.mockResolvedValueOnce(likeMock);
     //Remove o like
     prismaMock.like.delete.mockResolvedValueOnce(likeMock);
-    // Mock para contar os likes após a ação
-    prismaMock.like.count.mockResolvedValueOnce(0);
     const result = await sut.like(body);
 
     expect(result).toEqual({
@@ -93,8 +91,10 @@ describe("Like TweetService", () => {
       code: 200,
       message: "Like removed successfully",
       data: {
+        id: "id-like",
+        userId: "id-usuario",
         tweetId: "id-tweet",
-        likeCount: 0,
+        createdAt: expect.any(Date),
       },
     });
   });

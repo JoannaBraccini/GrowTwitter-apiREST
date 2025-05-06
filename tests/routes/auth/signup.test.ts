@@ -1,7 +1,7 @@
-import supertest from "supertest";
+import { AuthService } from "../../../src/services/auth.service";
 import { createServer } from "../../../src/express.server";
 import { randomUUID } from "crypto";
-import { AuthService } from "../../../src/services/auth.service";
+import supertest from "supertest";
 
 const server = createServer();
 const endpoint = "/signup";
@@ -17,7 +17,6 @@ describe("POST /signup", () => {
   it("Deve retornar status 400 quando nome não for fornecido", async () => {
     const body = makeSignup({ name: "" });
     const response = await supertest(server).post(endpoint).send(body);
-    console.log(response.body);
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
