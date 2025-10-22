@@ -383,11 +383,11 @@ export class TweetService {
   //FIND RELATED
   private includeTweetRelations() {
     return {
-      user: { select: { name: true, username: true } },
-      likes: { select: { user: { select: { name: true, username: true } } } },
-      retweets: {
-        select: { user: { select: { name: true, username: true } } },
-      },
+      // user: { select: { name: true, username: true } },
+      // likes: { select: { user: { select: { name: true, username: true } } } },
+      // retweets: {
+      //   select: { user: { select: { name: true, username: true } } },
+      // },
       replies: {
         select: {
           id: true,
