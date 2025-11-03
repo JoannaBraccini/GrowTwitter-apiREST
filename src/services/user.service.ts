@@ -90,6 +90,7 @@ export class UserService {
       newPassword,
       bio,
       avatarUrl,
+      coverUrl,
     } = updateUser;
 
     try {
@@ -157,6 +158,7 @@ export class UserService {
       if (username) dataToUpdate.username = username;
       if (bio) dataToUpdate.bio = bio;
       if (avatarUrl) dataToUpdate.avatarUrl = avatarUrl;
+      if (coverUrl) dataToUpdate.coverUrl = coverUrl;
       if (hashedPassword) dataToUpdate.password = hashedPassword;
 
       //salva os dados novos
@@ -176,6 +178,7 @@ export class UserService {
           email: userUpdated.email,
           bio: userUpdated.bio,
           avatarUrl: userUpdated.avatarUrl,
+          coverUrl: userUpdated.coverUrl,
         },
       };
     } catch (error: any) {
