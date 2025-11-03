@@ -63,7 +63,8 @@ export class TweetService {
     take?: number;
     search?: string;
   }): Promise<ResponseApi> {
-    const tweets = await this.getTweetsPaginated({}, query); // Busca todos os tweets sem filtro de usuário logado
+    // Busca todos os tweets (incluindo REPLY para exibir na aba de respostas)
+    const tweets = await this.getTweetsPaginated({}, query);
 
     return tweets;
   }
@@ -85,7 +86,7 @@ export class TweetService {
     // Se o usuário não segue ninguém, garante que ele veja seus próprios tweets
     const idsToSearch =
       followingIds.length > 0 ? [...followingIds, userId] : [userId];
-    // Busca os tweets onde o userId seja do usuário logado ou do usuário seguido
+    // Busca os tweets onde o userId seja do usuário logado ou do usuário seguido (incluindo REPLY)
     return this.getTweetsPaginated({ userId: { in: idsToSearch } }, query);
   }
 
@@ -246,6 +247,15 @@ export class TweetService {
         };
       }
 
+      // Impedir que o usuário curta o próprio tweet
+      if (tweet.userId === userId) {
+        return {
+          ok: false,
+          code: 403,
+          message: "You cannot like your own tweet",
+        };
+      }
+
       // Verificar se o usuário já curtiu
       const alreadyLiked: Like | null = await prisma.like.findUnique({
         where: {
@@ -302,6 +312,15 @@ export class TweetService {
         };
       }
 
+      // Impedir que o usuário retweet o próprio tweet
+      if (tweet.userId === userId) {
+        return {
+          ok: false,
+          code: 403,
+          message: "You cannot retweet your own tweet",
+        };
+      }
+
       // Verificar se o usuário já retweetou
       const alreadyRetweeted = await prisma.retweet.findUnique({
         where: {
@@ -346,7 +365,9 @@ export class TweetService {
     query?: { page?: number; take?: number; search?: string }
   ): Promise<ResponseApi> {
     const skip =
-      query?.page && query?.take ? query.page * query.take : undefined;
+      query?.page !== undefined && query?.take
+        ? query.page * query.take
+        : undefined;
 
     if (query?.search) {
       where.content = { contains: query.search, mode: "insensitive" };
@@ -383,11 +404,9 @@ export class TweetService {
   //FIND RELATED
   private includeTweetRelations() {
     return {
-      // user: { select: { name: true, username: true } },
-      // likes: { select: { user: { select: { name: true, username: true } } } },
-      // retweets: {
-      //   select: { user: { select: { name: true, username: true } } },
-      // },
+      user: { select: { name: true, username: true } },
+      likes: true,
+      retweets: true,
       replies: {
         select: {
           id: true,
