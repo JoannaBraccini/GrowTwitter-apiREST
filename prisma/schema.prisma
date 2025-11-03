@@ -18,6 +18,7 @@ model User {
   password  String
   bio       String?  @db.VarChar(100)
   avatarUrl String?  @map("avatar_url") @db.VarChar(200)
+  coverUrl  String?  @map("cover_url") @db.VarChar(200)
   verified  Verified @default(NONE)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
