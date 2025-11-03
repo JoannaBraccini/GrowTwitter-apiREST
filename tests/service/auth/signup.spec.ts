@@ -75,6 +75,7 @@ describe("Signup AuthService", () => {
       password: "senha_criptografada",
       avatarUrl: null,
       bio: null,
+      coverUrl: null,
       verified: "NONE",
     });
     const result = await sut.signup(body);

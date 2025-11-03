@@ -26,6 +26,7 @@ export class UserMock {
       password: params?.password || "umaSenha",
       bio: params?.bio || "Uma biografia",
       avatarUrl: params?.avatarUrl || "http://image.com/ex.svg",
+      coverUrl: null,
       createdAt: new Date(),
       updatedAt: new Date(),
       verified: params?.verified || ("NONE" as Verified),
