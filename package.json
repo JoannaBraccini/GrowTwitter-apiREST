@@ -11,8 +11,8 @@
     "test:api": "jest -c jest.api.config.ts --verbose --noStackTrace --detectOpenHandles",
     "postinstall": "prisma generate",
     "prebuild": "prisma generate",
-    "build": "tsc",
-    "start": "node dist/server.js",
+    "build": "tsc && ls -la dist",
+    "start": "pwd && ls -la && node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts"
   },
   "prisma": {
