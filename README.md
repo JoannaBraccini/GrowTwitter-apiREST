@@ -3,7 +3,7 @@
 Clonar o repositório
 
 ```bash
-  git clone [https://github.com/JoannaBraccini/GrowTwitter-BackEnd2)
+  git clone [https://github.com/JoannaBraccini/GrowTwitter-BackEnd2]
 ```
 
 Instalar as depêndencias do projeto
@@ -63,5 +63,10 @@ Essa API é projetada para facilitar o gerenciamento de usuários em um aplicati
 
 Criada como parte dos projetos práticos do curso Starter Web Full Stack da Growdev - Brasil, 2024.
 
-#### Documentação completa:
-https://documenter.getpostman.com/view/34248306/2sAY52df2o
+## Deploy
+
+**Backend (API):** https://growtwitter-api-er4d.onrender.com
+
+**Documentação Swagger:** https://growtwitter-api-er4d.onrender.com/docs
+
+**Documentação Postman:** https://documenter.getpostman.com/view/34248306/2sAY52df2o
