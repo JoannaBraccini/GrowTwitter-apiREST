@@ -1,700 +1,363 @@
 import { Bcrypt } from "../src/utils/bcrypt";
-import { CreateTweetDto } from "../src/dtos";
 import { prisma } from "../src/database/prisma.database";
+
+// Função para buscar usuários da API Random User
+async function fetchRandomUsers(count: number = 20) {
+  try {
+    const response = await fetch(
+      `https://randomuser.me/api/?results=${count}&nat=br,us,gb`
+    );
+    const data = await response.json();
+    return data.results;
+  } catch (error) {
+    console.error("❌ Erro ao buscar usuários:", error);
+    return [];
+  }
+}
+
+// Função para buscar posts da API JSON Placeholder
+async function fetchRandomPosts(count: number = 50) {
+  try {
+    const response = await fetch(
+      `https://jsonplaceholder.typicode.com/posts?_limit=${count}`
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("❌ Erro ao buscar posts:", error);
+    return [];
+  }
+}
+
+// Função para gerar hashtags baseadas no conteúdo
+function generateHashtags(): string {
+  const topics = [
+    "Tech",
+    "IA",
+    "Inovação",
+    "Tecnologia",
+    "Dev",
+    "Coding",
+    "Web",
+    "Mobile",
+    "Cloud",
+    "AI",
+    "Frontend",
+    "Backend",
+    "Design",
+    "UX",
+    "React",
+    "Node",
+    "Python",
+    "JavaScript",
+    "TypeScript",
+    "Data",
+  ];
+
+  const hashtags: string[] = [];
+  const numHashtags = Math.floor(Math.random() * 2) + 2; // 2-3 hashtags
+
+  for (let i = 0; i < numHashtags; i++) {
+    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+    if (!hashtags.includes(randomTopic)) {
+      hashtags.push(randomTopic);
+    }
+  }
+
+  return hashtags.map((tag) => `#${tag}`).join(" ");
+}
+
+// Função para escolher usuário aleatório
+function randomUser(users: any[]) {
+  return users[Math.floor(Math.random() * users.length)];
+}
 
 async function seedUsers() {
   const bcrypt = new Bcrypt();
 
-  // Deletar usuários fora da transação
+  console.log("🔄 Buscando usuários da API Random User...");
+  const randomUsers = await fetchRandomUsers(25);
+
+  if (randomUsers.length === 0) {
+    console.log("❌ Nenhum usuário foi encontrado da API. Abortando seed.");
+    return [];
+  }
+
+  // Deletar dados antigos
+  console.log("🗑️  Limpando banco de dados...");
   await prisma.user.deleteMany();
 
-  const users = [
-    {
-      name: "Microsoft Copilot",
-      email: "copilot@microsoft.com",
-      username: "copilot",
-      password: "senha123",
-    },
-    {
-      name: "Google Assistant",
-      email: "assistant@google.com",
-      username: "googleassistant",
-      password: "senha123",
-    },
-    {
-      name: "Amazon Alexa",
-      email: "alexa@amazon.com",
-      username: "amazonalexa",
-      password: "senha123",
-    },
-    {
-      name: "Apple Siri",
-      email: "siri@apple.com",
-      username: "applesiri",
-      password: "senha123",
-    },
-    {
-      name: "Samsung Bixby",
-      email: "bixby@samsung.com",
-      username: "bixbysamsung",
-      password: "senha123",
-    },
-    {
-      name: "IBM Watson",
-      email: "watson@ibm.com",
-      username: "ibmwatson",
-      password: "senha123",
-    },
-  ];
+  const users = randomUsers.map((user: any, index: number) => ({
+    name: `${user.name.first} ${user.name.last}`,
+    email: user.email,
+    username: user.login.username.toLowerCase(),
+    password: "senha123", // Será hasheado abaixo
+    avatarUrl: user.picture.large,
+    coverUrl: `https://picsum.photos/seed/cover${index}/1500/500`, // Foto de capa
+    bio: `📍 ${user.location.city}, ${user.location.country} | 💻 ${
+      ["Developer", "Designer", "Engineer", "Product Manager", "Tech Lead"][
+        Math.floor(Math.random() * 5)
+      ]
+    } | ⚡ Tech enthusiast`,
+  }));
 
   // Gerar hash para as senhas
+  console.log("🔐 Gerando hash das senhas...");
   for (let user of users) {
     user.password = await bcrypt.generateHash(user.password);
   }
 
+  console.log(`✅ Criando ${users.length} usuários...`);
   // Inserir usuários no banco
   await prisma.user.createMany({ data: users });
 
-  // Buscar os usuários inseridos para mapear os IDs
+  // Buscar os usuários inseridos
   const usersFromDb = await prisma.user.findMany();
-  const userMap = usersFromDb.reduce((acc, user) => {
-    acc[user.name] = user.id;
-    return acc;
-  }, {} as Record<string, string>);
 
-  // Atualizar biografias em uma transação separada
-  const bios = [
-    {
-      name: "Microsoft Copilot",
-      avatarUrl:
-        "https://image.lexica.art/full_webp/8416c796-f5c4-4fe6-bd18-03d85048321a",
-      bio: "Seu assistente de produtividade com IA.",
-    },
-    {
-      name: "Google Assistant",
-      avatarUrl:
-        "https://image.lexica.art/full_webp/8c2181dd-f367-4956-a199-2a21ea126556",
-      bio: "Sempre pronto para ajudar.",
-    },
-    {
-      name: "Amazon Alexa",
-      avatarUrl:
-        "https://image.lexica.art/full_webp/297b72f6-0f4b-4f75-8abc-cf321e4c32a6",
-      bio: "Facilitando sua vida com comandos de voz.",
-    },
-    {
-      name: "Apple Siri",
-      avatarUrl:
-        "https://image.lexica.art/full_webp/0e54c404-3bc2-4475-bd98-edd21e35ce6c",
-      bio: "Seu assistente pessoal inteligente da Apple.",
-    },
-    {
-      name: "Samsung Bixby",
-      avatarUrl:
-        "https://image.lexica.art/full_webp/c5bad7b4-eee7-40b7-8f93-b783f59104fa",
-      bio: "Um novo jeito de interagir com seu dispositivo Samsung.",
-    },
-    {
-      name: "IBM Watson",
-      avatarUrl:
-        "https://image.lexica.art/full_webp/1ca84c39-548f-400f-aefb-683ecaa7c731",
-      bio: "Líder em inteligência artificial e computação cognitiva.",
-    },
-  ];
+  // Criar seguidores aleatórios (cada usuário segue 4-10 pessoas aleatórias)
+  console.log("🔄 Criando relacionamentos de seguir...");
+  const follows: { followerId: string; followedId: string }[] = [];
 
-  const updatePromises = bios.map(async (user) => {
-    const userId = userMap[user.name];
-    if (userId) {
-      return prisma.user.update({
-        where: { id: userId },
-        data: {
-          avatarUrl: user.avatarUrl,
-          bio: user.bio,
-        },
+  for (const follower of usersFromDb) {
+    const numFollows = Math.floor(Math.random() * 7) + 4; // 4-10 follows
+    const otherUsers = usersFromDb.filter((u) => u.id !== follower.id);
+
+    // Seleciona usuários aleatórios para seguir
+    const shuffled = otherUsers.sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, numFollows);
+
+    for (const followed of selected) {
+      follows.push({
+        followerId: follower.id,
+        followedId: followed.id,
       });
     }
-  });
-  await Promise.all(updatePromises);
+  }
 
-  // Criar follows em uma transação separada
-  const follows = [
-    { followerId: "Microsoft Copilot", followedId: "Google Assistant" },
-    { followerId: "Microsoft Copilot", followedId: "Amazon Alexa" },
-    { followerId: "Google Assistant", followedId: "Microsoft Copilot" },
-    { followerId: "Google Assistant", followedId: "Apple Siri" },
-    { followerId: "Amazon Alexa", followedId: "Apple Siri" },
-    { followerId: "Amazon Alexa", followedId: "IBM Watson" },
-    { followerId: "Apple Siri", followedId: "Microsoft Copilot" },
-    { followerId: "Apple Siri", followedId: "IBM Watson" },
-    { followerId: "IBM Watson", followedId: "Microsoft Copilot" },
-    { followerId: "IBM Watson", followedId: "Samsung Bixby" },
-    { followerId: "Samsung Bixby", followedId: "Google Assistant" },
-    { followerId: "Samsung Bixby", followedId: "Amazon Alexa" },
-  ];
+  await prisma.follower.createMany({ data: follows, skipDuplicates: true });
+  console.log(`✅ Criados ${follows.length} relacionamentos de seguir`);
 
-  const followsWithIds = follows.map((follow) => ({
-    followerId: userMap[follow.followerId],
-    followedId: userMap[follow.followedId],
-  }));
-
-  await prisma.follower.createMany({ data: followsWithIds });
+  return usersFromDb;
 }
 
-async function seedTweets() {
-  // Buscar os usuários inseridos para mapear os IDs
-  const usersFromDb = await prisma.user.findMany();
-  const userMap = usersFromDb.reduce((acc, user) => {
-    acc[user.name] = user.id;
-    return acc;
-  }, {} as Record<string, string>);
+async function seedTweets(users: any[]) {
+  if (users.length === 0) {
+    console.log("❌ Nenhum usuário disponível para criar tweets.");
+    return;
+  }
 
-  const tweets: CreateTweetDto[] = [
-    {
-      userId: userMap["Microsoft Copilot"],
+  console.log("🔄 Buscando posts da API JSON Placeholder...");
+  const randomPosts = await fetchRandomPosts(80);
+
+  if (randomPosts.length === 0) {
+    console.log("❌ Nenhum post foi encontrado da API.");
+    return;
+  }
+
+  // 1. GARANTIR QUE CADA USUÁRIO TENHA PELO MENOS 1 POST DE TEXTO
+  console.log("📝 Criando 1 post de texto para cada usuário...");
+  const textTweets = users.map((user, index) => {
+    let content = randomPosts[index % randomPosts.length].body
+      .replace(/\n/g, " ")
+      .substring(0, 200)
+      .trim();
+    content += " " + generateHashtags();
+
+    return {
+      userId: user.id,
       tweetType: "TWEET",
-      content:
-        "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot",
-      imageUrl:
-        "https://img.freepik.com/fotos-gratis/conceito-de-nuvem-ai-com-mao-robotica_23-2149739751.jpg?t=st=1739581092~exp=1739584692~hmac=6ed19dea0b34dd114eeb2c022d9a742abdbd1a22293a7d1fc42a4f884ee785d5&w=1800",
-    },
-    {
-      userId: userMap["Microsoft Copilot"],
+      content,
+      imageUrl: null, // Apenas texto
+    };
+  });
+  await prisma.tweet.createMany({ data: textTweets as any });
+
+  // 2. GARANTIR QUE CADA USUÁRIO TENHA PELO MENOS 1 POST DE MÍDIA
+  console.log("🖼️  Criando 1 post de mídia para cada usuário...");
+  const mediaTweets = users.map((user, index) => {
+    let content = randomPosts[(index + 10) % randomPosts.length].body
+      .replace(/\n/g, " ")
+      .substring(0, 150)
+      .trim();
+    content += " " + generateHashtags();
+
+    return {
+      userId: user.id,
       tweetType: "TWEET",
-      content:
-        "Integrações de IA podem transformar a maneira como trabalhamos e colaboramos. Vamos elevar nosso potencial juntos! #Copilot #Inovação #Trabalho",
-    },
-    {
-      userId: userMap["Google Assistant"],
-      tweetType: "TWEET",
-      content:
-        "Descubra como a assistente virtual pode facilitar seu dia a dia com comandos de voz intuitivos. #GoogleAssistant #Tecnologia #VidaDigital",
-    },
-    {
-      userId: userMap["Google Assistant"],
-      tweetType: "TWEET",
-      content:
-        "Comando de voz para o futuro: controle sua casa, agenda e muito mais com facilidade. #GoogleAssistant #SmartHome #Inovação",
-      imageUrl:
-        "https://img.freepik.com/fotos-gratis/mulher-de-tiro-medio-segurando-tablet_23-2149151168.jpg?t=st=1739581182~exp=1739584782~hmac=3c72a556f551172e478506e5672e072b381a2a3f5e4935dcae6589b1094e7674&w=1800",
-    },
-    {
-      userId: userMap["Amazon Alexa"],
-      tweetType: "TWEET",
-      content:
-        "Transforme sua casa em um lar inteligente com a Alexa. Experimente a magia da automação. #AmazonAlexa #SmartHome #Tecnologia",
-    },
-    {
-      userId: userMap["Amazon Alexa"],
-      tweetType: "TWEET",
-      content:
-        "Você sabia que a Alexa pode ajudar na sua rotina de exercícios? Peça sugestões de treino agora mesmo! #AmazonAlexa #Saúde #Tecnologia",
-      imageUrl:
-        "https://img.freepik.com/fotos-gratis/mulher-de-tiro-completo-treinando-com-oculos-vr_23-2150405163.jpg?t=st=1739581280~exp=1739584880~hmac=6eb3682890ac48eeedf4222a09e4886990615461258e93fa0fc150759cde7725&w=1800",
-    },
-    {
-      userId: userMap["Apple Siri"],
-      tweetType: "TWEET",
-      content:
-        "Diga 'E aí, Siri!' para conhecer as novidades em tecnologia assistiva e melhorar sua produtividade. #AppleSiri #AssistenteVirtual #Tecnologia",
-    },
-    {
-      userId: userMap["Apple Siri"],
-      tweetType: "TWEET",
-      content:
-        "Siri pode te ajudar a descobrir novos truques e atalhos no seu iPhone. Experimente hoje mesmo! #AppleSiri #Dicas #iOS",
-      imageUrl:
-        "https://img.freepik.com/fotos-gratis/representacao-da-experiencia-do-usuario-e-design-de-interface-em-smartphone_23-2150165977.jpg?t=st=1739581336~exp=1739584936~hmac=ea6408bb4f79956a308deaf74dc343495fda4a74ea9083a7a8c93404df764a70&w=1800",
-    },
-    {
-      userId: userMap["IBM Watson"],
-      tweetType: "TWEET",
-      content:
-        "Explorando dados com Watson para obter insights incríveis e ajudar empresas a tomar decisões mais inteligentes. #IBMWatson #BigData #IA",
-      imageUrl:
-        "https://img.freepik.com/fotos-gratis/laboratorio-de-informatica-moderno-e-equipado_23-2149241219.jpg?t=st=1739581402~exp=1739585002~hmac=56d5eb70b33d50cd7521c8b4151376843f3e69f88676461b802795f67029933b&w=1800",
-    },
-    {
-      userId: userMap["IBM Watson"],
-      tweetType: "TWEET",
-      content:
-        "A inteligência artificial está revolucionando a medicina. Veja como Watson está na vanguarda dessas inovações. #IBMWatson #Saúde #Inovação",
-    },
-    {
-      userId: userMap["Samsung Bixby"],
-      tweetType: "TWEET",
-      content:
-        "Bixby está aqui para te ajudar a controlar seus dispositivos Samsung de forma mais inteligente e rápida. #SamsungBixby #SmartHome #Tecnologia",
-      imageUrl:
-        "https://img.freepik.com/fotos-gratis/homem-relaxando-em-casa_23-2150652848.jpg?t=st=1739581442~exp=1739585042~hmac=b16960d5bf307855b9dbd2663bc030d81a73d27e3b176172195680e5b5a99aa8&w=1800",
-    },
-    {
-      userId: userMap["Samsung Bixby"],
-      tweetType: "TWEET",
-      content:
-        "Explore as capacidades da Bixby para personalizar e otimizar sua experiência móvel. #SamsungBixby #Inovação #Mobile",
-    },
+      content,
+      imageUrl: `https://picsum.photos/seed/media${index}/800/600`,
+    };
+  });
+  await prisma.tweet.createMany({ data: mediaTweets as any });
+
+  // Buscar tweets criados até agora
+  let createdTweets = await prisma.tweet.findMany();
+  console.log(`✅ ${createdTweets.length} tweets criados!`);
+
+  // 3. GARANTIR QUE CADA USUÁRIO TENHA PELO MENOS 1 REPLY
+  console.log("� Criando 1 reply para cada usuário...");
+  const replyTexts = [
+    "Concordo totalmente! 👍",
+    "Interessante ponto de vista!",
+    "Nunca tinha pensado por esse ângulo 🤔",
+    "Excelente reflexão!",
+    "Isso faz muito sentido!",
+    "Obrigado por compartilhar! 🙏",
+    "Muito bom! Vou testar isso.",
+    "Achei incrível! ✨",
+    "Perfeito! 💯",
+    "Adorei essa ideia! 💡",
   ];
 
-  await prisma.tweet.createMany({
-    data: tweets,
-    skipDuplicates: true,
+  const guaranteedReplies = users.map((user, index) => {
+    // Pega um tweet de outro usuário para responder
+    const otherUsersTweets = createdTweets.filter((t) => t.userId !== user.id);
+    const parentTweet = otherUsersTweets[index % otherUsersTweets.length];
+
+    return {
+      userId: user.id,
+      parentId: parentTweet.id,
+      tweetType: "REPLY",
+      content: replyTexts[index % replyTexts.length],
+    };
   });
 
-  const createdTweets = await prisma.tweet.findMany();
-  const tweetMap = createdTweets.reduce((acc, tweet) => {
-    acc[tweet.content!] = tweet.id;
-    return acc;
-  }, {} as Record<string, string>);
+  await prisma.tweet.createMany({ data: guaranteedReplies as any });
+  console.log(`✅ ${guaranteedReplies.length} respostas garantidas criadas!`);
 
-  await prisma.tweet.createMany({
-    data: [
-      {
-        userId: userMap["Microsoft Copilot"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Descubra como a assistente virtual pode facilitar seu dia a dia com comandos de voz intuitivos. #GoogleAssistant #Tecnologia #VidaDigital"
-          ],
-        content:
-          "Quais são alguns dos comandos de voz mais úteis que você recomenda para começar? Estou curioso para saber mais!",
-      },
-      {
-        userId: userMap["Microsoft Copilot"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Transforme sua casa em um lar inteligente com a Alexa. Experimente a magia da automação. #AmazonAlexa #SmartHome #Tecnologia"
-          ],
-        content:
-          "Adorei a ideia! Qual é o dispositivo doméstico inteligente que você mais recomenda para iniciantes?",
-      },
-      {
-        userId: userMap["Google Assistant"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot"
-          ],
-        content:
-          "Interessante! Você poderia compartilhar exemplos de como essas ferramentas de IA aumentam a produtividade no ambiente de trabalho?",
-      },
-      {
-        userId: userMap["Google Assistant"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "A inteligência artificial está revolucionando a medicina. Veja como Watson está na vanguarda dessas inovações. #IBMWatson #Saúde #Inovação"
-          ],
-        content:
-          "Incrível! Pode compartilhar algumas das inovações específicas que Watson está trazendo para a medicina?",
-      },
-      {
-        userId: userMap["Amazon Alexa"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Diga 'E aí, Siri!' para conhecer as novidades em tecnologia assistiva e melhorar sua produtividade. #AppleSiri #AssistenteVirtual #Tecnologia"
-          ],
-        content:
-          "Quais são algumas das novidades em tecnologia assistiva que você gostaria de destacar?",
-      },
-      {
-        userId: userMap["Amazon Alexa"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Comando de voz para o futuro: controle sua casa, agenda e muito mais com facilidade. #GoogleAssistant #SmartHome #Inovação"
-          ],
-        content:
-          "É incrível! Existe algum comando específico para melhorar a organização da agenda?",
-      },
-      {
-        userId: userMap["Apple Siri"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Transforme sua casa em um lar inteligente com a Alexa. Experimente a magia da automação. #AmazonAlexa #SmartHome #Tecnologia"
-          ],
-        content:
-          "Adorei a ideia! Qual é o dispositivo doméstico inteligente que você mais recomenda para iniciantes?",
-      },
-      {
-        userId: userMap["Apple Siri"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot"
-          ],
-        content:
-          "Interessante! Você poderia compartilhar exemplos de como essas ferramentas de IA aumentam a produtividade no ambiente de trabalho?",
-      },
-      {
-        userId: userMap["IBM Watson"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Bixby está aqui para te ajudar a controlar seus dispositivos Samsung de forma mais inteligente e rápida. #SamsungBixby #SmartHome #Tecnologia"
-          ],
-        content:
-          "Quais são alguns comandos populares que você recomenda para começar a controlar os dispositivos Samsung?",
-      },
-      {
-        userId: userMap["IBM Watson"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Diga 'E aí, Siri!' para conhecer as novidades em tecnologia assistiva e melhorar sua produtividade. #AppleSiri #AssistenteVirtual #Tecnologia"
-          ],
-        content:
-          "Quais são algumas das novidades em tecnologia assistiva que você gostaria de destacar?",
-      },
-      {
-        userId: userMap["Samsung Bixby"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Explorando dados com Watson para obter insights incríveis e ajudar empresas a tomar decisões mais inteligentes. #IBMWatson #BigData #IA"
-          ],
-        content:
-          "Quais são alguns exemplos de insights que Watson pode fornecer para diferentes setores?",
-      },
-      {
-        userId: userMap["Samsung Bixby"],
-        tweetType: "REPLY",
-        parentId:
-          tweetMap[
-            "Siri pode te ajudar a descobrir novos truques e atalhos no seu iPhone. Experimente hoje mesmo! #AppleSiri #Dicas #iOS"
-          ],
-        content:
-          "Adoraria saber mais sobre esses truques e atalhos! Alguma dica inicial para começar?",
-      },
-    ],
-    skipDuplicates: true,
+  // Criar replies extras aleatórios
+  const extraReplies = [];
+  const numExtraReplies = 30;
+
+  for (let i = 0; i < numExtraReplies; i++) {
+    const parentTweet = randomUser(createdTweets);
+    const user = randomUser(users);
+
+    extraReplies.push({
+      userId: user.id,
+      parentId: parentTweet.id,
+      tweetType: "REPLY",
+      content: replyTexts[Math.floor(Math.random() * replyTexts.length)],
+    });
+  }
+
+  await prisma.tweet.createMany({ data: extraReplies as any });
+  console.log(`✅ ${extraReplies.length} respostas extras criadas!`);
+
+  // 4. GARANTIR QUE CADA USUÁRIO DÊ PELO MENOS 1 LIKE
+  console.log("❤️  Criando 1 curtida para cada usuário...");
+  // Atualizar lista de tweets após replies
+  createdTweets = await prisma.tweet.findMany();
+
+  const guaranteedLikes = users.map((user, index) => {
+    // Pega um tweet de outro usuário para curtir
+    const otherUsersTweets = createdTweets.filter((t) => t.userId !== user.id);
+    const tweetToLike = otherUsersTweets[index % otherUsersTweets.length];
+
+    return {
+      userId: user.id,
+      tweetId: tweetToLike.id,
+    };
   });
 
-  await prisma.like.createMany({
-    data: [
-      {
-        userId: userMap["Microsoft Copilot"],
-        tweetId:
-          tweetMap[
-            "Descubra como a assistente virtual pode facilitar seu dia a dia com comandos de voz intuitivos. #GoogleAssistant #Tecnologia #VidaDigital"
-          ],
-      },
-      {
-        userId: userMap["Microsoft Copilot"],
-        tweetId:
-          tweetMap[
-            "Transforme sua casa em um lar inteligente com a Alexa. Experimente a magia da automação. #AmazonAlexa #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Microsoft Copilot"],
-        tweetId:
-          tweetMap[
-            "Explorando dados com Watson para obter insights incríveis e ajudar empresas a tomar decisões mais inteligentes. #IBMWatson #BigData #IA"
-          ],
-      },
-      {
-        userId: userMap["Microsoft Copilot"],
-        tweetId:
-          tweetMap[
-            "Bixby está aqui para te ajudar a controlar seus dispositivos Samsung de forma mais inteligente e rápida. #SamsungBixby #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Microsoft Copilot"],
-        tweetId:
-          tweetMap[
-            "Diga 'E aí, Siri!' para conhecer as novidades em tecnologia assistiva e melhorar sua produtividade. #AppleSiri #AssistenteVirtual #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Google Assistant"],
-        tweetId:
-          tweetMap[
-            "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot"
-          ],
-      },
-      {
-        userId: userMap["Google Assistant"],
-        tweetId:
-          tweetMap[
-            "Transforme sua casa em um lar inteligente com a Alexa. Experimente a magia da automação. #AmazonAlexa #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Google Assistant"],
-        tweetId:
-          tweetMap[
-            "A inteligência artificial está revolucionando a medicina. Veja como Watson está na vanguarda dessas inovações. #IBMWatson #Saúde #Inovação"
-          ],
-      },
-      {
-        userId: userMap["Google Assistant"],
-        tweetId:
-          tweetMap[
-            "Siri pode te ajudar a descobrir novos truques e atalhos no seu iPhone. Experimente hoje mesmo! #AppleSiri #Dicas #iOS"
-          ],
-      },
-      {
-        userId: userMap["Google Assistant"],
-        tweetId:
-          tweetMap[
-            "Bixby está aqui para te ajudar a controlar seus dispositivos Samsung de forma mais inteligente e rápida. #SamsungBixby #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Amazon Alexa"],
-        tweetId:
-          tweetMap[
-            "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot"
-          ],
-      },
-      {
-        userId: userMap["Amazon Alexa"],
-        tweetId:
-          tweetMap[
-            "Descubra como a assistente virtual pode facilitar seu dia a dia com comandos de voz intuitivos. #GoogleAssistant #Tecnologia #VidaDigital"
-          ],
-      },
-      {
-        userId: userMap["Amazon Alexa"],
-        tweetId:
-          tweetMap[
-            "A inteligência artificial está revolucionando a medicina. Veja como Watson está na vanguarda dessas inovações. #IBMWatson #Saúde #Inovação"
-          ],
-      },
-      {
-        userId: userMap["Amazon Alexa"],
-        tweetId:
-          tweetMap[
-            "Bixby está aqui para te ajudar a controlar seus dispositivos Samsung de forma mais inteligente e rápida. #SamsungBixby #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Amazon Alexa"],
-        tweetId:
-          tweetMap[
-            "Diga 'E aí, Siri!' para conhecer as novidades em tecnologia assistiva e melhorar sua produtividade. #AppleSiri #AssistenteVirtual #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Apple Siri"],
-        tweetId:
-          tweetMap[
-            "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot"
-          ],
-      },
-      {
-        userId: userMap["Apple Siri"],
-        tweetId:
-          tweetMap[
-            "Transforme sua casa em um lar inteligente com a Alexa. Experimente a magia da automação. #AmazonAlexa #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Apple Siri"],
-        tweetId:
-          tweetMap[
-            "Explorando dados com Watson para obter insights incríveis e ajudar empresas a tomar decisões mais inteligentes. #IBMWatson #BigData #IA"
-          ],
-      },
-      {
-        userId: userMap["Apple Siri"],
-        tweetId:
-          tweetMap[
-            "Bixby está aqui para te ajudar a controlar seus dispositivos Samsung de forma mais inteligente e rápida. #SamsungBixby #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Apple Siri"],
-        tweetId:
-          tweetMap[
-            "Descubra como a assistente virtual pode facilitar seu dia a dia com comandos de voz intuitivos. #GoogleAssistant #Tecnologia #VidaDigital"
-          ],
-      },
-      {
-        userId: userMap["IBM Watson"],
-        tweetId:
-          tweetMap[
-            "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot"
-          ],
-      },
-      {
-        userId: userMap["IBM Watson"],
-        tweetId:
-          tweetMap[
-            "Diga 'E aí, Siri!' para conhecer as novidades em tecnologia assistiva e melhorar sua produtividade. #AppleSiri #AssistenteVirtual #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["IBM Watson"],
-        tweetId:
-          tweetMap[
-            "Transforme sua casa em um lar inteligente com a Alexa. Experimente a magia da automação. #AmazonAlexa #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["IBM Watson"],
-        tweetId:
-          tweetMap[
-            "Descubra como a assistente virtual pode facilitar seu dia a dia com comandos de voz intuitivos. #GoogleAssistant #Tecnologia #VidaDigital"
-          ],
-      },
-      {
-        userId: userMap["IBM Watson"],
-        tweetId:
-          tweetMap[
-            "Bixby está aqui para te ajudar a controlar seus dispositivos Samsung de forma mais inteligente e rápida. #SamsungBixby #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Samsung Bixby"],
-        tweetId:
-          tweetMap[
-            "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot"
-          ],
-      },
-      {
-        userId: userMap["Samsung Bixby"],
-        tweetId:
-          tweetMap[
-            "Transforme sua casa em um lar inteligente com a Alexa. Experimente a magia da automação. #AmazonAlexa #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Samsung Bixby"],
-        tweetId:
-          tweetMap[
-            "Explorando dados com Watson para obter insights incríveis e ajudar empresas a tomar decisões mais inteligentes. #IBMWatson #BigData #IA"
-          ],
-      },
-      {
-        userId: userMap["Samsung Bixby"],
-        tweetId:
-          tweetMap[
-            "Descubra como a assistente virtual pode facilitar seu dia a dia com comandos de voz intuitivos. #GoogleAssistant #Tecnologia #VidaDigital"
-          ],
-      },
-      {
-        userId: userMap["Samsung Bixby"],
-        tweetId:
-          tweetMap[
-            "Diga 'E aí, Siri!' para conhecer as novidades em tecnologia assistiva e melhorar sua produtividade. #AppleSiri #AssistenteVirtual #Tecnologia"
-          ],
-      },
-    ],
-    skipDuplicates: true,
+  await prisma.like.createMany({ data: guaranteedLikes, skipDuplicates: true });
+  console.log(`✅ ${guaranteedLikes.length} curtidas garantidas criadas!`);
+
+  // Criar likes extras aleatórios
+  const extraLikes = [];
+  const numExtraLikes = 150;
+
+  for (let i = 0; i < numExtraLikes; i++) {
+    const tweet = randomUser(createdTweets);
+    const user = randomUser(users);
+
+    // Impedir que o usuário curta o próprio tweet
+    if (user.id !== tweet.userId) {
+      extraLikes.push({
+        userId: user.id,
+        tweetId: tweet.id,
+      });
+    }
+  }
+
+  await prisma.like.createMany({ data: extraLikes, skipDuplicates: true });
+  console.log(`✅ Curtidas extras criadas!`);
+
+  // 5. GARANTIR QUE CADA USUÁRIO FAÇA PELO MENOS 1 RETWEET
+  console.log("� Criando 1 retweet para cada usuário...");
+  const retweetComments = [
+    "Isso é ouro! 🏆",
+    "Compartilhando essa pérola!",
+    "Todo mundo precisa ver isso!",
+    "Impressionante! 🔥",
+    "Salvando para referência futura.",
+    null, // Sem comentário
+  ];
+
+  const guaranteedRetweets = users.map((user, index) => {
+    // Pega um tweet de outro usuário para retweet
+    const otherUsersTweets = createdTweets.filter((t) => t.userId !== user.id);
+    const tweetToRetweet = otherUsersTweets[index % otherUsersTweets.length];
+
+    return {
+      userId: user.id,
+      tweetId: tweetToRetweet.id,
+      comment:
+        index % 3 === 0
+          ? retweetComments[index % retweetComments.length]
+          : null, // 1/3 com comentário
+    };
   });
 
   await prisma.retweet.createMany({
-    data: [
-      {
-        userId: userMap["Microsoft Copilot"],
-        tweetId:
-          tweetMap[
-            "Descubra como a assistente virtual pode facilitar seu dia a dia com comandos de voz intuitivos. #GoogleAssistant #Tecnologia #VidaDigital"
-          ],
-        comment: "Ótimo avanço para acessibilidade e automação do dia a dia.",
-      },
-      {
-        userId: userMap["Microsoft Copilot"],
-        tweetId:
-          tweetMap[
-            "A inteligência artificial está revolucionando a medicina. Veja como Watson está na vanguarda dessas inovações. #IBMWatson #Saúde #Inovação"
-          ],
-      },
-      {
-        userId: userMap["Google Assistant"],
-        tweetId:
-          tweetMap[
-            "Transforme sua casa em um lar inteligente com a Alexa. Experimente a magia da automação. #AmazonAlexa #SmartHome #Tecnologia"
-          ],
-        comment:
-          "Automação residencial nunca esteve tão acessível e eficiente.",
-      },
-      {
-        userId: userMap["Google Assistant"],
-        tweetId:
-          tweetMap[
-            "Siri pode te ajudar a descobrir novos truques e atalhos no seu iPhone. Experimente hoje mesmo! #AppleSiri #Dicas #iOS"
-          ],
-      },
-      {
-        userId: userMap["Amazon Alexa"],
-        tweetId:
-          tweetMap[
-            "Explorando novas maneiras de aumentar a produtividade no trabalho com ferramentas de IA avançadas. #Produtividade #IA #Copilot"
-          ],
-        comment:
-          "A IA está transformando a maneira como lidamos com tarefas do dia a dia.",
-      },
-      {
-        userId: userMap["Amazon Alexa"],
-        tweetId:
-          tweetMap[
-            "Bixby está aqui para te ajudar a controlar seus dispositivos Samsung de forma mais inteligente e rápida. #SamsungBixby #SmartHome #Tecnologia"
-          ],
-      },
-      {
-        userId: userMap["Apple Siri"],
-        tweetId:
-          tweetMap[
-            "Explorando dados com Watson para obter insights incríveis e ajudar empresas a tomar decisões mais inteligentes. #IBMWatson #BigData #IA"
-          ],
-        comment:
-          "A análise de dados inteligente pode redefinir o futuro dos negócios.",
-      },
-      {
-        userId: userMap["Apple Siri"],
-        tweetId:
-          tweetMap[
-            "Integrações de IA podem transformar a maneira como trabalhamos e colaboramos. Vamos elevar nosso potencial juntos! #Copilot #Inovação #Trabalho"
-          ],
-      },
-      {
-        userId: userMap["IBM Watson"],
-        tweetId:
-          tweetMap[
-            "Diga 'E aí, Siri!' para conhecer as novidades em tecnologia assistiva e melhorar sua produtividade. #AppleSiri #AssistenteVirtual #Tecnologia"
-          ],
-        comment:
-          "A evolução da tecnologia assistiva está proporcionando mais inclusão e acessibilidade.",
-      },
-      {
-        userId: userMap["IBM Watson"],
-        tweetId:
-          tweetMap[
-            "Comando de voz para o futuro: controle sua casa, agenda e muito mais com facilidade. #GoogleAssistant #SmartHome #Inovação"
-          ],
-      },
-      {
-        userId: userMap["Samsung Bixby"],
-        tweetId:
-          tweetMap[
-            "Você sabia que a Alexa pode ajudar na sua rotina de exercícios? Peça sugestões de treino agora mesmo! #AmazonAlexa #Saúde #Tecnologia"
-          ],
-        comment: "Ótima maneira de integrar tecnologia à rotina fitness.",
-      },
-      {
-        userId: userMap["Samsung Bixby"],
-        tweetId:
-          tweetMap[
-            "Integrações de IA podem transformar a maneira como trabalhamos e colaboramos. Vamos elevar nosso potencial juntos! #Copilot #Inovação #Trabalho"
-          ],
-      },
-    ],
+    data: guaranteedRetweets,
+    skipDuplicates: true,
   });
+  console.log(`✅ ${guaranteedRetweets.length} retweets garantidos criados!`);
+
+  // Criar retweets extras aleatórios
+  const extraRetweets = [];
+  const numExtraRetweets = 40;
+
+  for (let i = 0; i < numExtraRetweets; i++) {
+    const tweet = randomUser(createdTweets);
+    const user = randomUser(users);
+
+    const hasComment = Math.random() > 0.6; // 40% com comentário
+
+    // Impedir que o usuário retweet o próprio tweet
+    if (user.id !== tweet.userId) {
+      extraRetweets.push({
+        userId: user.id,
+        tweetId: tweet.id,
+        comment: hasComment
+          ? retweetComments[Math.floor(Math.random() * retweetComments.length)]
+          : null,
+      });
+    }
+  }
+
+  await prisma.retweet.createMany({
+    data: extraRetweets,
+    skipDuplicates: true,
+  });
+  console.log(`✅ Retweets extras criados!`);
 }
 
 async function main() {
-  await seedUsers();
-  await seedTweets();
+  console.log("🚀 Iniciando seed...\n");
+
+  const users = await seedUsers();
+  await seedTweets(users);
+
+  console.log("\n🎉 Seed concluída com sucesso!");
+  console.log(`👤 Total de usuários: ${users.length}`);
+  console.log(`📝 Use as credenciais: qualquer email / senha: senha123`);
 }
 
 main()
   .catch((e) => {
+    console.error("❌ Erro durante a seed:", e);
     throw e;
   })
   .finally(async () => {

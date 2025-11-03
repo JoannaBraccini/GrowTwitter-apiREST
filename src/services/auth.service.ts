@@ -10,6 +10,24 @@ export class AuthService {
     const { name, email, password, username } = createUser;
 
     try {
+      // Validar formato do username (apenas letras e números)
+      const usernameRegex = /^[a-zA-Z0-9]+$/;
+      if (!usernameRegex.test(username)) {
+        return {
+          ok: false,
+          code: 400,
+          message: "Username must contain only letters and numbers",
+        };
+      }
+
+      if (username.length < 3) {
+        return {
+          ok: false,
+          code: 400,
+          message: "Username must be at least 3 characters long",
+        };
+      }
+
       const user = await prisma.user.findFirst({
         where: { OR: [{ email }, { username }] }, //verificar se usuário já existe com email/username cadastrado
       });
